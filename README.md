@@ -1,3 +1,5 @@
+foo
+
 # Hack.bg Toolbox [![NPM version](https://img.shields.io/npm/v/@hackbg/toolbox?color=9013fe&label=)](https://www.npmjs.com/package/@hackbg/toolbox)
 
 The big box of everything that came in handy during the
