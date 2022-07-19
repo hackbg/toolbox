@@ -26,6 +26,12 @@ async function runSpec (suites, selected = process.argv.slice(2)) {
   /** Iterate over each test suite */
   for (const [suite, spec] of Object.entries(suites||{})) {
 
+    if (!spec || Object.keys(spec).length === 0) {
+      /** Prepare the output of this test suite. */
+      console.log(`\n${suite}\n`)
+      continue
+    }
+
     /** If there are specific test suites selected and this is not one of them, skip it. */
     if (selected.length > 0 && !selected.includes(suite)) {
       continue
