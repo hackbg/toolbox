@@ -3,6 +3,13 @@ import { Console, bold, colors, timestamp } from '@hackbg/konzola'
 
 const console = Console('Komandi')
 
+export class EnvironmentConfig {
+  constructor (
+    data: Record<string, string> = {},
+    public readonly env: Environment = new Environment(data)
+  ) {}
+}
+
 /** Wrapper around process.env with null handling. */
 export class Environment {
   constructor (public readonly env: Record<string, string>) {}
