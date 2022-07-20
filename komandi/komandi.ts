@@ -3,31 +3,26 @@ import { Console, bold, colors, timestamp } from '@hackbg/konzola'
 
 const console = Console('Komandi')
 
-export class EnvironmentConfig {
-  constructor (
-    data: Record<string, string> = {},
-    public readonly env: Environment = new Environment(data)
-  ) {}
-}
-
-/** Wrapper around process.env with null handling. */
-export class Environment {
-  constructor (public readonly env: Record<string, string>) {}
-  allowedVars?: Set<string> = new Set()
-  getStr (name: string, fallback: ()=>string|null): string|null {
-    this.allowedVars.add(name)
-    if (this.env.hasOwnProperty(name)) {
-      return String(process.env[name] as string)
-    } else {
-      return fallback()
-    }
-  }
-  getBool (name: string, fallback: ()=>boolean|null): boolean|null {
-    this.allowedVars.add(name)
-    if (this.env.hasOwnProperty(name)) {
-      return Boolean(process.env[name] as string)
-    } else {
-      return fallback()
+export function getFromEnv (env: Record<string, string> = {}): {
+  /** Get a string value from the environment. */
+  Str  (name: string, fallback: ()=>string|null)
+  /** Get a boolean value from the environment. */
+  Bool (name: string, fallback: ()=>boolean|null)
+} {
+  return {
+    Str (name, fallback = () => null): string|null {
+      if (env.hasOwnProperty(name)) {
+        return String(process.env[name] as string)
+      } else {
+        return fallback()
+      }
+    },
+    Bool (name, fallback = () => null): boolean|null {
+      if (env.hasOwnProperty(name)) {
+        return Boolean(process.env[name] as string)
+      } else {
+        return fallback()
+      }
     }
   }
 }
