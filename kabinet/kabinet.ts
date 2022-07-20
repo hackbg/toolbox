@@ -189,10 +189,10 @@ export class JSONFile<T> extends BaseFile<T> {
 
 export class YAMLFile<T> extends BaseFile<T> {
   static extension = '.yaml'
-  load () { return YAML.parse(readFileSync(this.path, 'utf8')) as T }
+  load () { return YAML.load(readFileSync(this.path, 'utf8')) as T }
   save (data) {
     this.makeParent()
-    writeFileSync(this.path, YAML.dump(data, null, 2), 'utf8')
+    writeFileSync(this.path, YAML.dump(data), 'utf8')
     return this
   }
 }
