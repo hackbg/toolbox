@@ -47,6 +47,9 @@ export interface CommandContext {
 
 export type Step<C extends CommandContext, U> = (context: C, ...args: unknown[]) => U|Promise<U>
 
+/** Error message or recovery function. */
+export type StepOrInfo<C extends CommandContext, T> = string|((context: Partial<C>)=>T)
+
 export class Commands<C extends CommandContext> {
   constructor (
     public readonly name,
