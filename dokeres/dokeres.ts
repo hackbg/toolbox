@@ -183,13 +183,14 @@ export class DokeresImage {
 }
 
 export interface DokeresContainerOpts {
-  env?:      Record<string, string>
-  exposed?:  string[]
-  mapped?:   Record<string, string>
-  readonly?: Record<string, string>
-  writable?: Record<string, string>
-  extra?:    Record<string, unknown>
-  remove?:   boolean
+  cwd:      string
+  env:      Record<string, string>
+  exposed:  string[]
+  mapped:   Record<string, string>
+  readonly: Record<string, string>
+  writable: Record<string, string>
+  extra:    Record<string, unknown>
+  remove:   boolean
 }
 
 export type DokeresCommand = string|string[]
@@ -200,7 +201,7 @@ export class DokeresContainer {
   static async create (
     image:         DokeresImage,
     name?:         string,
-    options?:      DokeresContainerOpts,
+    options?:      Partial<DokeresContainerOpts>,
     command?:      DokeresCommand,
     entrypoint?:   DokeresCommand,
   ) {
@@ -213,7 +214,7 @@ export class DokeresContainer {
   static async run (
     image:         DokeresImage,
     name?:         string,
-    options?:      DokeresContainerOpts,
+    options?:      Partial<DokeresContainerOpts>,
     command?:      DokeresCommand,
     entrypoint?:   DokeresCommand,
     outputStream?: Writable
@@ -231,7 +232,7 @@ export class DokeresContainer {
   constructor (
     readonly image:      DokeresImage,
     readonly name:       string,
-    readonly options:    DokeresContainerOpts,
+    readonly options:    Partial<DokeresContainerOpts>,
     readonly command:    DokeresCommand,
     readonly entrypoint: DokeresCommand
   ) {}
@@ -250,7 +251,8 @@ export class DokeresContainer {
       mapped   = {},
       readonly = {},
       writable = {},
-      extra    = {}
+      extra    = {},
+      cwd
     } = this.options
     const config = {
       Image:        this.image.name,
@@ -258,6 +260,7 @@ export class DokeresContainer {
       Entrypoint:   this.entrypoint,
       Cmd:          this.command,
       Env:          Object.entries(env).map(([key, val])=>`${key}=${val}`),
+      WorkingDir:   cwd,
       ExposedPorts: {},
       HostConfig:   { Binds: [], PortBindings: {}, AutoRemove: remove }
     }
