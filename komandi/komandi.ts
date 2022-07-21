@@ -19,7 +19,11 @@ export function getFromEnv (env: Record<string, string> = {}): {
     },
     Bool (name, fallback = () => null): boolean|null {
       if (env.hasOwnProperty(name)) {
-        return Boolean(process.env[name] as string)
+        let value = process.env[name] as string
+        if (value === '' || value === 'false' || value === 'no' || Number(value) === 0) {
+          return false
+        }
+        return Boolean(value)
       } else {
         return fallback()
       }
