@@ -130,7 +130,7 @@ export class DokeresImage {
   /** Throws if inspected image does not exist in Docker Hub. */
   async pull () {
     const { name, dockerode } = this
-    await new Promise((ok, fail)=>{
+    await new Promise<void>((ok, fail)=>{
       dockerode.pull(name, async (err, stream) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -143,6 +143,7 @@ export class DokeresImage {
             ['id', 'status', 'progress'].map(x=>event[x]).join('│')
           )
         })
+        ok()
       })
     })
   }
