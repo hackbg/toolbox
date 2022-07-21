@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/kabinet",
-  "version":      "3.0.5",
+  "version":      "3.0.6",
   "main":         "kabinet.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",
@@ -8,7 +8,7 @@
   "repository":   {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "kabinet"},
   "license":      "MIT",
   "description":  "File utilities.",
-  "files":        [ "README.md", "kabinet.ts", "dist", "types" ],
+  "files":        [ "README.md", "kabinet.ts" ],
   "dependencies": {
     "@hackbg/konzola": "workspace:^1",
     "js-yaml":         "^4.1.0",
