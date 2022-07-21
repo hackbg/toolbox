@@ -178,6 +178,10 @@ export async function runOperation <Context extends CommandContext> (
 
   // Execute each step, updating the context
   for (const step of cmdSteps) {
+
+    // Skip empty steps
+    if (!(step instanceof Function)) continue
+
     // Pad the name
     const name = (step.name||'').padEnd(longestName)
 
