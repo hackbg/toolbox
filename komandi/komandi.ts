@@ -49,7 +49,7 @@ export interface CommandContext {
   timestamp:    string
 }
 
-export type Step<C extends CommandContext, U> = (context: C, ...args: unknown[]) => U|Promise<U>
+export type Step<C extends CommandContext, U> = (context: C, ...args: any[]) => U|Promise<U>
 
 /** Error message or recovery function. */
 export type StepOrInfo<C extends CommandContext, T> = string|((context: Partial<C>)=>T)
@@ -207,6 +207,7 @@ export async function runOperation <Context extends CommandContext> (
 
       // End of step
       const T2 = + new Date()
+
       stepTimings.push([name, T2-T1, false])
     } catch (e) {
       // If the step threw an error, store the timing and stop executing new steps
