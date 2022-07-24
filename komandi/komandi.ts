@@ -31,6 +31,19 @@ export function getFromEnv (env: Record<string, string> = {}): {
   }
 }
 
+export class Lazy<X> extends Promise<X> {
+  protected readonly resolver: ()=>X|PromiseLike<X>
+  private resolved: PromiseLike<X>
+  constructor (resolver?: ()=>X|PromiseLike<X>) {
+    super(()=>{})
+    this.resolver ??= resolver
+  }
+  then <Y> (resolved, rejected): Promise<Y> {
+    this.resolved ??= Promise.resolve(this.resolver())
+    return this.resolved.then(resolved, rejected) as Promise<Y>
+  }
+}
+
 export interface Command<C extends CommandContext> {
   info:  string,
   steps: Step<C, unknown>[]
