@@ -95,7 +95,7 @@ export class DokeresImage {
       //console.info(bold('Already ensuring image from parallel build:'), this.name)
       return await this._available
     } else {
-      console.info(bold('Ensuring image:'), this.name)
+      console.info('Ensuring image is present:', bold(this.name))
       return await (this._available = new Promise(async(resolve, reject)=>{
         const {name, dockerfile} = this
         const PULLING  = `Image ${name} not found, pulling...`
