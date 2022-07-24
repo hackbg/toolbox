@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "4.1.2",
+  "version":     "4.2.0",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -11,7 +11,8 @@
   "files":        [ "README.md", "komandi.ts" ],
   "dependencies": {
     "@hackbg/konzola": "workspace:^1.1",
-    "@hackbg/kabinet": "workspace:^3"
+    "@hackbg/kabinet": "workspace:^3",
+    "dotenv":          "^15.0.1"
   },
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
