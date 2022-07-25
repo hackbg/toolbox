@@ -229,9 +229,6 @@ export async function runOperation <Context extends CommandContext> (
       // On every step, the context is recreated from the old context and the updates.
       context = { ...context, ...updates }
 
-      // Make sure `this` in every function of the context points to the up-to-date context.
-      rebind(context)
-
       // End of step
       const T2 = + new Date()
 
