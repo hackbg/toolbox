@@ -45,6 +45,7 @@ export function getFromEnv (env: Record<string, string> = {}): EnvConf {
   }
 }
 
+/** A promise that evaluates once. */
 export class Lazy<X> extends Promise<X> {
   protected readonly resolver: ()=>X|PromiseLike<X>
   private resolved: PromiseLike<X>
@@ -52,6 +53,7 @@ export class Lazy<X> extends Promise<X> {
     super(()=>{})
     this.resolver ??= resolver
   }
+  /** Lazy#then: only evaluated the first time it is awaited */
   then <Y> (resolved, rejected): Promise<Y> {
     this.resolved ??= Promise.resolve(this.resolver())
     return this.resolved.then(resolved, rejected) as Promise<Y>
@@ -125,25 +127,30 @@ export class Commands<C extends CommandContext> {
   }
   /** `export default myCommands.main(import.meta.url)`
     * once per module after defining all commands */
-  entrypoint (url: string, args = process.argv.slice(2)): this {
+  entrypoint (url: string|boolean, args = process.argv.slice(2)): this {
     const self = this
     setTimeout(()=>{
-      if (process.argv[1] === $(url).path) {
-        const command = this.parse(args)
-        if (command) {
-          const [cmdName, { info, steps }, cmdArgs] = command
-          console.info('$ fadroma', bold($(process.argv[1]).shortPath), bold(cmdName), ...cmdArgs)
-          return self.run(args)
-        } else {
-          print(console).usage(this)
-          process.exit(1)
-        }
-      }
+      if (process.argv[1] === $(url).path) self.launch(args)
     }, 0)
     return self
   }
+
+  launch (args = process.argv.slice(2)) {
+    const command = this.parse(args)
+    if (command) {
+      const [cmdName, { info, steps }, cmdArgs] = command
+      console.info('$ fadroma', bold($(process.argv[1]).shortPath), bold(cmdName), ...cmdArgs)
+      return this.run(args)
+    } else {
+      print(console).usage(this)
+      process.exit(1)
+    }
+  }
+
   /** Parse and execute a command */
-  async run <Context extends CommandContext> (args = process.argv.slice(2)): Promise<Context> {
+  async run <Context extends CommandContext> (
+    args = process.argv.slice(2)
+  ): Promise<Context> {
     if (args.length === 0) {
       print(console).usage(this)
       process.exit(1)
