@@ -31,7 +31,8 @@ module.exports = module.exports.default = izomorf
 async function izomorf (cwd, command, ...publishArgs) {
 
   switch (command) {
-    case 'dry':   return await release()
+    case 'dry':   return await release(false)
+    case 'fix':   return await release(false, true)
     case 'wet':   return await release(true)
     case 'clean': return await clean()
     default:      return usage()
@@ -41,7 +42,13 @@ async function izomorf (cwd, command, ...publishArgs) {
     await concurrently([dtsOut, esmOut, cjsOut].map(out=>`rm -rf ${out}`))
   }
 
-  async function release (wet) {
+  async function release (
+    /** Whether to actually publish to NPM, or just go through the movements ("dry run")  */
+    wet  = false,
+    /** Whether to keep the modified package.json - for further inspection, or for        */
+    /** reuse in environments where on-demand compilation of TypeScript is not supported. */
+    keep = false
+  ) {
     // Read package.json
     const original    = readFileSync($('package.json'), 'utf8')
     const packageJson = JSON.parse(original)
@@ -109,9 +116,28 @@ async function izomorf (cwd, command, ...publishArgs) {
         console.log('\nDry run successful:', tag)
       }
     } finally {
-      console.log('\nRestoring original package.json')
-      // Restore original contents of package.json
-      writeFileSync($('package.json'), original, 'utf8')
+      if (keep) {
+        console.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        console.info("!!! Keeping the publish-ready package.json.              !!!")
+        console.info("!!! On-demand compilation of TS will not work with it!   !!!")
+        console.info("!!!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!!!")
+        console.info('!!! ("main" and "exports" in package.json now point to   !!!')
+        console.info('!!!  the compiled code instead of the original source)   !!!')
+        console.info("!!!                                                      !!!")
+        console.info('!!! You might want to not commit this modification, and  !!!')
+        console.info('!!! restore the original package.json before commit.     !!!')
+        console.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+      } else {
+        console.info("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+        console.info("||| Restoring the original package.json.                 |||")
+        console.info("|||~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|||")
+        console.info("||| Any build artifacts will remain in place!            |||")
+        console.info("||| Make sure that they are .gitignored, otherwise your  |||")
+        console.info("||| repo will get crufty.                                |||")
+        console.info("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+        // Restore original contents of package.json
+        writeFileSync($('package.json'), original, 'utf8')
+      }
     }
     return packageJson
   }
