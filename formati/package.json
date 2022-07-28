@@ -24,6 +24,9 @@
     "bech32": "^2.0.0",
     "secure-random": "^1.1.2"
   },
+  "devDependencies": {
+    "@types/secure-random": "^1.1.0"
+  },
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
     "release:wet": "npm run ts:check && npm run ts:clean && izomorf wet --access=public",
