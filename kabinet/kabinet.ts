@@ -16,7 +16,7 @@ import YAML from 'js-yaml'
 import { Console } from '@hackbg/konzola'
 const console = Console('@hackbg/kabinet')
 
-export default function $ (base, ...fragments) {
+export default function $ (base: string, ...fragments: string[]) {
   return new Path(base, ...fragments)
 }
 
@@ -84,7 +84,7 @@ export class Path {
   }
 
   /** FIXME */
-  resolve (name): string {
+  resolve (name: string): string {
     if (name.includes('/')) throw new Error(`invalid name: ${name}`)
     return resolve(this.path, basename(name))
   }
@@ -94,7 +94,7 @@ export class Path {
   }
 
   assert (): this {
-    if (this.exists) {
+    if (this.exists()) {
       return this
     } else {
       throw new Error(`${this.path} does not exist`)
@@ -152,7 +152,7 @@ export class OpaqueFile extends BaseFile<never> {
   load (): never {
     throw new Error("OpaqueFile: not meant to be loaded")
   }
-  save (data): never {
+  save (data: never): never {
     throw new Error("OpaqueFile: not meant to be saved")
   }
 }
@@ -160,7 +160,7 @@ export class OpaqueFile extends BaseFile<never> {
 export class BinaryFile extends BaseFile<Buffer> {
   static extension = ''
   load () { return readFileSync(this.path) }
-  save (data): this {
+  save (data: Uint8Array): this {
     this.makeParent()
     writeFileSync(this.path, data)
     return this
@@ -170,7 +170,7 @@ export class BinaryFile extends BaseFile<Buffer> {
 export class TextFile extends BaseFile<string> {
   static extension = ''
   load () { return readFileSync(this.path, 'utf8') }
-  save (data) {
+  save (data: string) {
     this.makeParent()
     writeFileSync(this.path, data, 'utf8')
     return this
@@ -180,7 +180,7 @@ export class TextFile extends BaseFile<string> {
 export class JSONFile<T> extends BaseFile<T> {
   static extension = '.json'
   load () { return JSON.parse(readFileSync(this.path, 'utf8')) as T }
-  save (data) {
+  save (data: unknown) {
     this.makeParent()
     writeFileSync(this.path, JSON.stringify(data, null, 2), 'utf8')
     return this
@@ -190,7 +190,7 @@ export class JSONFile<T> extends BaseFile<T> {
 export class YAMLFile<T> extends BaseFile<T> {
   static extension = '.yaml'
   load () { return YAML.load(readFileSync(this.path, 'utf8')) as T }
-  save (data) {
+  save (data: unknown) {
     this.makeParent()
     writeFileSync(this.path, YAML.dump(data), 'utf8')
     return this
@@ -200,7 +200,7 @@ export class YAMLFile<T> extends BaseFile<T> {
 export class TOMLFile<T> extends BaseFile<T> {
   static extension = '.toml'
   load () { return TOML.parse(readFileSync(this.path, 'utf8')) as T }
-  save (data: any) {
+  save (data: never) {
     throw new Error('TOML serialization not supported')
     return this
   }
@@ -212,7 +212,7 @@ export interface FileCtor <T> extends PathCtor <T> {
 
 export abstract class BaseDirectory<T, U extends BaseFile<T>> extends Path {
   abstract File: FileCtor<U>
-  file (...fragments) {
+  file (...fragments: string[]) {
     const File = this.File
     return new File(this.path, ...fragments)
   }
@@ -220,13 +220,13 @@ export abstract class BaseDirectory<T, U extends BaseFile<T>> extends Path {
     mkdirp.sync(this.path)
     return this
   }
-  list (): string[] {
+  list (): string[]|null {
     if (!this.exists) return null
-    const matchExtension = x => x.endsWith(this.File.extension)
-    const stripExtension = x => basename(x, this.File.extension)
+    const matchExtension = (x: string) => x.endsWith(this.File.extension)
+    const stripExtension = (x: string) => basename(x, this.File.extension)
     return readdirSync(this.path).filter(matchExtension).map(stripExtension)
   }
-  has (name) {
+  has (name: string) {
     return existsSync(this.resolve(`${name}${JSONFile.extension}`))
   }
 }
@@ -247,7 +247,7 @@ export class TOMLDirectory<T> extends BaseDirectory<T, TOMLFile<T>> {
   get File () { return TOMLFile }
 }
 
-export function getDirName (url) {
+export function getDirName (url: URL) {
   return dirname(fileURLToPath(url))
 }
 
@@ -259,7 +259,7 @@ export function mkdir (...fragments: string[]) {
 }
 
 export function rimraf (path = "") {
-  return new Promise((resolve, reject)=>rimrafCb(path, (err) =>
+  return new Promise((resolve, reject)=>rimrafCb(path, (err: unknown) =>
     err ? reject(err) : resolve(path))
   )
 }
@@ -274,7 +274,7 @@ export function withTmpFile <T> (fn: (path: string)=>T): T {
   try { return fn(name) } finally { rimrafSync(name) }
 }
 
-export function touch (...fragments) {
+export function touch (...fragments: string[]) {
   const path = resolve(...fragments)
   if (!existsSync(path)) console.info('Creating file:', path)
   writeFileSync(path, '')

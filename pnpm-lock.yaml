@@ -35,7 +35,7 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/izomorf': link:izomorf
-      '@types/node': 18.0.6
+      '@types/node': 18.6.2
       concurrently: 7.2.2
       typedoc: 0.23.0-beta.7_typescript@4.7.2
       typescript: 4.7.2
@@ -90,7 +90,9 @@ importers:
       '@hackbg/ganesha': ^2.0.3
       '@hackbg/konzola': workspace:^1
       '@hackbg/runspec': workspace:*
+      '@types/js-yaml': ^4.0.5
       '@types/mkdirp': ^1.0.2
+      '@types/rimraf': ^3.0.2
       '@types/tmp': ^0.2.3
       c8: ^7.11.2
       js-yaml: ^4.1.0
@@ -112,7 +114,9 @@ importers:
     devDependencies:
       '@hackbg/ganesha': 2.0.3
       '@hackbg/runspec': link:../runspec
+      '@types/js-yaml': 4.0.5
       '@types/mkdirp': 1.0.2
+      '@types/rimraf': 3.0.2
       '@types/tmp': 0.2.3
       c8: 7.11.2
 
@@ -123,9 +127,11 @@ importers:
     specifiers:
       '@hackbg/kabinet': workspace:^3
       '@hackbg/konzola': workspace:^1.1
+      dotenv: ^15.0.1
     dependencies:
       '@hackbg/kabinet': link:../kabinet
       '@hackbg/konzola': link:../konzola
+      dotenv: 15.0.1
 
   konzola:
     specifiers:
@@ -399,7 +405,7 @@ packages:
       '@ganesha/core': 1.1.0
       '@ganesha/node': 2.1.0
       '@ganesha/node-legacy': 1.0.0
-      '@types/node': 18.0.6
+      '@types/node': 18.6.2
       chokidar: 3.5.3
       cross-spawn: 7.0.3
     dev: true
@@ -454,8 +460,23 @@ packages:
       '@types/node': 17.0.31
     dev: true
 
+  /@types/glob/7.2.0:
+    resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
+    dependencies:
+      '@types/minimatch': 3.0.5
+      '@types/node': 18.0.6
+    dev: true
+
   /@types/istanbul-lib-coverage/2.0.4:
     resolution: {integrity: sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==}
+    dev: true
+
+  /@types/js-yaml/4.0.5:
+    resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
+    dev: true
+
+  /@types/minimatch/3.0.5:
+    resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
     dev: true
 
   /@types/mkdirp/1.0.2:
@@ -480,6 +501,10 @@ packages:
     resolution: {integrity: sha512-/xUq6H2aQm261exT6iZTMifUySEt4GR5KX8eYyY+C4MSNPqSh9oNIP7tz2GLKTlFaiBbgZNxffoR3CVRG+cljw==}
     dev: true
 
+  /@types/node/18.6.2:
+    resolution: {integrity: sha512-KcfkBq9H4PI6Vpu5B/KoPeuVDAbmi+2mDBqGPGUgoL7yXQtcWGu2vJWmmRkneWK3Rh0nIAX192Aa87AqKHYChQ==}
+    dev: true
+
   /@types/prettyjson/0.0.30:
     resolution: {integrity: sha512-BQ15wnnSvzlvDAVvd4t+zXjd9o6QAcfBeEUlZcinDYeb0A1xTfRBc0s8nxHlctojnsxDrbiG7amTqLWbXsiK7Q==}
     dev: true
@@ -488,6 +513,13 @@ packages:
     resolution: {integrity: sha512-HZBd99fKxRWpYCErtm2/yxUZv6/PBI9J7N4TNFffl5JbrYMHBwF25DjQGTW3b3jmXq+9P6/8fCIb2ee57BFfYA==}
     dependencies:
       '@types/node': 17.0.31
+    dev: true
+
+  /@types/rimraf/3.0.2:
+    resolution: {integrity: sha512-F3OznnSLAUxFrCEu/L5PY8+ny8DtcFRjx7fZZ9bycvXRi3KPTRS9HOitGZwvPg0juRhXFWIeKX58cnX5YqLohQ==}
+    dependencies:
+      '@types/glob': 7.2.0
+      '@types/node': 18.0.6
     dev: true
 
   /@types/ssh2-streams/0.1.9:
@@ -1030,6 +1062,11 @@ packages:
       tar-fs: 2.0.1
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /dotenv/15.0.1:
+    resolution: {integrity: sha512-4OnbwRfzR+xQThp7uq1xpUS9fmgZ//njexOtPjPSbK3yHGrSHSJnaJRsXderSSm2elfvVj+Y5awDC0I8Oy8rkA==}
+    engines: {node: '>=12'}
     dev: false
 
   /elliptic/6.5.4:

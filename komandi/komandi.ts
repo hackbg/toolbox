@@ -17,9 +17,9 @@ export function envConfig <C> (cb: (get: EnvConf, cwd: string, env: EnvMap)=>C) 
 
 interface EnvConf {
   /** Get a string value from the environment. */
-  Str  (name: string, fallback: ()=>string|null)
+  Str  (name: string, fallback: ()=>string|null):  string|null
   /** Get a boolean value from the environment. */
-  Bool (name: string, fallback: ()=>boolean|null)
+  Bool (name: string, fallback: ()=>boolean|null): boolean|null
 }
 
 export function getFromEnv (env: Record<string, string> = {}): EnvConf {
@@ -48,13 +48,17 @@ export function getFromEnv (env: Record<string, string> = {}): EnvConf {
 /** A promise that evaluates once. */
 export class Lazy<X> extends Promise<X> {
   protected readonly resolver: ()=>X|PromiseLike<X>
-  private resolved: PromiseLike<X>
-  constructor (resolver?: ()=>X|PromiseLike<X>) {
+  private resolved: PromiseLike<X>|undefined = undefined
+  constructor (resolver: ()=>X|PromiseLike<X>) {
     super(()=>{})
     this.resolver ??= resolver
   }
   /** Lazy#then: only evaluated the first time it is awaited */
-  then <Y> (resolved, rejected): Promise<Y> {
+  //@ts-ignore
+  then <Y> ( 
+    resolved: (value: X) => Y | PromiseLike<Y>, 
+    rejected: (reason: any) => Y | PromiseLike<Y>
+  ): Promise<Y> {
     this.resolved ??= Promise.resolve(this.resolver())
     return this.resolved.then(resolved, rejected) as Promise<Y>
   }
@@ -85,7 +89,7 @@ export type StepOrInfo<C extends CommandContext, T> = string|((context: Partial<
 
 export class Commands<C extends CommandContext> {
   constructor (
-    public readonly name,
+    public readonly name:     string,
     public readonly before:   Step<C, unknown>[]         = [],
     public readonly after:    Step<C, unknown>[]         = [],
     public readonly commands: Record<string, Command<C>> = {}
@@ -118,7 +122,7 @@ export class Commands<C extends CommandContext> {
           nextCommands.push([name.slice(arg.length).trim(), impl])
         }
       }
-      commands = nextCommands
+      commands = nextCommands as [string, Command<C>][]
       if (commands.length === 0) {
         return null
       }
@@ -127,7 +131,7 @@ export class Commands<C extends CommandContext> {
   }
   /** `export default myCommands.main(import.meta.url)`
     * once per module after defining all commands */
-  entrypoint (url: string|boolean, args = process.argv.slice(2)): this {
+  entrypoint (url: string, args = process.argv.slice(2)): this {
     const self = this
     setTimeout(()=>{
       if (process.argv[1] === $(url).path) self.launch(args)
@@ -152,6 +156,7 @@ export class Commands<C extends CommandContext> {
     args = process.argv.slice(2)
   ): Promise<Context> {
     if (args.length === 0) {
+      //@ts-ignore
       print(console).usage(this)
       process.exit(1)
     }
@@ -187,10 +192,10 @@ export async function runSub <C extends CommandContext, T> (
 }
 
 export async function runOperation <Context extends CommandContext> (
-  command,
-  cmdInfo,
-  cmdSteps,
-  cmdArgs,
+  command:  string,
+  cmdInfo:  string,
+  cmdSteps: Function[],
+  cmdArgs:  string[] = [],
 
   // Establish context
   context: Partial<CommandContext> = {
@@ -209,7 +214,9 @@ export async function runOperation <Context extends CommandContext> (
   const T0 = + new Date()
 
   // Will align output
-  const longestName = cmdSteps.map(step=>step?.name||'').reduce((max,x)=>Math.max(max, x.length), 0)
+  const longestName = cmdSteps
+    .map((step?: { name?: string })=>step?.name||'(unnamed step)')
+    .reduce((max: number, x: string)=>Math.max(max, x.length), 0)
 
   // Store thrown error and print report before it
   let error
@@ -255,7 +262,7 @@ export async function runOperation <Context extends CommandContext> (
   console.info(`The command`, bold(command), result, `in`, ((T3-T0)/1000).toFixed(3), `s`)
 
   // Print timing of each step
-  for (const [name, duration, isError] of stepTimings) {
+  for (const [name, duration, isError] of stepTimings as [string, number, boolean][]) {
     const status   = isError?`${colors.red('FAIL')}`:`${colors.green('OK  ')}`
     const stepName = bold((name||'(nameless step)').padEnd(40))
     const timing   = (duration/1000).toFixed(1).padStart(10)
@@ -269,33 +276,33 @@ export async function runOperation <Context extends CommandContext> (
 
   return context as Context
 }
-export function rebind (self, obj = self) {
+export function rebind (self: Record<string, unknown>, obj = self) {
   for (const key in obj) {
     if (obj[key] instanceof Function) {
-      obj[key] = obj[key].bind(self)
+      obj[key] = (obj[key] as Function).bind(self)
     }
   }
 }
 /** Run several operations in parallel in the same context. */
-export function parallel (...operations) {
-  return function parallelOperations (context) {
+export function parallel (...operations: Function[]) {
+  return function parallelOperations (context: { run: Function }) {
     return Promise.all(operations.map(command=>context.run(command)))
   }
 }
 
-export const print = console => {
+export const print = ({ log }: { log: Function }) => {
   return {
     // Usage of Command API
-    usage ({ name, commands }: Commands<CommandContext>) {
+    usage <C extends CommandContext> ({ name, commands }: Commands<C>) {
       let longest = 0
       for (const name of Object.keys(commands)) {
         longest = Math.max(name.length, longest)
       }
-      console.log()
+      log()
       for (const [cmdName, { info }] of Object.entries(commands)) {
-        console.log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
+        log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
       }
-      console.log()
+      log()
     },
   }
 }
