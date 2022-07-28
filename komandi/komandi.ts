@@ -1,49 +1,7 @@
 import $ from '@hackbg/kabinet'
 import { Console, bold, colors, timestamp } from '@hackbg/konzola'
 
-/** Update `process.env` with value from `.env` file */
-import dotenv from 'dotenv'
-dotenv.config()
-
 const console = Console('Komandi')
-
-type EnvMap = Record<string, string>
-
-export function envConfig <C> (cb: (get: EnvConf, cwd: string, env: EnvMap)=>C) {
-  return function getConfigFromEnv (cwd = process.cwd(), env: EnvMap = process.env as EnvMap) {
-    return cb(getFromEnv(env), cwd, env)
-  }
-}
-
-interface EnvConf {
-  /** Get a string value from the environment. */
-  Str  (name: string, fallback: ()=>string|null):  string|null
-  /** Get a boolean value from the environment. */
-  Bool (name: string, fallback: ()=>boolean|null): boolean|null
-}
-
-export function getFromEnv (env: Record<string, string> = {}): EnvConf {
-  return {
-    Str (name, fallback = () => null): string|null {
-      if (env.hasOwnProperty(name)) {
-        return String(process.env[name] as string)
-      } else {
-        return fallback()
-      }
-    },
-    Bool (name, fallback = () => null): boolean|null {
-      if (env.hasOwnProperty(name)) {
-        let value = process.env[name] as string
-        if (value === '' || value === 'false' || value === 'no' || Number(value) === 0) {
-          return false
-        }
-        return Boolean(value)
-      } else {
-        return fallback()
-      }
-    }
-  }
-}
 
 /** A promise that evaluates once. */
 export class Lazy<X> extends Promise<X> {
@@ -306,3 +264,5 @@ export const print = ({ log }: { log: Function }) => {
     },
   }
 }
+
+export * from '@hackbg/konfizi'

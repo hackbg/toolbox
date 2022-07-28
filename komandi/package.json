@@ -1,18 +1,24 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "4.2.0",
+  "version":     "4.2.1",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
   "bugs":        "https://github.com/hackbg/toolbox/issues",
-  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "komandi"},
+  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "konfizi"},
   "license":     "MIT",
-  "description": "Command runner.",
+  "description": "Environment configuration.",
   "files":        [ "README.md", "komandi.ts" ],
   "dependencies": {
     "@hackbg/konzola": "workspace:^1.1",
     "@hackbg/kabinet": "workspace:^3",
-    "dotenv":          "^15.0.1"
+    "@hackbg/konfizi": "workspace:^1"
+  },
+  "peerDependencies": {
+    "dotenv": "^15.0.1"
+  },
+  "peerDependenciesMeta": {
+    "dotenv": { "optional": true }
   },
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",

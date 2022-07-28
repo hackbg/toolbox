@@ -15,6 +15,7 @@ General utilities for Node.js.
 |[**`@hackbg/kabinet`**](./kabinet/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/kabinet?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/kabinet)|**Filesystem model.**          |
 |[**`@hackbg/komandi`**](./komandi/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/komandi?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/komandi)|**Command runner.**            |
 |[**`@hackbg/konzola`**](./konzola/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/konzola?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/konzola)|**Console output.**            |
+|[**`@hackbg/konfizi`**](./konfizi/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/konfizi?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/konfizi)|**Environment configuration.** |
 |[**`@hackbg/portali`**](./portali/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/portali?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/portali)|**Network port utilities.**    |
 |[**`@hackbg/runspec`**](./runspec/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/runspec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/runspec)|**Test runner and reporter.**  |
 

@@ -1,0 +1,18 @@
+{
+  "name":        "@hackbg/konfizi",
+  "version":     "1.0.0",
+  "main":        "konfizi.ts",
+  "type":        "module",
+  "homepage":    "https://github.com/hackbg/toolbox",
+  "bugs":        "https://github.com/hackbg/toolbox/issues",
+  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "komandi"},
+  "license":     "MIT",
+  "description": "Command runner.",
+  "files":       [ "README.md", "komandi.ts" ],
+  "scripts": {
+    "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
+    "release:wet": "npm run ts:check && npm run ts:clean && izomorf wet --access=public",
+    "ts:check":    "tsc --noEmit",
+    "ts:clean":    "izomorf clean && rm -rf dist types *.dist.*"
+  }
+}

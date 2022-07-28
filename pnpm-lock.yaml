@@ -129,12 +129,15 @@ importers:
   komandi:
     specifiers:
       '@hackbg/kabinet': workspace:^3
+      '@hackbg/konfizi': workspace:^1
       '@hackbg/konzola': workspace:^1.1
-      dotenv: ^15.0.1
     dependencies:
       '@hackbg/kabinet': link:../kabinet
+      '@hackbg/konfizi': link:../konfizi
       '@hackbg/konzola': link:../konzola
-      dotenv: 15.0.1
+
+  konfizi:
+    specifiers: {}
 
   konzola:
     specifiers:
@@ -1071,11 +1074,6 @@ packages:
       tar-fs: 2.0.1
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /dotenv/15.0.1:
-    resolution: {integrity: sha512-4OnbwRfzR+xQThp7uq1xpUS9fmgZ//njexOtPjPSbK3yHGrSHSJnaJRsXderSSm2elfvVj+Y5awDC0I8Oy8rkA==}
-    engines: {node: '>=12'}
     dev: false
 
   /elliptic/6.5.4:
