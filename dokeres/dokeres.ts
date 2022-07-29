@@ -150,6 +150,8 @@ export class DokeresImage {
 
   /* Throws if the build fails, and then you have to fix stuff. */
   async build () {
+    if (!this.dockerfile) throw Errors.NoDockerfile()
+    if (!this.dokeres?.dockerode) throw Errors.NoDockerode()
     const { name, dokeres: { dockerode } } = this
     const dockerfile = basename(this.dockerfile)
     const context = dirname(this.dockerfile)
@@ -170,6 +172,7 @@ export class DokeresImage {
     })
   }
 
+  //@ts-ignore
   async run (name, options, command, entrypoint, outputStream?) {
     return await DokeresContainer.run(
       this,
@@ -222,6 +225,7 @@ export class DokeresContainer {
   ) {
     const self = await this.create(image, name, options, command, entrypoint)
     if (outputStream) {
+      if (!self.container) throw Errors.NoContainer()
       const stream = await self.container.attach({ stream: true, stdin: true, stdout: true })
       stream.setEncoding('utf8')
       stream.pipe(outputStream, { end: true })
@@ -231,14 +235,14 @@ export class DokeresContainer {
   }
 
   constructor (
-    readonly image:      DokeresImage,
-    readonly name:       string,
-    readonly options:    Partial<DokeresContainerOpts>,
-    readonly command:    DokeresCommand,
-    readonly entrypoint: DokeresCommand
+    readonly image:       DokeresImage,
+    readonly name?:       string,
+    readonly options:     Partial<DokeresContainerOpts> = {},
+    readonly command?:    DokeresCommand,
+    readonly entrypoint?: DokeresCommand
   ) {}
 
-  container: Docker.Container
+  container: Docker.Container|null = null
 
   get dockerode (): Docker {
     return this.image.dockerode
@@ -255,7 +259,7 @@ export class DokeresContainer {
       extra    = {},
       cwd
     } = this.options
-    const config = {
+    const config: any = {
       Image:        this.image.name,
       Name:         this.name,
       Entrypoint:   this.entrypoint,
@@ -284,17 +288,17 @@ export class DokeresContainer {
   }
 
   get id (): string {
+    if (!this.container) throw Errors.NoContainer()
     return this.container.id
   }
 
   get shortId (): string {
+    if (!this.container) throw Errors.NoContainer()
     return this.container.id.slice(0, 8)
   }
 
   async create (): Promise<this> {
-    if (this.container) {
-      throw new Error('Container already created')
-    }
+    if (this.container) throw Errors.ContainerAlreadyCreated()
     this.container = await this.dockerode.createContainer(this.dockerodeOpts)
     if (this.warnings) {
       console.warn(`Creating container ${this.shortId} emitted warnings:`)
@@ -304,20 +308,23 @@ export class DokeresContainer {
   }
 
   get warnings (): string[] {
+    if (!this.container) throw Errors.NoContainer()
     return (this.container as any).Warnings
   }
 
   async start (): Promise<this> {
     if (!this.container) await this.create()
-    await this.container.start()
+    await this.container!.start()
     return this
   }
 
   get isRunning (): Promise<boolean> {
+    if (!this.container) throw Errors.NoContainer()
     return this.container.inspect().then(({ State: { Running } })=>Running)
   }
 
   async kill (): Promise<this> {
+    if (!this.container) throw Errors.NoContainer()
     const id = this.shortId
     const prettyId = bold(id.slice(0,8))
     if (await this.isRunning) {
@@ -331,6 +338,7 @@ export class DokeresContainer {
   }
 
   async wait () {
+    if (!this.container) throw Errors.NoContainer()
     return await this.container.wait()
   }
 
@@ -347,7 +355,10 @@ export function waitUntilLogsSay (
 ) {
   console.info('Waiting for logs to say:', expected)
   return new Promise((ok, fail)=>{
-    container.logs({ stdout: true, stderr: true, follow: true, tail: 100 }, (err, stream: Readable) => {
+    const opts = { stdout: true, stderr: true, follow: true, tail: 100 }
+    //@ts-ignore
+    container.logs(opts, (err, stream?: Readable) => {
+      if (!stream) return fail(new Error('no stream returned from container'))
       if (err) return fail(err)
       console.info('Trailing logs...')
       stream.on('error', error => fail(error))
@@ -368,4 +379,11 @@ export function waitUntilLogsSay (
       })
     })
   })
+}
+
+export const Errors = {
+  NoDockerode:             () => new Error('No Dockerode handle'),
+  NoDockerfile:            () => new Error('No dockerfile specified'),
+  NoContainer:             () => new Error('No container'),
+  ContainerAlreadyCreated: () => new Error('Container already created')
 }

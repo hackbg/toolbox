@@ -33,8 +33,8 @@ export function waitPort ({
   interval?: number
 }): Promise<void> {
 
-  let timer
-  let socket
+  let timer:  ReturnType<typeof setTimeout>|null = null
+  let socket: net.Socket                   |null = null
 
   return new Promise<void>((resolve, reject)=>{
 
@@ -63,9 +63,9 @@ export function waitPort ({
     }
 
     function clearTimerAndDestroySocket() {
-      clearTimeout(timer)
+      if (timer) clearTimeout(timer)
       timer = null
-      if (socket) socket.destroy()
+      socket?.destroy()
       socket = null
     }
 
