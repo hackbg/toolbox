@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "4.2.2",
+  "version":     "4.2.3",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -15,7 +15,7 @@
     "@hackbg/konfizi": "workspace:^1"
   },
   "peerDependencies": {
-    "dotenv": "^15.0.1|^16"
+    "dotenv": "^15.0.1||^16"
   },
   "peerDependenciesMeta": {
     "dotenv": { "optional": true }
