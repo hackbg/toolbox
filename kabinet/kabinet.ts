@@ -16,7 +16,7 @@ import YAML from 'js-yaml'
 import { Console } from '@hackbg/konzola'
 const console = Console('@hackbg/kabinet')
 
-export default function $ (base: string, ...fragments: string[]) {
+export default function $ (base: string|URL|Path, ...fragments: string[]) {
   return new Path(base, ...fragments)
 }
 
