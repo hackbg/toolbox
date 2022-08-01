@@ -281,6 +281,24 @@ export function touch (...fragments: string[]) {
   return path
 }
 
+/** Based on:
+  * - https://github.com/jonschlinkert/align-yaml
+  * - https://github.com/jonschlinkert/longest
+  * - https://github.com/jonschlinkert/repeat-string/blob/master/index.js
+  * by Jon Schlinkert, used under MIT license. */
+export function alignYAML (str: string, pad: number = 0) {
+  const props   = str.match(/^\s*[\S]+:/gm)
+  const longest = props.reduce((x, str)=>Math.max(x, str.length), 0) + pad
+  return str.split('\n').map(function(str) {
+    const line = /^(\s*.+[^:#]: )\s*(.*)/gm
+    return str.replace(line, function(match, $1, $2) {
+      const len = longest - $1.length + 1
+      const padding = [...Array(len)].map(()=>' ')
+      return $1 + padding + $2
+    })
+  }).join('\n')
+}
+
 // reexports
 export {
   copy,
