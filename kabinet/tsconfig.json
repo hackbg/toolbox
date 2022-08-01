@@ -1,11 +1,1 @@
-{
-  "extends": "../tsconfig.json",
-  "include": ["*.ts"],
-  "exclude": ["dist/", "types/", "kabinet.spec.ts"],
-  "compilerOptions": {
-    "outDir": "dist",
-    "declaration": true,
-    "declarationDir": "types",
-    "lib": ["DOM"]
-  }
-}
+{ "extends": "../tsconfig.json", "include": ["kabinet.ts"] }
