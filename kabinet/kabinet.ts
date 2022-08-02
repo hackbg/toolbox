@@ -293,7 +293,7 @@ export function alignYAML (str: string, pad: number = 0) {
     const line = /^(\s*.+[^:#]: )\s*(.*)/gm
     return str.replace(line, function(match, $1, $2) {
       const len = longest - $1.length + 1
-      const padding = [...Array(len)].map(()=>' ')
+      const padding = [...Array(len)].map(()=>' ').join('')
       return $1 + padding + $2
     })
   }).join('\n')
