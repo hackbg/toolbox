@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/formati",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "formati.ts",
   "type": "module",
   "license": "MIT",
@@ -19,13 +19,11 @@
     "types"
   ],
   "dependencies": {
-    "@cosmjs/crypto":  "^0.20.0",
-    "@iov/encoding":   "^2.5.0",
-    "@waiting/base64": "^4.2.9",
-    "bech32":          "^2.0.0",
-    "secure-random":   "^1.1.2"
-  },
-  "devDependencies": {
+    "@cosmjs/crypto":       "^0.20.0",
+    "@iov/encoding":        "^2.5.0",
+    "@waiting/base64":      "^4.2.9",
+    "bech32":               "^2.0.0",
+    "secure-random":        "^1.1.2",
     "@types/secure-random": "^1.1.0"
   },
   "scripts": {
