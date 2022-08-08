@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@hackbg/dokeres': workspace:^4.0.4
-      '@hackbg/formati': workspace:^1.1.1
+      '@hackbg/formati': workspace:^3
       '@hackbg/izomorf': workspace:^4
       '@hackbg/kabinet': workspace:^3.0.3
       '@hackbg/komandi': workspace:^4
@@ -70,11 +70,13 @@ importers:
       '@cosmjs/crypto': ^0.20.0
       '@iov/encoding': ^2.5.0
       '@types/secure-random': ^1.1.0
+      '@waiting/base64': ^4.2.9
       bech32: ^2.0.0
       secure-random: ^1.1.2
     dependencies:
       '@cosmjs/crypto': 0.20.1
       '@iov/encoding': 2.5.0
+      '@waiting/base64': 4.2.9
       bech32: 2.0.0
       secure-random: 1.1.2
     devDependencies:
@@ -129,7 +131,7 @@ importers:
   komandi:
     specifiers:
       '@hackbg/kabinet': workspace:^3
-      '@hackbg/konfizi': workspace:^1.0.2
+      '@hackbg/konfizi': workspace:^1.0.4
       '@hackbg/konzola': workspace:^1.1
     dependencies:
       '@hackbg/kabinet': link:../kabinet
@@ -691,6 +693,11 @@ packages:
       vue: 3.2.37
       vue-demi: 0.13.5_vue@3.2.37
     dev: true
+
+  /@waiting/base64/4.2.9:
+    resolution: {integrity: sha512-yzt9ih63oePux/sQM8Df6DTv1IeXGByaHrFiJoPszk0LaJwIGJ3IKhKhT/O6YMo2RignlP2cfxoo1lGmKZPIgQ==}
+    engines: {node: '>=10.4.0'}
+    dev: false
 
   /@zkochan/rimraf/2.1.2:
     resolution: {integrity: sha512-Lc2oK51J6aQWcLWTloobJun5ZF41BbTDdLvE+aMcexoVWFoFqvZmnZoyXR2IZk6NJEVoZW8tjgtvQLfTsmRs2Q==}

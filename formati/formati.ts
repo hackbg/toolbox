@@ -44,7 +44,8 @@ export function required (label: string) {
   return () => { throw new Error(`required: ${label}`) }
 }
 
-export * from '@cosmjs/crypto'
-export * from '@iov/encoding'
-export * from 'bech32'
+export * as Base64   from '@waiting/base64'
+export * as Crypto   from '@cosmjs/crypto'
+export * as Encoding from '@iov/encoding'
+export * as Bech32   from 'bech32'
 export { SecureRandom }

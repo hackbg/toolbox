@@ -10,7 +10,7 @@
   "description":  "Baseline utilities.",
   "dependencies": {
     "@hackbg/dokeres": "workspace:^4.0.4",
-    "@hackbg/formati": "workspace:^1.1.1",
+    "@hackbg/formati": "workspace:^3",
     "@hackbg/kabinet": "workspace:^3.0.3",
     "@hackbg/komandi": "workspace:^4",
     "@hackbg/konzola": "workspace:^1.1.1",
