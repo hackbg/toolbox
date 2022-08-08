@@ -10,6 +10,8 @@ export const randomBytes   = SecureRandom.randomBuffer
 export const randomBase16  = (bytes = 16) =>
   SecureRandom.randomBuffer(bytes).toString("hex")
 
+export const randomHex = randomBase16
+
 /** Returns a base64-encoded string of given length.
   * Default is 64 bytes, i.e. 512 bits of entropy. */
 export const randomBase64  = (bytes = 64) =>
