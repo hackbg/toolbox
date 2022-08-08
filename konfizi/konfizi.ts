@@ -8,9 +8,9 @@ export function envConfig <C> (cb: (get: EnvConf, cwd: string, env: EnvMap)=>C) 
 
 interface EnvConf {
   /** Get a string value from the environment. */
-  Str  (name: string, fallback: ()=>string|null):  string|null
+  Str  <T> (name: string, fallback: ()=>string|T):  string|T
   /** Get a boolean value from the environment. */
-  Bool (name: string, fallback: ()=>boolean|null): boolean|null
+  Bool <T> (name: string, fallback: ()=>boolean|T): boolean|T
 }
 
 export function getFromEnv (env: Record<string, string> = {}): EnvConf {
