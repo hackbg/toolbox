@@ -15,14 +15,16 @@ interface EnvConf {
 
 export function getFromEnv (env: Record<string, string> = {}): EnvConf {
   return {
-    Str (name, fallback = () => null): string|null {
+
+    Str <T> (name, fallback: ()=>T = () => null): string|T {
       if (env.hasOwnProperty(name)) {
         return String(process.env[name] as string)
       } else {
         return fallback()
       }
     },
-    Bool (name, fallback = () => null): boolean|null {
+
+    Bool <T> (name, fallback: ()=>T = () => null): boolean|T {
       if (env.hasOwnProperty(name)) {
         let value = process.env[name] as string
         if (value === '' || value === 'false' || value === 'no' || Number(value) === 0) {
@@ -33,5 +35,6 @@ export function getFromEnv (env: Record<string, string> = {}): EnvConf {
         return fallback()
       }
     }
+
   }
 }
