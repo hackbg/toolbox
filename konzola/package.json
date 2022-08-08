@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/konzola",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "konzola.cjs",
   "browser": "konzola.browser.mjs",
   "types": "konzola.d.ts",
@@ -13,14 +13,12 @@
     "directory": "konzola"
   },
   "dependencies": {
-    "colors":     "1.4.0",
-    "prettyjson": "github:slavaGanzin/prettyjson#d880b8af2973a1a1b277944c3b573d7d6a93ba8f",
-    "prompts":    "^2.4.1",
-    "table":      "^6.6.0"
-  },
-  "devDependencies": {
+    "colors":            "1.4.0",
+    "prettyjson":        "github:slavaGanzin/prettyjson#d880b8af2973a1a1b277944c3b573d7d6a93ba8f",
     "@types/prettyjson": "^0.0.30",
-    "@types/prompts":    "^2.0.14"
+    "prompts":           "^2.4.1",
+    "@types/prompts":    "^2.0.14",
+    "table":             "^6.6.0"
   },
   "scripts": {
     "release:dry": "izomorf dry",
