@@ -1,30 +1,30 @@
 import { bech32, bech32m } from 'bech32'
-
 import SecureRandom from 'secure-random'
 
-export { SecureRandom }
+/** Replaces of randomBytes from node:crypto.
+  * Returns Uint8Array of given length. */
+export const randomBytes   = SecureRandom.randomBuffer
 
-export { bech32, bech32m }
-
-export { toBase64, fromBase64, fromUtf8, fromHex, toHex } from '@iov/encoding'
-
-export { Sha256 } from '@iov/crypto'
-
-export const randomBytes = SecureRandom.randomBuffer
-
-export const randomHex = (bytes = 1) =>
+/** Returns a hex-encoded string of given length.
+  * Default is 16 bytes, i.e. 128 bits of entropy. */
+export const randomBase16  = (bytes = 16) =>
   SecureRandom.randomBuffer(bytes).toString("hex")
 
-export const randomBase64 = (bytes = 1) =>
+/** Returns a base64-encoded string of given length.
+  * Default is 64 bytes, i.e. 512 bits of entropy. */
+export const randomBase64  = (bytes = 64) =>
   SecureRandom.randomBuffer(bytes).toString("base64")
 
-/** By default this generates 32 bytes - default length of canonical addr in Cosmos */
-export const randomBech32 = (prefix = 'hackbg', bytes = 32) =>
+/** Returns a random valid bech32 address.
+  * Default length is 32 bytes (canonical addr in Cosmos) */
+export const randomBech32  = (prefix = 'hackbg', bytes = 32) =>
   bech32.encode(prefix, bech32.toWords(SecureRandom.randomBuffer(bytes)))
 
+/** Returns a random valid bech32m address. */
 export const randomBech32m = (prefix = 'hackbg', bytes = 32) =>
   bech32m.encode(prefix, bech32m.toWords(SecureRandom.randomBuffer(bytes)))
 
+/** Picks keys from an object. Returns a new object containing only the given keys. */
 export function pick (obj: Record<string, unknown> = {}, ...keys: string[]): Partial<typeof obj> {
   return Object.keys(obj)
     .filter(key=>keys.indexOf(key)>-1)
@@ -34,6 +34,15 @@ export function pick (obj: Record<string, unknown> = {}, ...keys: string[]): Par
     }, {})
 }
 
+/** Returns a function that, when called, throws.
+  * Use to give more helpful errors when an expected value is missing.
+  * use as: `const foo = context.foo || required('value of foo')`
+  *     or: `const foo = context.foo ?? required('value of foo')` */
 export function required (label: string) {
   return () => { throw new Error(`required: ${label}`) }
 }
+
+export * from '@cosmjs/crypto'
+export * from '@iov/encoding'
+export * from 'bech32'
+export { SecureRandom }

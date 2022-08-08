@@ -35,7 +35,7 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/izomorf': link:izomorf
-      '@types/node': 18.6.2
+      '@types/node': 18.6.5
       concurrently: 7.2.2
       typedoc: 0.23.0-beta.7_typescript@4.7.2
       typescript: 4.7.2
@@ -67,13 +67,13 @@ importers:
 
   formati:
     specifiers:
-      '@iov/crypto': ^2.5.0
+      '@cosmjs/crypto': ^0.20.0
       '@iov/encoding': ^2.5.0
       '@types/secure-random': ^1.1.0
       bech32: ^2.0.0
       secure-random: ^1.1.2
     dependencies:
-      '@iov/crypto': 2.5.0
+      '@cosmjs/crypto': 0.20.1
       '@iov/encoding': 2.5.0
       bech32: 2.0.0
       secure-random: 1.1.2
@@ -129,7 +129,7 @@ importers:
   komandi:
     specifiers:
       '@hackbg/kabinet': workspace:^3
-      '@hackbg/konfizi': workspace:^1
+      '@hackbg/konfizi': workspace:^1.0.2
       '@hackbg/konzola': workspace:^1.1
     dependencies:
       '@hackbg/kabinet': link:../kabinet
@@ -411,16 +411,10 @@ packages:
       '@ganesha/core': 1.1.0
       '@ganesha/node': 2.1.0
       '@ganesha/node-legacy': 1.0.0
-      '@types/node': 18.6.2
+      '@types/node': 18.6.5
       chokidar: 3.5.3
       cross-spawn: 7.0.3
     dev: true
-
-  /@iov/crypto/2.5.0:
-    resolution: {integrity: sha512-lEqrMRagPyv9S0KQG2c1OfacspHZUTyC2neyy/7mKSfOaJZABJiMzZEHi0Z/aCJOo34Wd/DQqfbaG9o2gtBKnw==}
-    dependencies:
-      '@cosmjs/crypto': 0.20.1
-    dev: false
 
   /@iov/encoding/2.5.0:
     resolution: {integrity: sha512-HGHLlQEvD23rFjW5PQrxD2B/6LiBHVSxqX6gjOz9KfcmIMIftRA0qROrTITfjjjUr/yZZEeNk4qjuBls9TaYcA==}
@@ -509,6 +503,10 @@ packages:
 
   /@types/node/18.6.2:
     resolution: {integrity: sha512-KcfkBq9H4PI6Vpu5B/KoPeuVDAbmi+2mDBqGPGUgoL7yXQtcWGu2vJWmmRkneWK3Rh0nIAX192Aa87AqKHYChQ==}
+    dev: true
+
+  /@types/node/18.6.5:
+    resolution: {integrity: sha512-Xjt5ZGUa5WusGZJ4WJPbOT8QOqp6nDynVFRKcUt32bOgvXEoc6o085WNkYTMO7ifAj2isEfQQ2cseE+wT6jsRw==}
     dev: true
 
   /@types/prettyjson/0.0.30:
