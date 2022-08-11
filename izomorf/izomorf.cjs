@@ -147,8 +147,9 @@ async function izomorf (cwd, command, ...publishArgs) {
     await bailIfPublished(name, version)
     console.log('Original package.json:', packageJson, '\n')
     if (wet) { preliminaryDryRun() } else { makeSureRunIsDry(publishArgs) }
+    const isTypeScript = (packageJson.main||'').endsWith('.ts')
     try {
-      if ((packageJson.main||'').endsWith('.ts')) {
+      if (isTypeScript) {
         packageJson.ubik = true
         await compileTypeScript()
         await flattenFiles(packageJson)
@@ -197,14 +198,15 @@ async function izomorf (cwd, command, ...publishArgs) {
           'instead of the original source).',
         ].join('\n'), { padding: 1, margin: 1 }))
       } else {
-        // Restore original contents of package.json
         restoreOriginalPackageJson()
-        console.info((await boxen).default([
-          "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
-          "will remain in place. Make sure you don't commit them! Add their extensions",
-          "to `.gitignore` if you haven't already, and invoke this tool in `clean` mode",
-          "to get rid of them.",
-        ].join('\n'), { padding: 1, margin: 1 }))
+        if (isTypeScript) {
+          console.info((await boxen).default([
+            "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
+            "will remain in place. Make sure you don't commit them! Add their extensions",
+            "to `.gitignore` if you haven't already, and invoke this tool in `clean` mode",
+            "to get rid of them.",
+          ].join('\n'), { padding: 1, margin: 1 }))
+        }
       }
     }
     return packageJson
