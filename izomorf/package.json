@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/izomorf",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "type": "module",
   "main": "izomorf.cjs",
   "bin": {
@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "concurrently": "7.2.2",
-    "node-fetch": "^2"
+    "node-fetch":   "^2",
+    "recast":       "^0.21.2",
+    "boxen":        "^7.0.0"
   }
 }
