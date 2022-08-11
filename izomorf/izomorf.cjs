@@ -330,7 +330,6 @@ async function izomorf (cwd, command, ...publishArgs) {
         writeFileSync(file, recast.print(parsed).code, 'utf8')
       }
     }
-    process.exit(123)
   }
 
 }
