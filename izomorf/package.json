@@ -16,9 +16,10 @@
     "release:wet": "./izomorf.cjs wet"
   },
   "dependencies": {
+    "boxen": "^7.0.0",
     "concurrently": "7.2.2",
-    "node-fetch":   "^2",
-    "recast":       "^0.21.2",
-    "boxen":        "^7.0.0"
+    "node-fetch": "^2",
+    "recast": "^0.21.2",
+    "rimraf": "^3.0.2"
   }
 }
