@@ -94,8 +94,8 @@ async function izomorf (cwd, command, ...publishArgs) {
     if (packageJson.ubik) {
       throw new Error('This is a modified, temporary package.json. Restore the original and try again.')
     }
-    return { packageJson, restoreOriginal }
-    function restoreOriginal () {
+    return { packageJson, restoreOriginalPackageJson }
+    function restoreOriginalPackageJson () {
       writeFileSync($('package.json'), original, 'utf8')
     }
   }
@@ -141,7 +141,7 @@ async function izomorf (cwd, command, ...publishArgs) {
     /** reuse in environments where on-demand compilation of TypeScript is not supported. */
     keep = false
   ) {
-    const { packageJson, restoreOriginal } = readPackageJson()
+    const { packageJson, restoreOriginalPackageJson } = readPackageJson()
     const { name, version } = packageJson
     const tag = ensureFreshTag(name, version)
     await bailIfPublished(name, version)
@@ -198,7 +198,7 @@ async function izomorf (cwd, command, ...publishArgs) {
         ].join('\n'), { padding: 1, margin: 1 }))
       } else {
         // Restore original contents of package.json
-        writeFileSync($('package.json'), original, 'utf8')
+        restoreOriginalPackageJson()
         console.info((await boxen).default([
           "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
           "will remain in place. Make sure you don't commit them! Add their extensions",
