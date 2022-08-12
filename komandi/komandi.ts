@@ -13,8 +13,8 @@ export class Lazy<X> extends Promise<X> {
   }
   /** Lazy#then: only evaluated the first time it is awaited */
   then <Y, Z> (
-    resolved: (value:  X) => Y | PromiseLike<Y>,
-    rejected: (reason: Z) => Z | PromiseLike<Z>
+    resolved:  (value:  X) => Y | PromiseLike<Y>,
+    rejected?: (reason: Z) => Z | PromiseLike<Z>
   ): Promise<Y> {
     this.resolved ??= Promise.resolve(this.resolver())
     return this.resolved.then(resolved, rejected) as Promise<Y>
