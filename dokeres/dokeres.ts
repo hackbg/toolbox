@@ -109,40 +109,35 @@ export class DokeresImage {
   }
 
   get dockerode (): Docker {
-    return this.dockerode as unknown as Docker
+    return this.dokeres.dockerode as unknown as Docker
   }
 
   _available = null
   async ensure () {
-    if (this._available) {
-      //console.info(bold('Already ensuring image from parallel build:'), this.name)
-      return await this._available
-    } else {
+    return await (this._available ??= new Promise(async(resolve, reject)=>{
       console.info('Ensuring image is present:', bold(this.name))
-      return await (this._available = new Promise(async(resolve, reject)=>{
-        const {name, dockerfile} = this
-        const PULLING  = `Image ${name} not found, pulling...`
-        const BUILDING = `Image ${name} not found upstream, building...`
-        const NO_FILE  = `Image ${name} not found and no Dockerfile provided; can't proceed.`
+      const PULLING  = `Image ${this.name} not found, pulling...`
+      const BUILDING = `Image ${this.name} not found upstream, building...`
+      const NO_FILE  = `Image ${this.name} not found and no Dockerfile provided; can't proceed.`
+      try {
+        await this.check()
+      } catch (_e) {
+        console.error(_e)
         try {
-          await this.check()
-        } catch (_e) {
-          try {
-            console.warn(`${PULLING} ${_e.message}`)
-            await this.pull()
-          } catch (e) {
-            if (!dockerfile) {
-              reject(`${NO_FILE} (${e.message})`)
-            } else {
-              console.warn(`${BUILDING} ${_e.message}`)
-              console.info(bold('Using dockerfile:'), this.dockerfile)
-              await this.build()
-            }
+          console.warn(`${PULLING} ${_e.message}`)
+          await this.pull()
+        } catch (e) {
+          if (!this.dockerfile) {
+            reject(`${NO_FILE} (${e.message})`)
+          } else {
+            console.warn(`${BUILDING} ${_e.message}`)
+            console.info(bold('Using dockerfile:'), this.dockerfile)
+            await this.build()
           }
         }
-        return resolve(name)
-      }))
-    }
+      }
+      return resolve(this.name)
+    }))
   }
 
   /** Throws if inspected image does not exist locally. */
@@ -225,7 +220,7 @@ export type DokeresCommand = string|string[]
 /** Interface to a Docker container. */
 export class DokeresContainer {
 
-  static async create (
+  static create = async function createDokeresContainer (
     image:         DokeresImage,
     name?:         string,
     options?:      Partial<DokeresContainerOpts>,
@@ -238,7 +233,7 @@ export class DokeresContainer {
     return self
   }
 
-  static async run (
+  static run = async function runDokeresContainer (
     image:         DokeresImage,
     name?:         string,
     options?:      Partial<DokeresContainerOpts>,
