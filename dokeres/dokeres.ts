@@ -33,12 +33,16 @@ export function mockDockerode (callback: Function = () => {}): DockerHandle {
 export function mockDockerodeContainer (callback: Function = () => {}) {
   return {
     id: 'mockmockmock',
-    logs (options, cb) { cb(...(callback({ createContainer: options })||[])) },
+    logs (options, cb) { cb(...(callback({ createContainer: options })||[null, mockStream()])) },
     async start   () {},
     async attach  () { return {setEncoding(){},pipe(){}} },
     async wait    () { return {Error:null,StatusCode:0}  },
     async inspect () { return {Image:' ',Name:null,Args:null,Path:null,State:{Running:null}}}
   }
+}
+
+export function mockStream () {
+  return { on: () => {} }
 }
 
 /** Defaults to the `DOCKER_HOST` environment variable. */
