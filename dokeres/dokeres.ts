@@ -1,37 +1,61 @@
-import { basename, dirname } from 'path'
-import { Readable, Writable } from 'stream'
 import { Console, bold } from '@hackbg/konzola'
 import Docker from 'dockerode'
-
-export { Docker }
+import { basename, dirname } from 'path'
+import { Readable, Writable } from 'stream'
 
 const console = Console('Dokeres')
+
+export { Docker }
+export interface DockerHandle {
+  getImage:        Function
+  buildImage:      Function
+  getContainer:    Function
+  pull:            Function
+  createContainer: Function
+  run:             Function
+  modem: { followProgress: Function }
+}
+
+export function mockDockerode (callback: Function = () => {}): DockerHandle {
+  return {
+    getImage () { return { async inspect () { return } } },
+    getContainer (options) { return mockDockerodeContainer(callback) },
+    async pull () {},
+    buildImage () {},
+    async createContainer (options) { return mockDockerodeContainer(callback) },
+    async run (...args) { callback({run:args}); return [{Error:null,StatusCode:0},Symbol()] },
+    modem: {
+      followProgress (stream, complete, callback) { complete(null, null) }
+    }
+  }
+}
+
+export function mockDockerodeContainer (callback: Function = () => {}) {
+  return {
+    id: 'mockmockmock',
+    logs (options, cb) { cb(...(callback({ createContainer: options })||[])) },
+    async start   () {},
+    async attach  () { return {setEncoding(){},pipe(){}} },
+    async wait    () { return {Error:null,StatusCode:0}  },
+    async inspect () { return {Image:' ',Name:null,Args:null,Path:null,State:{Running:null}}}
+  }
+}
 
 /** Defaults to the `DOCKER_HOST` environment variable. */
 export const socketPath = process.env.DOCKER_HOST || '/var/run/docker.sock'
 
-/** Follow the output stream from a Dockerode container until it closes. */
-export async function follow (
-  dockerode: Docker,
-  stream:    any,
-  callback:  (data)=>void
-) {
-  await new Promise<void>((ok, fail)=>{
-    dockerode.modem.followProgress(stream, complete, callback)
-    function complete (err, _output) {
-      if (err) return fail(err)
-      ok()
-    }
-  })
-}
-
 /** Wrapper around Dockerode.
   * Used to optain `DokeresImage` instances. */
 export class Dokeres {
+
+  static mock (callback?: Function) {
+    return new this(mockDockerode(callback))
+  }
+
   /** By default, creates an instance of Dockerode
     * connected to env `DOCKER_HOST`. You can also pass
     * your own Dockerode instance or socket path. */
-  constructor (dockerode?: Docker|string) {
+  constructor (dockerode?: DockerHandle|string) {
     if (!dockerode) {
       this.dockerode = new Docker({ socketPath })
     } else if (typeof dockerode === 'object') {
@@ -43,7 +67,7 @@ export class Dokeres {
     }
   }
 
-  readonly dockerode: Docker
+  readonly dockerode: DockerHandle
 
   image (
     name:        string|null,
@@ -65,7 +89,6 @@ export class Dokeres {
       info.Path
     ), { container })
   }
-
 }
 
 /** Interface to a Docker image. */
@@ -86,7 +109,7 @@ export class DokeresImage {
   }
 
   get dockerode (): Docker {
-    return this.dokeres.dockerode
+    return this.dockerode as unknown as Docker
   }
 
   _available = null
@@ -245,7 +268,7 @@ export class DokeresContainer {
   container: Docker.Container|null = null
 
   get dockerode (): Docker {
-    return this.image.dockerode
+    return this.image.dockerode as unknown as Docker
   }
 
   get dockerodeOpts (): Docker.ContainerCreateOptions {
@@ -342,6 +365,17 @@ export class DokeresContainer {
     return await this.container.wait()
   }
 
+}
+
+/** Follow the output stream from a Dockerode container until it closes. */
+export async function follow (dockerode: DockerHandle, stream: any, callback: (data)=>void) {
+  await new Promise<void>((ok, fail)=>{
+    dockerode.modem.followProgress(stream, complete, callback)
+    function complete (err, _output) {
+      if (err) return fail(err)
+      ok()
+    }
+  })
 }
 
 /** The caveman solution to detecting when the node is ready to start receiving requests:
