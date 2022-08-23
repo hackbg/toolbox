@@ -47,7 +47,7 @@ if (require.main === module) izomorf(process.cwd(), ...process.argv.slice(2))
     const cwd   = process.cwd()
     const trim  = x => x.slice(3).replace(RE_FRAME, (y, a, b) => relative(cwd, fileURLToPath(a))+b)
     const frame = x => '     │' + trim(x)
-    const error = `${name}: ${message}\n${stack.split('\n').slice(1).map(frame).join('\n')}`
+    const error = `${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`
     console.error(error)
     process.exit(1)
   })
