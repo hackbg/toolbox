@@ -18,14 +18,23 @@ export interface DockerHandle {
 
 export function mockDockerode (callback: Function = () => {}): DockerHandle {
   return {
-    getImage () { return { async inspect () { return } } },
-    getContainer (options) { return mockDockerodeContainer(callback) },
+    getImage () {
+      return { async inspect () { return } }
+    },
+    getContainer (options: any) {
+      return mockDockerodeContainer(callback)
+    },
     async pull () {},
     buildImage () {},
-    async createContainer (options) { return mockDockerodeContainer(callback) },
-    async run (...args) { callback({run:args}); return [{Error:null,StatusCode:0},Symbol()] },
+    async createContainer (options: any) {
+      return mockDockerodeContainer(callback)
+    },
+    async run (...args: any) {
+      callback({run:args})
+      return [{Error:null,StatusCode:0},Symbol()]
+    },
     modem: {
-      followProgress (stream, complete, callback) { complete(null, null) }
+      followProgress (stream: any, complete: Function, callback: any) { complete(null, null) }
     }
   }
 }
@@ -33,7 +42,9 @@ export function mockDockerode (callback: Function = () => {}): DockerHandle {
 export function mockDockerodeContainer (callback: Function = () => {}) {
   return {
     id: 'mockmockmock',
-    logs (options, cb) { cb(...(callback({ createContainer: options })||[null, mockStream()])) },
+    logs (options: any, cb: Function) {
+      cb(...(callback({ createContainer: options })||[null, mockStream()]))
+    },
     async start   () {},
     async attach  () { return {setEncoding(){},pipe(){}} },
     async wait    () { return {Error:null,StatusCode:0}  },
@@ -113,13 +124,14 @@ export class DokeresImage {
   }
 
   get dockerode (): Docker {
+    if (!this.dokeres || !this.dockerode) throw new Error('Docker API client not set')
     return this.dokeres.dockerode as unknown as Docker
   }
 
-  _available = null
+  _available: Promise<typeof this.name>|null = null
   async ensure () {
     return await (this._available ??= new Promise(async(resolve, reject)=>{
-      console.info('Ensuring image is present:', bold(this.name))
+      console.info('Ensuring image is present:', bold(String(this.name)))
       const PULLING  = `Image ${this.name} not found, pulling...`
       const BUILDING = `Image ${this.name} not found upstream, building...`
       const NO_FILE  = `Image ${this.name} not found and no Dockerfile provided; can't proceed.`
@@ -146,14 +158,16 @@ export class DokeresImage {
 
   /** Throws if inspected image does not exist locally. */
   async check () {
+    if (!this.name) throw new Error(`Can't inspect image with no name.`)
     await this.dockerode.getImage(this.name).inspect()
   }
 
   /** Throws if inspected image does not exist in Docker Hub. */
   async pull () {
     const { name, dockerode } = this
+    if (!name) throw new Error(`Can't pull image with no name.`)
     await new Promise<void>((ok, fail)=>{
-      dockerode.pull(name, async (err, stream) => {
+      dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
           if (event.error) {
@@ -224,7 +238,7 @@ export type DokeresCommand = string|string[]
 /** Interface to a Docker container. */
 export class DokeresContainer {
 
-  static create = async function createDokeresContainer (
+  static async create (
     image:         DokeresImage,
     name?:         string,
     options?:      Partial<DokeresContainerOpts>,
@@ -237,7 +251,7 @@ export class DokeresContainer {
     return self
   }
 
-  static run = async function runDokeresContainer (
+  static async run (
     image:         DokeresImage,
     name?:         string,
     options?:      Partial<DokeresContainerOpts>,
@@ -364,13 +378,23 @@ export class DokeresContainer {
     return await this.container.wait()
   }
 
+  async waitLog (
+    expected:     string,
+    thenDetach?:  boolean,
+    waitSeconds?: number,
+    logFilter?:   (data: string) => boolean
+  ) {
+    if (!this.container) throw Errors.NoContainer()
+    return waitUntilLogsSay(this.container, expected, thenDetach, waitSeconds, logFilter)
+  }
+
 }
 
 /** Follow the output stream from a Dockerode container until it closes. */
-export async function follow (dockerode: DockerHandle, stream: any, callback: (data)=>void) {
+export async function follow (dockerode: DockerHandle, stream: any, callback: (data: any)=>void) {
   await new Promise<void>((ok, fail)=>{
     dockerode.modem.followProgress(stream, complete, callback)
-    function complete (err, _output) {
+    function complete (err: any, _output: any) {
       if (err) return fail(err)
       ok()
     }

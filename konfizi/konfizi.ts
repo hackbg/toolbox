@@ -16,7 +16,7 @@ interface EnvConf {
 export function getFromEnv (env: Record<string, string> = {}): EnvConf {
   return {
 
-    Str <T> (name, fallback: ()=>T = () => null): string|T {
+    Str <T> (name: string, fallback: ()=>T = () => null as unknown as T): string|T {
       if (env.hasOwnProperty(name)) {
         return String(process.env[name] as string)
       } else {
@@ -24,7 +24,7 @@ export function getFromEnv (env: Record<string, string> = {}): EnvConf {
       }
     },
 
-    Bool <T> (name, fallback: ()=>T = () => null): boolean|T {
+    Bool <T> (name: string, fallback: ()=>T = () => null as unknown as T): boolean|T {
       if (env.hasOwnProperty(name)) {
         let value = process.env[name] as string
         if (value === '' || value === 'false' || value === 'no' || Number(value) === 0) {

@@ -287,7 +287,7 @@ export function touch (...fragments: string[]) {
   * - https://github.com/jonschlinkert/repeat-string/blob/master/index.js
   * by Jon Schlinkert, used under MIT license. */
 export function alignYAML (str: string, pad: number = 0) {
-  const props   = str.match(/^\s*[\S]+:/gm)
+  const props   = str.match(/^\s*[\S]+:/gm) || []
   const longest = props.reduce((x, str)=>Math.max(x, str.length), 0) + pad
   return str.split('\n').map(function(str) {
     const line = /^(\s*.+[^:#]: )\s*(.*)/gm
