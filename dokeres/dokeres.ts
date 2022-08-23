@@ -128,7 +128,7 @@ export class DokeresImage {
     return this.dokeres.dockerode as unknown as Docker
   }
 
-  _available: Promise<typeof this.name>|null = null
+  _available: Promise<string>|null = null
   async ensure () {
     return await (this._available ??= new Promise(async(resolve, reject)=>{
       console.info('Ensuring image is present:', bold(String(this.name)))
