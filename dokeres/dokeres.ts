@@ -124,7 +124,7 @@ export class DokeresImage {
   }
 
   get dockerode (): Docker {
-    if (!this.dokeres || !this.dockerode) throw new Error('Docker API client not set')
+    if (!this.dokeres || !this.dokeres.dockerode) throw new Error('Docker API client not set')
     return this.dokeres.dockerode as unknown as Docker
   }
 
