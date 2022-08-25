@@ -38,3 +38,32 @@ export function getFromEnv (env: Record<string, string> = {}): EnvConf {
 
   }
 }
+
+export default class EnvConfig {
+
+  constructor (
+    readonly env: Record<string, string> = {},
+    readonly cwd: string                 = ''
+  ) {}
+
+  getStr <T> (name, fallback: ()=>T = () => null): string|T {
+    if (this.env.hasOwnProperty(name)) {
+      return String(process.env[name] as string)
+    } else {
+      return fallback()
+    }
+  }
+
+  getBool <T> (name, fallback: ()=>T = () => null): boolean|T {
+    if (this.env.hasOwnProperty(name)) {
+      let value = process.env[name] as string
+      if (value === '' || value === 'false' || value === 'no' || Number(value) === 0) {
+        return false
+      }
+      return Boolean(value)
+    } else {
+      return fallback()
+    }
+  }
+
+}
