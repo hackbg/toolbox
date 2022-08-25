@@ -26,6 +26,28 @@ export interface Command<C extends CommandContext> {
   steps: Step<C, unknown>[]
 }
 
+/** Base class for class-based deploy procedure. Adds progress logging. */
+export class Task<C, X> extends Lazy<X> {
+  console = console
+  constructor (public readonly context: C, getResult: ()=>X) {
+    let self: this
+    super(()=>{
+      this.console.info()
+      this.console.info('Task     ', this.constructor.name ? bold(this.constructor.name) : '')
+      return getResult.bind(self)()
+    })
+    self = this
+  }
+  subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
+    const self = this
+    return new Lazy(()=>{
+      this.console.info()
+      this.console.info('Subtask  ', cb.name ? bold(cb.name) : '')
+      return cb.bind(self)()
+    })
+  }
+}
+
 export interface CommandContext {
   /** Run a subroutine in a copy of the current context, i.e. without changing the context. */
   run <C extends CommandContext, T> (
