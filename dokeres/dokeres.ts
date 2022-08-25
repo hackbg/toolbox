@@ -104,6 +104,13 @@ export class Dokeres {
       info.Path
     ), { container })
   }
+
+  static Image: typeof DokeresImage
+
+  static Container: typeof DokeresContainer
+
+  static LineTransformStream: typeof LineTransformStream
+
 }
 
 /** Interface to a Docker image. */
@@ -128,7 +135,7 @@ export class DokeresImage {
     return this.dokeres.dockerode as unknown as Docker
   }
 
-  _available: Promise<string>|null = null
+  _available: Promise<string|null>|null = null
   async ensure () {
     return await (this._available ??= new Promise(async(resolve, reject)=>{
       console.info('Ensuring image is present:', bold(String(this.name)))
@@ -491,3 +498,11 @@ export const Errors = {
   NoContainer:             () => new Error('No container'),
   ContainerAlreadyCreated: () => new Error('Container already created')
 }
+
+Dokeres.Image = DokeresImage
+
+Dokeres.Container = DokeresContainer
+
+Dokeres.LineTransformStream = LineTransformStream
+
+export default Dokeres
