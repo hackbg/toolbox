@@ -1,4 +1,4 @@
-export type Env = Record<string, string>
+export type Env = Record<string, string|undefined>
 
 export default class EnvConfig {
 
