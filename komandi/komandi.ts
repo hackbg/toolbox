@@ -28,7 +28,18 @@ export interface Command<C extends CommandContext> {
 
 /** Base class for class-based deploy procedure. Adds progress logging. */
 export class Task<C, X> extends Lazy<X> {
+
+  static get run () {
+    const self = this
+    Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
+    return runTask
+    async function runTask <C> (context: C) {
+      return new self(context, () => {/*ignored*/})
+    }
+  }
+
   console = console
+
   constructor (public readonly context: C, getResult: ()=>X) {
     let self: this
     super(()=>{
@@ -38,6 +49,7 @@ export class Task<C, X> extends Lazy<X> {
     })
     self = this
   }
+
   subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
@@ -46,6 +58,7 @@ export class Task<C, X> extends Lazy<X> {
       return cb.bind(self)()
     })
   }
+
 }
 
 export interface CommandContext {
