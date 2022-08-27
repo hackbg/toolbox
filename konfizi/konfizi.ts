@@ -1,6 +1,6 @@
 export type Env = Record<string, string|undefined>
 
-export default class EnvConfig {
+export class EnvConfig {
 
   constructor (
     readonly env: Env    = {},
