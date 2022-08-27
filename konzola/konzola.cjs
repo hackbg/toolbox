@@ -9,6 +9,76 @@ const { fileURLToPath } = require('url')
 
 let maxContextLength = 0
 
+function Callable (callback = function EmptyCallable () {}) {
+  return function CallableObjectConstructor (...args) {
+    return Object.setPrototypeOf(
+      Call.bind(this),
+      Object.getPrototypeOf(this)
+    )
+    function Call (...args) {
+      console.log('Called', this)
+      return this
+    }
+  }
+}
+
+module.exports.CustomConsole = class CustomConsole extends Callable(function Print (...args) {
+  this.info(...args)
+}) {
+
+  constructor (name, console) {
+    this.console = console
+    this.padLength = Math.max(maxContextLength, name.length)
+    this.prefixes = {
+      info:  bold(green(  `${context.padEnd(maxContextLength)} INFO `)),
+      warn:  bold(yellow( `${context.padEnd(maxContextLength)} WARN `)),
+      error: bold(red(    `${context.padEnd(maxContextLength)} ERROR`)),
+      trace: bold(magenta(`${context.padEnd(maxContextLength)} TRACE`))
+    }
+  }
+
+  padLength = 0
+
+  format = (arg) => {
+    if (typeof arg === 'object') {
+      return `${indent()}${render(arg).replace(/\n/g, indent())}`.trim()
+    } else {
+      return `${indent()}${String(arg)}`
+    }
+    function indent (n = this.padLength + 7) {
+      return "\n" + [...Array(n)].map(x=>' ').join('')
+    }
+  }
+
+  console = console
+
+  info    = (...args) => this.console.info(this.prefixes.info,  ...args)
+
+  warn    = (...args) => this.console.warn(this.prefixes.warn,  ...args)
+
+  error   = (...args) => this.console.error(this.prefixes.error, ...args)
+
+  debugEnabled = process.env.DEBUG
+
+  debug = (...args) => {
+    if (this.debugEnabled) {
+      this.console.debug(args.map(format).join('').slice(1))
+    }
+    return args[0]
+  }
+
+  trace = (...args) => {
+    if (this.debugEnabled) {
+      this.console.debug(this.prefixes.trace, ...args.map(format))
+      this.console.trace()
+    }
+    return args[0]
+  }
+
+  table = (rows = []) => this.console.log(table(rows))
+
+}
+
 function Konzola (context) {
 
   maxContextLength = Math.max(maxContextLength, context.length)

@@ -12,7 +12,16 @@ declare module '@hackbg/konzola' {
   export type MakeConsole = (prefix: string) => Console
 
   export interface Console {
-    new (prefix: string): this
+    log   (...args: any): void
+    info  (...args: any): void
+    warn  (...args: any): void
+    error (...args: any): void
+    debug (...args: any): void
+    trace (...args: any): void
+  }
+
+  export class CustomConsole implements Console {
+    new (name: string, host: Console): this
     log   (...args: any): void
     info  (...args: any): void
     warn  (...args: any): void
@@ -28,4 +37,3 @@ declare module '@hackbg/konzola' {
   export const timestamp: Function
 
 }
-
