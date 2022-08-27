@@ -6,6 +6,7 @@ import { Readable, Writable, Transform } from 'stream'
 const console = Console('Dokeres')
 
 export { Docker }
+
 export interface DockerHandle {
   getImage:        Function
   buildImage:      Function
@@ -60,8 +61,8 @@ export function mockStream () {
 export const socketPath = process.env.DOCKER_HOST || '/var/run/docker.sock'
 
 /** Wrapper around Dockerode.
-  * Used to optain `DokeresImage` instances. */
-export class Dokeres {
+  * Used to optain `Image` instances. */
+export class Engine {
 
   static mock (callback?: Function) {
     return new this(mockDockerode(callback))
@@ -88,15 +89,15 @@ export class Dokeres {
     name:        string|null,
     dockerfile:  string|null,
     extraFiles?: string[]
-  ): DokeresImage {
-    return new DokeresImage(this, name, dockerfile, extraFiles)
+  ): Image {
+    return new Image(this, name, dockerfile, extraFiles)
   }
 
-  async container (id: string): Promise<DokeresContainer> {
+  async container (id: string): Promise<Container> {
     const container = await this.dockerode.getContainer(id)
     const info = await container.inspect()
-    const image = new DokeresImage(this, info.Image)
-    return Object.assign(new DokeresContainer(
+    const image = new Image(this, info.Image)
+    return Object.assign(new Container(
       image,
       info.Name,
       undefined,
@@ -105,28 +106,28 @@ export class Dokeres {
     ), { container })
   }
 
-  static Image: typeof DokeresImage
+  static Image: typeof Image
 
-  static Container: typeof DokeresContainer
+  static Container: typeof Container
 
   static LineTransformStream: typeof LineTransformStream
 
 }
 
 /** Interface to a Docker image. */
-export class DokeresImage {
+export class Image {
 
   constructor (
-    readonly dokeres:     Dokeres|null,
+    readonly dokeres:     Engine|null,
     readonly name:        string|null,
     readonly dockerfile:  string|null = null,
     readonly extraFiles:  string[]    = []
   ) {
-    if (dokeres && !(dokeres instanceof Dokeres)) {
-      throw new Error('DokeresImage: pass a Dokeres instance')
+    if (dokeres && !(dokeres instanceof Engine)) {
+      throw new Error('Image: pass a Dokeres.Engine instance')
     }
     if (!name && !dockerfile) {
-      throw new Error('DokeresImage: specify at least one of: name, dockerfile')
+      throw new Error('Image: specify at least one of: name, dockerfile')
     }
   }
 
@@ -217,7 +218,7 @@ export class DokeresImage {
 
   //@ts-ignore
   async run (name, options, command, entrypoint, outputStream?) {
-    return await DokeresContainer.run(
+    return await Container.run(
       this,
       name,
       options,
@@ -229,7 +230,7 @@ export class DokeresImage {
 
 }
 
-export interface DokeresContainerOpts {
+export interface ContainerOpts {
   cwd:      string
   env:      Record<string, string>
   exposed:  string[]
@@ -240,17 +241,17 @@ export interface DokeresContainerOpts {
   remove:   boolean
 }
 
-export type DokeresCommand = string|string[]
+export type ContainerCommand = string|string[]
 
 /** Interface to a Docker container. */
-export class DokeresContainer {
+export class Container {
 
   static async create (
-    image:         DokeresImage,
+    image:         Image,
     name?:         string,
-    options?:      Partial<DokeresContainerOpts>,
-    command?:      DokeresCommand,
-    entrypoint?:   DokeresCommand,
+    options?:      Partial<ContainerOpts>,
+    command?:      ContainerCommand,
+    entrypoint?:   ContainerCommand,
   ) {
     await image.ensure()
     const self = new this(image, name, options, command, entrypoint)
@@ -259,11 +260,11 @@ export class DokeresContainer {
   }
 
   static async run (
-    image:         DokeresImage,
+    image:         Image,
     name?:         string,
-    options?:      Partial<DokeresContainerOpts>,
-    command?:      DokeresCommand,
-    entrypoint?:   DokeresCommand,
+    options?:      Partial<ContainerOpts>,
+    command?:      ContainerCommand,
+    entrypoint?:   ContainerCommand,
     outputStream?: Writable
   ) {
     const self = await this.create(image, name, options, command, entrypoint)
@@ -278,11 +279,11 @@ export class DokeresContainer {
   }
 
   constructor (
-    readonly image:       DokeresImage,
+    readonly image:       Image,
     readonly name?:       string,
-    readonly options:     Partial<DokeresContainerOpts> = {},
-    readonly command?:    DokeresCommand,
-    readonly entrypoint?: DokeresCommand
+    readonly options:     Partial<ContainerOpts> = {},
+    readonly command?:    ContainerCommand,
+    readonly entrypoint?: ContainerCommand
   ) {}
 
   container: Docker.Container|null = null
@@ -498,11 +499,3 @@ export const Errors = {
   NoContainer:             () => new Error('No container'),
   ContainerAlreadyCreated: () => new Error('Container already created')
 }
-
-Dokeres.Image = DokeresImage
-
-Dokeres.Container = DokeresContainer
-
-Dokeres.LineTransformStream = LineTransformStream
-
-export default Dokeres
