@@ -22,20 +22,24 @@ function Callable (callback = function EmptyCallable () {}) {
   }
 }
 
-module.exports.CustomConsole = class CustomConsole extends Callable(function Print (...args) {
+class CustomConsole extends Callable(function Print (...args) {
   this.info(...args)
 }) {
 
-  constructor (name, console) {
+  constructor (console, name) {
+    super()
     this.console = console
-    this.padLength = Math.max(maxContextLength, name.length)
+    this.name ??= name
+    this.padLength = Math.max(maxContextLength, this.name.length)
     this.prefixes = {
-      info:  bold(green(  `${context.padEnd(maxContextLength)} INFO `)),
-      warn:  bold(yellow( `${context.padEnd(maxContextLength)} WARN `)),
-      error: bold(red(    `${context.padEnd(maxContextLength)} ERROR`)),
-      trace: bold(magenta(`${context.padEnd(maxContextLength)} TRACE`))
+      info:  bold(green(  `${this.name.padEnd(maxContextLength)} INFO `)),
+      warn:  bold(yellow( `${this.name.padEnd(maxContextLength)} WARN `)),
+      error: bold(red(    `${this.name.padEnd(maxContextLength)} ERROR`)),
+      trace: bold(magenta(`${this.name.padEnd(maxContextLength)} TRACE`))
     }
   }
+
+  name = ''
 
   padLength = 0
 
@@ -120,19 +124,21 @@ function Konzola (context) {
 
 }
 
-module.exports         = Konzola
-module.exports.default = Konzola
-module.exports.Console = Konzola
-module.exports.Konzola = Konzola
-module.exports.colors  = colors
-module.exports.bold    = colors.bold
-module.exports.render  = render
-module.exports.prompts = prompts
-module.exports.table   = table
-
-module.exports.timestamp = function timestamp (d = new Date()) {
+function timestamp (d = new Date()) {
   return d.toISOString()
     .replace(/[-:\.Z]/g, '')
     .replace(/[T]/g, '_')
     .slice(0, -3)
 }
+
+module.exports           = Konzola
+module.exports.default   = Konzola
+module.exports.Console   = Konzola
+module.exports.Konzola   = Konzola
+module.exports.colors    = colors
+module.exports.bold      = colors.bold
+module.exports.render    = render
+module.exports.prompts   = prompts
+module.exports.table     = table
+module.exports.timestamp = timestamp
+module.exports.CustomConsole = CustomConsole
