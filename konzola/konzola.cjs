@@ -32,6 +32,7 @@ class CustomConsole extends Callable(function Print (...args) {
     this.name ??= name
     this.padLength = Math.max(maxContextLength, this.name.length)
     this.prefixes = {
+      info:  bold(green(  `${this.name.padEnd(maxContextLength)} LOG  `)),
       info:  bold(green(  `${this.name.padEnd(maxContextLength)} INFO `)),
       warn:  bold(yellow( `${this.name.padEnd(maxContextLength)} WARN `)),
       error: bold(red(    `${this.name.padEnd(maxContextLength)} ERROR`)),
@@ -55,6 +56,8 @@ class CustomConsole extends Callable(function Print (...args) {
   }
 
   console = console
+
+  log     = (...args) => this.console.log(this.prefixes.log,   ...args)
 
   info    = (...args) => this.console.info(this.prefixes.info,  ...args)
 

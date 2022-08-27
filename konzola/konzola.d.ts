@@ -20,7 +20,7 @@ declare module '@hackbg/konzola' {
     trace (...args: any): void
   }
 
-  export class CustomConsole implements Console {
+  export class CustomConsole extends Function implements Console {
     constructor (host?: Console, name?: string)
     log   (...args: any): void
     info  (...args: any): void
