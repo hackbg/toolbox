@@ -62,6 +62,10 @@ export class Task<C, X> extends Lazy<X> {
 }
 
 export interface CommandContext {
+  /** Process environment. */
+  env: Record<string, string>
+  /** Current working directory. */
+  cwd: string
   /** Run a subroutine in a copy of the current context, i.e. without changing the context. */
   run <C extends CommandContext, T> (
     operation:     Step<C, T>,
@@ -193,6 +197,8 @@ export async function runOperation <Context extends CommandContext> (
   context: Partial<CommandContext> = {
     cmdArgs,
     timestamp: timestamp(),
+    cwd: process.cwd(),
+    env: { ...process.env },
   }
 ): Promise<Context> {
 
