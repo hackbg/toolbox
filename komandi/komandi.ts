@@ -1,7 +1,7 @@
 import $ from '@hackbg/kabinet'
-import { Console, bold, colors, timestamp } from '@hackbg/konzola'
+import { CustomConsole, bold, colors, timestamp } from '@hackbg/konzola'
 
-const console = Console('Komandi')
+Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
 
 /** A promise that evaluates once. */
 export class Lazy<X> extends Promise<X> {
@@ -21,9 +21,35 @@ export class Lazy<X> extends Promise<X> {
   }
 }
 
-export interface Command<C extends CommandContext> {
-  info:  string,
-  steps: Step<C, unknown>[]
+export abstract class Timed<T, U> {
+  started?: number|false = false
+  ended?:   number|false = false
+  result?:  T
+  failed?:  U
+  get took (): string|undefined {
+    return (this.ended && this.started)
+      ? `${((this.ended - this.started)/1000).toFixed(3)}s`
+      : undefined
+  }
+  protected start (): number {
+    if (this.started) throw new Error('Already started')
+    return this.started = + new Date()
+  }
+  protected end (): number {
+    if (!this.started) throw new Error('Not started yet')
+    if (this.ended) throw new Error('Already ended')
+    return this.ended = + new Date()
+  }
+  protected succeed (result: T): number {
+    const end = this.end()
+    this.result = result
+    return end
+  }
+  protected fail (failed: U): number {
+    const end = this.end()
+    this.failed = failed
+    throw failed
+  }
 }
 
 /** Base class for class-based deploy procedure. Adds progress logging. */
@@ -61,226 +87,52 @@ export class Task<C, X> extends Lazy<X> {
 
 }
 
-export interface CommandContext {
-  /** Process environment. */
-  env: Record<string, string>
-  /** Current working directory. */
-  cwd: string
-  /** Run a subroutine in a copy of the current context, i.e. without changing the context. */
-  run <C extends CommandContext, T> (
-    operation:     Step<C, T>,
-    extraContext?: Record<string, unknown>,
-    ...extraArgs:  unknown[]
-  ): Promise<T>
-  /** Extra arguments passed from the command line. */
-  cmdArgs:      string[]
-  /** Start of command execution. */
-  timestamp:    string
-}
+/** A step is a value object around a function that takes context as first argument. */
+export class Step<C, D> extends Timed<D, Error> {
 
-export type Step<C extends CommandContext, U> = (context: C, ...args: any[]) => U|Promise<U>
-
-/** Error message or recovery function. */
-export type StepOrInfo<C extends CommandContext, T> = string|((context: Partial<C>)=>T)
-
-export class Commands<C extends CommandContext> {
-  constructor (
-    public readonly name:     string,
-    public readonly before:   Step<C, unknown>[]         = [],
-    public readonly after:    Step<C, unknown>[]         = [],
-    public readonly commands: Record<string, Command<C>> = {}
-  ) {}
-  /** Define a command. Remember to put `.entrypoint(import.meta.url)`
-    * at the end of your main command object. */
-  command (name: string, info: string, ...steps: Step<C, unknown>[]) {
-    // validate that all steps are functions
-    for (const i in steps) {
-      if (!(steps[i] instanceof Function)) {
-        console.log({name, info, steps, i})
-        throw new Error(`command: ${this.name} ${name}: invalid step ${i} (not a Function)`)
-      }
-    }
-    // store command
-    this.commands[name] = { info, steps: [...this.before, ...steps, ...this.after] }
-    return this
-  }
-  /** Filter commands by each word from the list of arguments
-    * then pass the rest as arguments to the found command. */
-  parse (args: string[]): [string, Command<C>, string[]]|null {
-    let commands = Object.entries(this.commands)
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i]
-      const nextCommands = []
-      for (const [name, impl] of commands) {
-        if (name === arg) {
-          return [name, impl, args.slice(i+1)]
-        } else if (name.startsWith(arg)) {
-          nextCommands.push([name.slice(arg.length).trim(), impl])
-        }
-      }
-      commands = nextCommands as [string, Command<C>][]
-      if (commands.length === 0) {
-        return null
-      }
-    }
-    return null
-  }
-  /** `export default myCommands.main(import.meta.url)`
-    * once per module after defining all commands */
-  entrypoint (url: string, args = process.argv.slice(2)): this {
-    const self = this
-    setTimeout(()=>{
-      if (process.argv[1] === $(url).path) self.launch(args)
-    }, 0)
-    return self
-  }
-
-  launch (args = process.argv.slice(2)) {
-    const command = this.parse(args)
-    if (command) {
-      const [cmdName, { info, steps }, cmdArgs] = command
-      console.info('$ fadroma', bold($(process.argv[1]).shortPath), bold(cmdName), ...cmdArgs)
-      return this.run(args)
+  static into <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
+    if (typeof specifier === 'function') {
+      return new (this as any)(specifier)
+    } else if (specifier instanceof Step) {
+      return specifier
     } else {
-      print(console).usage(this)
-      process.exit(1)
+      throw new Error(`Can't create step from: ${specifier}`)
     }
   }
 
-  /** Parse and execute a command */
-  async run <Context extends CommandContext> (
-    args = process.argv.slice(2)
-  ): Promise<Context> {
-    if (args.length === 0) {
-      //@ts-ignore
-      print(console).usage(this)
-      process.exit(1)
-    }
-    const command = this.parse(args)
-    if (!command) {
-      console.error('Invalid command', ...args)
-      process.exit(1)
-    }
-    const [cmd, { info, steps }, cmdArgs] = command
-    return await runOperation(cmd, info, steps, cmdArgs)
+  constructor (
+    public impl: (this: C, ...args: any[]) => D|Promise<D>,
+    public name = impl.name,
+    public info?: string
+  ) {
+    super()
   }
-}
 
-export async function runSub <C extends CommandContext, T> (
-  operation:    Step<C, T>,
-  extraContext: Record<string, any> = {},
-  extraArgs:    unknown[] = []
-): Promise<T> {
-  if (!operation) {
-    throw new Error('Tried to run missing operation.')
-  }
-  const params = Object.keys(extraContext)
-  console.info(
-    'Running', bold(operation.name||'(unnamed)'),
-    ...((params.length > 0) ? ['with set:', bold(params.join(', '))] : [])
-  )
-  try {
-    //@ts-ignore
-    return await operation({ ...this, ...extraContext }, ...extraArgs)
-  } catch (e) {
-    throw e
-  }
-}
-
-export async function runOperation <Context extends CommandContext> (
-  command:  string,
-  cmdInfo:  string,
-  cmdSteps: Function[],
-  cmdArgs:  string[] = [],
-
-  // Establish context
-  context: Partial<CommandContext> = {
-    cmdArgs,
-    timestamp: timestamp(),
-    cwd: process.cwd(),
-    env: { ...process.env },
-  }
-): Promise<Context> {
-
-  // Never hurts:
-  Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit)
-
-  // Will count milliseconds
-  const stepTimings = []
-
-  // Start of command
-  const T0 = + new Date()
-
-  // Will align output
-  const longestName = cmdSteps
-    .map((step?: { name?: string })=>step?.name||'(unnamed step)')
-    .reduce((max: number, x: string)=>Math.max(max, x.length), 0)
-
-  // Store thrown error and print report before it
-  let error
-
-  // Execute each step, updating the context
-  for (const step of cmdSteps) {
-
-    // Skip empty steps
-    if (!(step instanceof Function)) continue
-
-    // Pad the name
-    const name = (step.name||'').padEnd(longestName)
-
-    // Start of step
-    const T1 = + new Date()
-
+  /** - Always async.
+    * - Bind "this" in impl.
+    * - Return updated copy of context. */
+  async run (context: C, ...args: any[]): Promise<D> {
+    this.start()
+    let result: D
     try {
-      // Add step runner
-      context.run = runSub.bind(context)
-
-      // Object returned by step gets merged into context.
-      const updates = await step({ ...context })
-
-      // On every step, the context is recreated from the old context and the updates.
-      context = { ...context, ...updates }
-
-      // End of step
-      const T2 = + new Date()
-
-      stepTimings.push([name, T2-T1, false])
+      const result = await Promise.resolve(this.impl.apply({ ...context }, args))
+      if (typeof result !== 'object') {
+        log.warn(`Step "${this.name}" returned a non-object.`)
+      } else {
+        if (Object.getPrototypeOf(result) !== Object.getPrototypeOf({})) {
+          log.warn(`Step "${this.name}" returned a non-plain object.`)
+        }
+        context = { ...context, ...result }
+      }
+      this.succeed(result)
     } catch (e) {
-      // If the step threw an error, store the timing and stop executing new steps
-      error = e
-      const T2 = + new Date()
-      stepTimings.push([name, T2-T1, true])
-      break
+      this.fail(e)
     }
+    return context as unknown as D
   }
 
-  // Final execution report
-  const T3 = + new Date()
-  const result = error ? colors.red('failed') : colors.green('completed')
-  console.info(`The command`, bold(command), result, `in`, ((T3-T0)/1000).toFixed(3), `s`)
-
-  // Print timing of each step
-  for (const [name, duration, isError] of stepTimings as [string, number, boolean][]) {
-    const status   = isError?`${colors.red('FAIL')}`:`${colors.green('OK  ')}`
-    const stepName = bold((name||'(nameless step)').padEnd(40))
-    const timing   = (duration/1000).toFixed(1).padStart(10)
-    console.info(status, stepName, timing, 's')
-  }
-
-  // If there was an error throw it now
-  if (error) {
-    throw error
-  }
-
-  return context as Context
 }
-export function rebind (self: Record<string, unknown>, obj = self) {
-  for (const key in obj) {
-    if (obj[key] instanceof Function) {
-      obj[key] = (obj[key] as Function).bind(self)
-    }
-  }
-}
+
 /** Run several operations in parallel in the same context. */
 export function parallel (...operations: Function[]) {
   return function parallelOperations (context: { run: Function }) {
@@ -288,21 +140,224 @@ export function parallel (...operations: Function[]) {
   }
 }
 
-export const print = ({ log }: { log: Function }) => {
-  return {
-    // Usage of Command API
-    usage <C extends CommandContext> ({ name, commands }: Commands<C>) {
-      let longest = 0
-      for (const name of Object.keys(commands)) {
-        longest = Math.max(name.length, longest)
-      }
-      log()
-      for (const [cmdName, { info }] of Object.entries(commands)) {
-        log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
-      }
-      log()
-    },
+/** A command is a binding between a string and one or more steps
+  * that operate sequentially on the same context.  */
+export class Command<C extends object> extends Timed<C, Error> {
+
+  constructor (
+    readonly name:    string             = '',
+    readonly info:    string             = '',
+    readonly steps:   Step<C, unknown>[] = [],
+    private  context: C                  = {} as C
+  ) {
+    super()
   }
+
+  /** Run the command with the specified arguments.
+    * Commands can be ran only once. */
+  async run <C extends typeof this, D extends typeof this> (
+    args: string[] = process.argv.slice(2)
+  ): Promise<D> {
+    if (this.started) {
+      throw new Error('Command already started.')
+    }
+    this.started = + new Date()
+    for (const step of this.steps) {
+      try {
+        this.context = step.run(this.context) as typeof this.context
+      } catch (e) {
+        this.failed = e
+        break
+      }
+    }
+    this.ended = + new Date()
+    log.commandEnded(this)
+    if (this.failed) throw this.failed
+    return this.context as unknown as D
+  }
+
+  get longestName (): number {
+    return this.steps
+      .map((step?: { name?: string })=>step?.name||'(unnamed step)')
+      .reduce((max: number, x: string)=>Math.max(max, x.length), 0)
+  }
+
 }
 
-export * from '@hackbg/konfizi'
+export class Commands<C extends object> {
+
+  constructor (
+    public readonly name:     string,
+    public readonly before:   Step<C, unknown>[]         = [],
+    public readonly after:    Step<C, unknown>[]         = [],
+    public readonly commands: Record<string, Command<C>> = {}
+  ) {}
+
+  /** Define a command. Remember to put `.entrypoint(import.meta.url)`
+    * at the end of your main command object. */
+  command (name: string, info: string, ...steps: Step<C, unknown>[]) {
+
+    // validate that all steps are functions
+    for (const i in steps) {
+      if (!(steps[i] instanceof Function)) {
+        console.log({name, info, steps, i})
+        throw new Error(`command: ${this.name} ${name}: invalid step ${i} (not a Function)`)
+      }
+    }
+
+    // store command
+    this.commands[name] = new Command(
+      name, info, [...this.before, ...steps, ...this.after].map(Step.into)
+    ) as unknown as Command<C>
+
+    return this
+
+  }
+
+  /** Filter commands by each word from the list of arguments
+    * then pass the rest as arguments to the found command. */
+  parse (args: string[]): [Command<C>|null, ...string[]] {
+
+    let commands = Object.entries(this.commands)
+
+    for (let i = 0; i < args.length; i++) {
+
+      const arg          = args[i]
+      const nextCommands = []
+      for (const [name, command] of commands) {
+        if (name === arg) {
+          return [command, ...args]
+        } else if (name.startsWith(arg)) {
+          nextCommands.push([name.slice(arg.length).trim(), command])
+        }
+      }
+
+      commands = nextCommands as [string, Command<C>][]
+      if (commands.length === 0) return [null]
+
+    }
+
+    return [null]
+
+  }
+
+  /** Parse and execute a command */
+  async run (argv = process.argv.slice(2)) {
+    if (argv.length === 0) {
+      log.usage(this)
+      process.exit(1)
+    }
+    const [command, ...args] = this.parse(argv)
+    if (!command) {
+      console.error('Invalid command:', ...args)
+      process.exit(1)
+    }
+    return await command.run(args)
+  }
+
+  /** `export default myCommands.main(import.meta.url)`
+    * once per module after defining all commands */
+  entrypoint (url: string, args = process.argv.slice(2)): this {
+    const self = this
+    setTimeout(()=>{if (process.argv[1] === $(url).path) self.launch(args)}, 0)
+    return self
+  }
+
+  launch (argv = process.argv.slice(2)) {
+    const [command, ...args] = this.parse(argv)
+    if (command) {
+      return this.run(args)
+    } else {
+      log.usage(this)
+      process.exit(1)
+    }
+  }
+
+}
+
+/** A context contains the environment context. It is extensible. */
+export class Context {
+
+  /** Start of command execution. */
+  timestamp: string
+    = timestamp()
+
+  /** Process environment at lauch of process. */
+  env: Record<string, string|undefined>
+    = { ...process.env }
+
+  /** Current working directory. */
+  cwd: string
+    = process.cwd()
+
+  /** Currently registered commands. */
+  commands: Record<string, Command<Context>>
+    = {}
+
+  /** Currently executing command. */
+  command: string
+    = ''
+
+  /** Extra arguments passed from the command line. */
+  args: string[]
+    = []
+
+  /** Run in the current context. */
+  run <C extends this, D extends this> (
+    operation:    Step<C, D>,
+    extraContext: Record<string, any> = {},
+    extraArgs:    unknown[] = []
+  ): Promise<D> {
+    if (!operation) {
+      throw new Error('Tried to run missing operation.')
+    }
+    const params = Object.keys(extraContext)
+    console.info(
+      'Running', bold(operation.name||'(unnamed)'),
+      ...((params.length > 0) ? ['with set:', bold(params.join(', '))] : [])
+    )
+    try {
+      //@ts-ignore
+      return await operation({ ...this, ...extraContext }, ...extraArgs)
+    } catch (e) {
+      throw e
+    }
+  }
+
+}
+
+export class CommandsConsole extends CustomConsole {
+
+  name = '@hackbg/komandi'
+
+  // Usage of Command API
+  usage ({ name, commands }: Commands<any>) {
+
+    let longest = 0
+    for (const name of Object.keys(commands)) {
+      longest = Math.max(name.length, longest)
+    }
+
+    this.log()
+    for (const [cmdName, { info }] of Object.entries(commands)) {
+      this.log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
+    }
+    this.log()
+
+  }
+
+  commandEnded (command: Command<any>) {
+    const result = command.failed ? colors.red('failed') : colors.green('completed')
+    const took   = command.took
+    console.info(`The command`, bold(command.name), result, `in`, command.took)
+    for (const step of command.steps) {
+      const name     = (step.name ?? '(nameless step)').padEnd(40)
+      const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
+      const timing   = (step.took ?? '').padStart(10)
+      console.info(status, bold(name), timing, 's')
+    }
+  }
+
+}
+
+export const log = new CommandsConsole(console)
