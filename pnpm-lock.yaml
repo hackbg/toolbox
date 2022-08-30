@@ -8,7 +8,7 @@ importers:
       '@hackbg/formati': workspace:^3.0.1
       '@hackbg/izomorf': workspace:latest
       '@hackbg/kabinet': workspace:^3.1.1
-      '@hackbg/komandi': workspace:^4.2.7
+      '@hackbg/komandi': workspace:^5
       '@hackbg/konzola': workspace:^1.1.2
       '@hackbg/portali': workspace:^1.2.3
       '@hackbg/runspec': workspace:^2.3.1
@@ -35,7 +35,7 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/izomorf': link:izomorf
-      '@types/node': 18.7.11
+      '@types/node': 18.7.14
       concurrently: 7.2.2
       typedoc: 0.23.0-beta.7_typescript@4.7.4
       typescript: 4.7.4
@@ -136,8 +136,8 @@ importers:
   komandi:
     specifiers:
       '@hackbg/kabinet': workspace:^3
-      '@hackbg/konfizi': workspace:^1.0.4
-      '@hackbg/konzola': workspace:^1.1
+      '@hackbg/konfizi': workspace:^2
+      '@hackbg/konzola': workspace:^1.2
     dependencies:
       '@hackbg/kabinet': link:../kabinet
       '@hackbg/konfizi': link:../konfizi
@@ -432,7 +432,7 @@ packages:
       '@ganesha/core': 1.1.0
       '@ganesha/node': 2.1.0
       '@ganesha/node-legacy': 1.0.0
-      '@types/node': 18.7.11
+      '@types/node': 18.7.14
       chokidar: 3.5.3
       cross-spawn: 7.0.3
     dev: true
@@ -525,8 +525,8 @@ packages:
     resolution: {integrity: sha512-KcfkBq9H4PI6Vpu5B/KoPeuVDAbmi+2mDBqGPGUgoL7yXQtcWGu2vJWmmRkneWK3Rh0nIAX192Aa87AqKHYChQ==}
     dev: false
 
-  /@types/node/18.7.11:
-    resolution: {integrity: sha512-KZhFpSLlmK/sdocfSAjqPETTMd0ug6HIMIAwkwUpU79olnZdQtMxpQP+G1wDzCH7na+FltSIhbaZuKdwZ8RDrw==}
+  /@types/node/18.7.14:
+    resolution: {integrity: sha512-6bbDaETVi8oyIARulOE9qF1/Qdi/23z6emrUh0fNJRUmjznqrixD4MpGDdgOFk5Xb0m2H6Xu42JGdvAxaJR/wA==}
     dev: true
 
   /@types/prettyjson/0.0.30:

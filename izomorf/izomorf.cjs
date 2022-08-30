@@ -114,7 +114,7 @@ async function izomorf (cwd, command, ...publishArgs) {
     }
   }
 
-  async function bailIfPublished (name, version) {
+  async function isPublished (name, version) {
     const url = `https://registry.npmjs.org/${name}/${version}`
     const response = await fetch(url)
     if (response.status === 200) {
@@ -144,7 +144,7 @@ async function izomorf (cwd, command, ...publishArgs) {
     const { packageJson, restoreOriginalPackageJson } = readPackageJson()
     const { name, version } = packageJson
     const tag = ensureFreshTag(name, version)
-    await bailIfPublished(name, version)
+    if (await isPublished(name, version)) return
     console.log('Original package.json:', packageJson, '\n')
     if (wet) { preliminaryDryRun() } else { makeSureRunIsDry(publishArgs) }
     const isTypeScript = (packageJson.main||'').endsWith('.ts')
