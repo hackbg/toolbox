@@ -64,13 +64,13 @@ export class Task<C, X> extends Lazy<X> {
     }
   }
 
-  console: CustomConsole = new CustomConsole(console, this.constructor.name)
+  log: CustomConsole = new CustomConsole(console, this.constructor.name)
 
   constructor (public readonly context: C, getResult: ()=>X) {
     let self: this
     super(()=>{
-      this.console.info()
-      this.console.info('Task     ', this.constructor.name ? bold(this.constructor.name) : '')
+      this.log.info()
+      this.log.info('Task     ', this.constructor.name ? bold(this.constructor.name) : '')
       return getResult.bind(self)()
     })
     self = this
@@ -79,8 +79,8 @@ export class Task<C, X> extends Lazy<X> {
   subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
-      this.console.info()
-      this.console.info('Subtask  ', cb.name ? bold(cb.name) : '')
+      this.log.info()
+      this.log.info('Subtask  ', cb.name ? bold(cb.name) : '')
       return cb.bind(self)()
     })
   }
@@ -110,6 +110,8 @@ export class Step<C, D> extends Timed<D, Error> {
     super()
   }
 
+  log = new CustomConsole(console, this.name)
+
   /** - Always async.
     * - Bind "this" in impl.
     * - Return updated copy of context. */
@@ -119,10 +121,10 @@ export class Step<C, D> extends Timed<D, Error> {
     try {
       const result = await Promise.resolve(this.impl.apply({ ...context }, args))
       if (typeof result !== 'object') {
-        log.warn(`Step "${this.name}" returned a non-object.`)
+        this.log.warn(`Step "${this.name}" returned a non-object.`)
       } else {
         if (Object.getPrototypeOf(result) !== Object.getPrototypeOf({})) {
-          log.warn(`Step "${this.name}" returned a non-plain object.`)
+          this.log.warn(`Step "${this.name}" returned a non-plain object.`)
         }
         context = { ...context, ...result }
       }
@@ -155,6 +157,8 @@ export class Command<C extends object> extends Timed<C, Error> {
     super()
   }
 
+  log = new CommandsConsole(console, this.name)
+
   /** Run the command with the specified arguments.
     * Commands can be ran only once. */
   async run <C extends typeof this, D extends typeof this> (
@@ -173,7 +177,7 @@ export class Command<C extends object> extends Timed<C, Error> {
       }
     }
     this.ended = + new Date()
-    log.commandEnded(this)
+    this.log.commandEnded(this)
     if (this.failed) throw this.failed
     return this.context as unknown as D
   }
@@ -194,6 +198,8 @@ export class Commands<C extends object> {
     public readonly after:    Step<C, unknown>[]         = [],
     public readonly commands: Record<string, Command<C>> = {}
   ) {}
+
+  log = new CommandsConsole(console, '@hackbg/komandi')
 
   /** Define a command. Remember to put `.entrypoint(import.meta.url)`
     * at the end of your main command object. */
@@ -232,7 +238,7 @@ export class Commands<C extends object> {
   /** Parse and execute a command */
   async run (argv = process.argv.slice(2)) {
     if (argv.length === 0) {
-      log.usage(this)
+      this.log.usage(this)
       process.exit(1)
     }
     const [command, ...args] = this.parse(argv)
@@ -256,7 +262,7 @@ export class Commands<C extends object> {
     if (command) {
       return this.run(args)
     } else {
-      log.usage(this)
+      this.log.usage(this)
       process.exit(1)
     }
   }
@@ -347,5 +353,3 @@ export class CommandsConsole extends CustomConsole {
   }
 
 }
-
-export const log = new CommandsConsole(console)
