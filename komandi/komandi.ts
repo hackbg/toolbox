@@ -64,7 +64,7 @@ export class Task<C, X> extends Lazy<X> {
     }
   }
 
-  console = console
+  console: CustomConsole = new CustomConsole(console, this.constructor.name)
 
   constructor (public readonly context: C, getResult: ()=>X) {
     let self: this
@@ -87,21 +87,23 @@ export class Task<C, X> extends Lazy<X> {
 
 }
 
+export type StepFn = <C, D>(this: C, ...args: any[]) => D|Promise<D>
+
 /** A step is a value object around a function that takes context as first argument. */
 export class Step<C, D> extends Timed<D, Error> {
 
   static into <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
-    if (typeof specifier === 'function') {
-      return new (this as any)(specifier)
-    } else if (specifier instanceof Step) {
+    if (specifier instanceof Step) {
       return specifier
+    } else if (typeof specifier === 'function') {
+      return new (this as any)(specifier)
     } else {
       throw new Error(`Can't create step from: ${specifier}`)
     }
   }
 
   constructor (
-    public impl: (this: C, ...args: any[]) => D|Promise<D>,
+    public impl: StepFn,
     public name = impl.name,
     public info?: string
   ) {
@@ -124,7 +126,7 @@ export class Step<C, D> extends Timed<D, Error> {
         }
         context = { ...context, ...result }
       }
-      this.succeed(result)
+      this.succeed(result as D)
     } catch (e) {
       this.fail(e)
     }
@@ -195,33 +197,23 @@ export class Commands<C extends object> {
 
   /** Define a command. Remember to put `.entrypoint(import.meta.url)`
     * at the end of your main command object. */
-  command (name: string, info: string, ...steps: Step<C, unknown>[]) {
-
-    // validate that all steps are functions
-    for (const i in steps) {
-      if (!(steps[i] instanceof Function)) {
-        console.log({name, info, steps, i})
-        throw new Error(`command: ${this.name} ${name}: invalid step ${i} (not a Function)`)
-      }
-    }
-
+  command (
+    name: string,
+    info: string,
+    ...steps: (Step<C, unknown>|((context: C, ...args: any[])=>unknown))[]
+  ) {
     // store command
     this.commands[name] = new Command(
       name, info, [...this.before, ...steps, ...this.after].map(Step.into)
     ) as unknown as Command<C>
-
     return this
-
   }
 
   /** Filter commands by each word from the list of arguments
     * then pass the rest as arguments to the found command. */
   parse (args: string[]): [Command<C>|null, ...string[]] {
-
     let commands = Object.entries(this.commands)
-
     for (let i = 0; i < args.length; i++) {
-
       const arg          = args[i]
       const nextCommands = []
       for (const [name, command] of commands) {
@@ -231,14 +223,10 @@ export class Commands<C extends object> {
           nextCommands.push([name.slice(arg.length).trim(), command])
         }
       }
-
       commands = nextCommands as [string, Command<C>][]
       if (commands.length === 0) return [null]
-
     }
-
     return [null]
-
   }
 
   /** Parse and execute a command */
