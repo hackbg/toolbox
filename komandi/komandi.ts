@@ -296,6 +296,10 @@ export class Context {
   args: string[]
     = []
 
+  /** Logging service */
+  log
+    = new CommandsConsole(console, this.command)
+
   /** Run in the current context. */
   run <C extends this, D extends this> (
     operation:    Step<C, D>,
