@@ -108,9 +108,10 @@ export class Step<C, D> extends Timed<D, Error> {
     public info?: string
   ) {
     super()
+    this.log = new CustomConsole(console, this.name)
   }
 
-  log = new CustomConsole(console, this.name)
+  log: CustomConsole
 
   /** - Always async.
     * - Bind "this" in impl.
@@ -155,9 +156,10 @@ export class Command<C extends object> extends Timed<C, Error> {
     private  context: C                  = {} as C
   ) {
     super()
+    this.log = new CommandsConsole(console, this.name)
   }
 
-  log = new CommandsConsole(console, this.name)
+  log: CommandsConsole
 
   /** Run the command with the specified arguments.
     * Commands can be ran only once. */
