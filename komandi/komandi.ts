@@ -92,7 +92,7 @@ export type StepFn = <C, D>(this: C, ...args: any[]) => D|Promise<D>
 /** A step is a value object around a function that takes context as first argument. */
 export class Step<C, D> extends Timed<D, Error> {
 
-  static into <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
+  static from <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
     if (specifier instanceof Step) {
       return specifier
     } else if (typeof specifier === 'function') {
@@ -210,7 +210,7 @@ export class Commands<C extends object> {
   ) {
     // store command
     this.commands[name] = new Command(
-      name, info, [...this.before, ...steps, ...this.after].map(Step.into)
+      name, info, [...this.before, ...steps, ...this.after].map(step=>Step.from(step))
     ) as unknown as Command<C>
     return this
   }
@@ -301,7 +301,7 @@ export class Context {
     = new CommandsConsole(console, this.command)
 
   /** Run in the current context. */
-  run <C extends this, D extends this> (
+  async run <C extends this, D extends this> (
     operation:    Step<C, D>,
     extraContext: Record<string, any> = {},
     extraArgs:    unknown[] = []

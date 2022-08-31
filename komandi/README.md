@@ -11,7 +11,6 @@ structured invocations but without the unpronounceable parts.
 ## Defining commands
 
 ```typescript
-#!/usr/bin/env komandi
 // script.ts
 import { Commands, parallel } from '@hackbg/komandi'
 export default new Commands('run', [/*beforeEach*/], [/*afterEach*/])
@@ -25,10 +24,12 @@ export default new Commands('run', [/*beforeEach*/], [/*afterEach*/])
 Commands are matched by string prefix:
 
 ```shell
+/*
 $ npm exec my-script.ts         # lists all commands
 $ npm exec my-script.ts cmd     # lists all commands that start with "cmd"
 $ npm exec my-script.ts cmd one # runs command "cmd one"
 $ npm exec my-script.ts cmd one two # pass args ["two"] to command "cmd one"
+*/
 ```
 
 ## Implementing commands
@@ -46,3 +47,7 @@ async function doAnotherThing (...args: string[]) {
   console.log(this.flag) // Returning an object from the function updates the context
 }
 ```
+
+`this` is bound to an instance of CommandContext which has the following properties:
+`timestamp`, `env`, `cwd`, `commands`, `command`, `args`, `log` and `run`.
+Extend `CommandContext` and `Commands` to add your own to that list.

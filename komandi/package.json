@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "5.0.0",
+  "version":     "5.0.1",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -13,6 +13,9 @@
     "@hackbg/konzola": "workspace:^1.2",
     "@hackbg/kabinet": "workspace:^3",
     "@hackbg/konfizi": "workspace:^2"
+  },
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
   },
   "peerDependencies": {
     "dotenv": "^15.0.1||^16"

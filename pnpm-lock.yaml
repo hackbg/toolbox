@@ -135,6 +135,7 @@ importers:
 
   komandi:
     specifiers:
+      '@hackbg/ganesha': ^2.2.5
       '@hackbg/kabinet': workspace:^3
       '@hackbg/konfizi': workspace:^2
       '@hackbg/konzola': workspace:^1.2
@@ -142,6 +143,8 @@ importers:
       '@hackbg/kabinet': link:../kabinet
       '@hackbg/konfizi': link:../konfizi
       '@hackbg/konzola': link:../konzola
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
 
   konfizi:
     specifiers: {}
@@ -404,6 +407,14 @@ packages:
       jsonc-parser: 3.0.0
     dev: true
 
+  /@ganesha/core/2.0.1:
+    resolution: {integrity: sha512-eaYn9IpHWc8gzPB3sHgksAkluB0/lYKm41KrY+6vwGeUjCp6S6D/Rk5pRqpbQ0RsRyM5ah2ZmkBfnKpOVsyqUg==}
+    dependencies:
+      joycon: 3.1.1
+      jsonc-parser: 3.1.0
+      typescript: 4.7.4
+    dev: true
+
   /@ganesha/node-legacy/1.0.0:
     resolution: {integrity: sha512-IAjtymeCLuxXvzwOu8CtAbV4cugfpfqRcrxSwEgKUmZL8UzT9/0X7WMHUKVx+uN3PbbKAnosLD6btvkEtl000w==}
     dependencies:
@@ -411,6 +422,17 @@ packages:
       front-matter: 4.0.2
       joycon: 3.1.1
       jsonc-parser: 3.0.0
+      pirates: 4.0.5
+      source-map-support: 0.5.21
+    dev: true
+
+  /@ganesha/node-legacy/3.0.2:
+    resolution: {integrity: sha512-w4genePLoho8CSqj5xg6f8qMFkLs1XCI+SZuQ/qLgusXoO35vpUgMy22eKDg9JwDNSSH7VdsOm57QX65UP3fRA==}
+    dependencies:
+      '@ganesha/core': 2.0.1
+      front-matter: 4.0.2
+      joycon: 3.1.1
+      jsonc-parser: 3.1.0
       pirates: 4.0.5
       source-map-support: 0.5.21
     dev: true
@@ -425,6 +447,16 @@ packages:
       source-map-support: 0.5.21
     dev: true
 
+  /@ganesha/node/2.3.3:
+    resolution: {integrity: sha512-/8mp/vqGHEv7KjzV8lCfIdQ3NWqgtIU7/h0iNqlF3QiMJKD3OaesafBs9/HrTfi31rYu9rOV/awCFlGUWkLmgg==}
+    dependencies:
+      '@ganesha/core': 2.0.1
+      front-matter: 4.0.2
+      joycon: 3.1.1
+      jsonc-parser: 3.1.0
+      source-map-support: 0.5.21
+    dev: true
+
   /@hackbg/ganesha/2.0.3:
     resolution: {integrity: sha512-iT9EXyhxXl0gsR5u/Uu/kiXmgbQCHRlMeyZvwzgaesck21jtpqo2ROikdC5wW0a1HKZFSmAGaY8y/GKARxLj/Q==}
     hasBin: true
@@ -434,6 +466,16 @@ packages:
       '@ganesha/node-legacy': 1.0.0
       '@types/node': 18.7.14
       chokidar: 3.5.3
+      cross-spawn: 7.0.3
+    dev: true
+
+  /@hackbg/ganesha/2.3.0:
+    resolution: {integrity: sha512-kpSgGTooNwWg5ROR6TMrh+9xKRjGLRy0MWE7L3M/cltZQpvJQ83b5Pf5QM7UiVboaW9iXCSKZTrC8/lNjk1e/w==}
+    hasBin: true
+    dependencies:
+      '@ganesha/core': 2.0.1
+      '@ganesha/node': 2.3.3
+      '@ganesha/node-legacy': 3.0.2
       cross-spawn: 7.0.3
     dev: true
 
