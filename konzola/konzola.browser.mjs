@@ -61,3 +61,11 @@ export function timestamp (d = new Date()) {
 }
 
 export const bold = x => x
+
+export class CustomError extends Error {
+  static define (name, message) {
+    const CustomError = class extends this { constructor (...args) { super(message(args)) } }
+    Object.defineProperty(CustomError, 'name', { value: `${name}Error` })
+    return CustomError
+  }
+}

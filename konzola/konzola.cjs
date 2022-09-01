@@ -9,7 +9,64 @@ const { fileURLToPath } = require('url')
 
 let globalMaxIndent = 0
 
-class CustomConsole {
+
+
+function Konzola (context) {
+
+  maxContextLength = Math.max(maxContextLength, context.length)
+
+  const INFO  = () => bold(green(  `${context.padEnd(maxContextLength)} INFO `))
+  const WARN  = () => bold(yellow( `${context.padEnd(maxContextLength)} WARN `))
+  const ERROR = () => bold(red(    `${context.padEnd(maxContextLength)} ERROR`))
+  const TRACE = () => bold(magenta(`${context.padEnd(maxContextLength)} TRACE`))
+
+  const INDENT = (n = maxContextLength+7) => "\n" + [...Array(n)].map(x=>' ').join('')
+  const format = (arg) => {
+    if (typeof arg === 'object') {
+      return INDENT() + render(arg).replace(/\n/g, INDENT()).trim()
+    } else {
+      return INDENT() + String(arg)
+    }
+  }
+
+  const log = (...args) => console.log(...args)
+
+  return Object.assign(log, {
+    log,
+    info:  (...args) => console.info( INFO(),  ...args),
+    warn:  (...args) => console.warn( WARN(),  ...args),
+    error: (...args) => console.error(ERROR(), ...args),
+    trace: (...args) => {
+      console.debug(bold(magenta('TRACE')), ...args.map(format))
+      console.trace()
+    },
+    debug: (...args) => {
+      if (!process.env.NO_DEBUG) {
+        console.debug(args.map(format).join('').slice(1))
+      }
+      return args[0]
+    },
+    table: (rows = []) => console.log(table(rows)),
+    format,
+  })
+
+}
+
+function timestamp (d = new Date()) {
+  return d.toISOString()
+    .replace(/[-:\.Z]/g, '')
+    .replace(/[T]/g, '_')
+    .slice(0, -3)
+}
+
+module.exports.colors    = colors
+module.exports.bold      = colors.bold
+module.exports.render    = render
+module.exports.prompts   = prompts
+module.exports.table     = table
+module.exports.timestamp = timestamp
+
+module.exports.CustomConsole = class CustomConsole {
 
   constructor (console, name) {
     this.console  = console
@@ -71,58 +128,10 @@ class CustomConsole {
 
 }
 
-function Konzola (context) {
-
-  maxContextLength = Math.max(maxContextLength, context.length)
-
-  const INFO  = () => bold(green(  `${context.padEnd(maxContextLength)} INFO `))
-  const WARN  = () => bold(yellow( `${context.padEnd(maxContextLength)} WARN `))
-  const ERROR = () => bold(red(    `${context.padEnd(maxContextLength)} ERROR`))
-  const TRACE = () => bold(magenta(`${context.padEnd(maxContextLength)} TRACE`))
-
-  const INDENT = (n = maxContextLength+7) => "\n" + [...Array(n)].map(x=>' ').join('')
-  const format = (arg) => {
-    if (typeof arg === 'object') {
-      return INDENT() + render(arg).replace(/\n/g, INDENT()).trim()
-    } else {
-      return INDENT() + String(arg)
-    }
+module.exports.CustomError = class CustomError extends Error {
+  static define (name, message) {
+    const CustomError = class extends this { constructor (...args) { super(message(args)) } }
+    Object.defineProperty(CustomError, 'name', { value: `${name}Error` })
+    return CustomError
   }
-
-  const log = (...args) => console.log(...args)
-
-  return Object.assign(log, {
-    log,
-    info:  (...args) => console.info( INFO(),  ...args),
-    warn:  (...args) => console.warn( WARN(),  ...args),
-    error: (...args) => console.error(ERROR(), ...args),
-    trace: (...args) => {
-      console.debug(bold(magenta('TRACE')), ...args.map(format))
-      console.trace()
-    },
-    debug: (...args) => {
-      if (!process.env.NO_DEBUG) {
-        console.debug(args.map(format).join('').slice(1))
-      }
-      return args[0]
-    },
-    table: (rows = []) => console.log(table(rows)),
-    format,
-  })
-
 }
-
-function timestamp (d = new Date()) {
-  return d.toISOString()
-    .replace(/[-:\.Z]/g, '')
-    .replace(/[T]/g, '_')
-    .slice(0, -3)
-}
-
-module.exports.colors    = colors
-module.exports.bold      = colors.bold
-module.exports.render    = render
-module.exports.prompts   = prompts
-module.exports.table     = table
-module.exports.timestamp = timestamp
-module.exports.CustomConsole = CustomConsole
