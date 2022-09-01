@@ -5,7 +5,7 @@ export class CustomConsole {
   constructor (console, name) {
     this.console = console
     this.name ??= name
-    this.indent = Math.max(globalMaxIndent, this.name.length)
+    this.indent = Math.max(globalMaxIndent, (this.name||'').length)
     const prefix = (text, style) => () => [`%c${this.name.padEnd(globalMaxIndent)} ${text}`, style]
     this.prefixes = {
       log:   prefix('LOG  ', 'font-weight:bold'),

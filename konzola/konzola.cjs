@@ -71,7 +71,7 @@ module.exports.CustomConsole = class CustomConsole {
   constructor (console, name) {
     this.console  = console
     this.name     = name
-    this.indent   = Math.max(globalMaxIndent, this.name.length)
+    this.indent   = Math.max(globalMaxIndent, (this.name||'').length)
     const prefix  = (text, color) => () => bold(color(`${this.name.padEnd(this.indent)} ${text}`))
     this.prefixes = {
       log:   prefix('LOG  ', blue),
