@@ -9,7 +9,7 @@ importers:
       '@hackbg/izomorf': workspace:latest
       '@hackbg/kabinet': workspace:^3.1.1
       '@hackbg/komandi': workspace:^5
-      '@hackbg/konzola': workspace:^1.1.2
+      '@hackbg/konzola': workspace:^2
       '@hackbg/portali': workspace:^1.2.3
       '@hackbg/runspec': workspace:^2.3.1
       '@types/node': latest
@@ -43,7 +43,7 @@ importers:
 
   dokeres:
     specifiers:
-      '@hackbg/konzola': workspace:^1
+      '@hackbg/konzola': workspace:^2
       '@types/dockerode': ^3.3.8
       colors: 1.4.0
       dockerode: ^3.3.1
@@ -98,7 +98,7 @@ importers:
   kabinet:
     specifiers:
       '@hackbg/ganesha': ^2.0.3
-      '@hackbg/konzola': workspace:^1
+      '@hackbg/konzola': workspace:^2
       '@hackbg/runspec': workspace:*
       '@types/js-yaml': ^4.0.5
       '@types/mkdirp': ^1.0.2
@@ -138,7 +138,7 @@ importers:
       '@hackbg/ganesha': ^2.2.5
       '@hackbg/kabinet': workspace:^3
       '@hackbg/konfizi': workspace:^2
-      '@hackbg/konzola': workspace:^1.2
+      '@hackbg/konzola': workspace:^2
     dependencies:
       '@hackbg/kabinet': link:../kabinet
       '@hackbg/konfizi': link:../konfizi
@@ -151,6 +151,7 @@ importers:
 
   konzola:
     specifiers:
+      '@hackbg/ganesha': ^2.2.5
       '@types/prettyjson': ^0.0.30
       '@types/prompts': ^2.0.14
       colors: 1.4.0
@@ -164,6 +165,8 @@ importers:
       prettyjson: github.com/slavaGanzin/prettyjson/d880b8af2973a1a1b277944c3b573d7d6a93ba8f
       prompts: 2.4.2
       table: 6.8.0
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
 
   portali:
     specifiers:

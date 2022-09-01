@@ -10,7 +10,7 @@
   "description": "Environment configuration.",
   "files":        [ "README.md", "komandi.ts" ],
   "dependencies": {
-    "@hackbg/konzola": "workspace:^1.2",
+    "@hackbg/konzola": "workspace:^2",
     "@hackbg/kabinet": "workspace:^3",
     "@hackbg/konfizi": "workspace:^2"
   },
@@ -26,9 +26,7 @@
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
     "release:wet": "npm run ts:check && npm run ts:clean && izomorf wet --access=public",
-
     "test":        "ganesha-node README.md",
-
     "ts:check":    "tsc --noEmit",
     "ts:clean":    "izomorf clean && rm -rf dist types *.dist.*"
   }

@@ -12,7 +12,7 @@
   "dependencies": {
     "colors":          "1.4.0",
     "dockerode":       "^3.3.1",
-    "@hackbg/konzola": "workspace:^1"
+    "@hackbg/konzola": "workspace:^2"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.8"
