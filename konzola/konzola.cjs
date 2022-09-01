@@ -9,22 +9,25 @@ const { fileURLToPath } = require('url')
 
 let maxContextLength = 0
 
-function Callable (callback = function EmptyCallable () {}) {
+function Callable (
+  callback = function Callback () {},
+  extra    = {}
+) {
   return function CallableObjectConstructor (...args) {
-    return Object.setPrototypeOf(
-      Call.bind(this),
-      Object.getPrototypeOf(this)
-    )
-    function Call (...args) {
-      console.log('Called', this)
-      return this
-    }
+    function Call (...args) { return this }
+    return Object.setPrototypeOf(Call.bind(this), {
+      ...Object.getPrototypeOf(this),
+      ...extra
+    })
   }
 }
 
-class CustomConsole extends Callable(function Print (...args) {
-  this.info(...args)
-}) {
+/** There is a way to slip the ES5 custom constructors past TypeScript.
+  * This class uses it. TODO try to implement `await new` with this? */
+class CustomConsole extends Callable(
+  function Print (...args) { this.info(...args) },
+  console
+) {
 
   constructor (console, name) {
     super()
