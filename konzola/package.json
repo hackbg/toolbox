@@ -1,11 +1,14 @@
 {
-  "name": "@hackbg/konzola",
-  "version": "1.2.0",
-  "main": "konzola.cjs",
+  "name":    "@hackbg/konzola",
+  "version": "2.0.0",
+
+  "main":    "konzola.cjs",
   "browser": "konzola.browser.mjs",
-  "types": "konzola.d.ts",
-  "license": "MIT",
-  "description": "Pretty console.",
+  "module":  "konzola.browser.mjs",
+  "types":   "konzola.d.ts",
+
+  "license":     "MIT",
+  "description": "Customizable console.",
   "files": [ "README.md", "konzola.cjs", "konzola.browser.mjs", "konzola.d.ts" ],
   "repository": {
     "type": "git",
@@ -20,8 +23,12 @@
     "@types/prompts":    "^2.0.14",
     "table":             "^6.6.0"
   },
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
   "scripts": {
     "release:dry": "izomorf dry",
-    "release:wet": "izomorf wet --access=public"
+    "release:wet": "izomorf wet --access=public",
+    "test":        "ganesha-node README.md"
   }
 }

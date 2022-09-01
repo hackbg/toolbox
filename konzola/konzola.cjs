@@ -1,5 +1,5 @@
 const colors = require('colors')
-const { bold, red, green, yellow, magenta, inverse } = colors
+const { bold, red, green, yellow, magenta, blue, inverse } = colors
 const { render } = require('prettyjson')
 const { prompts } = require('prompts')
 const { table } = require('table')
@@ -7,79 +7,61 @@ const { cwd } = require('process')
 const { relative } = require('path')
 const { fileURLToPath } = require('url')
 
-let maxContextLength = 0
+let globalMaxIndent = 0
 
-function Callable (
-  callback = function Callback () {},
-  extra    = {}
-) {
-  return function CallableObjectConstructor (...args) {
-    function Call (...args) { return this }
-    return Object.setPrototypeOf(Call.bind(this), {
-      ...Object.getPrototypeOf(this),
-      ...extra
-    })
-  }
-}
-
-/** There is a way to slip the ES5 custom constructors past TypeScript.
-  * This class uses it. TODO try to implement `await new` with this? */
-class CustomConsole extends Callable(
-  function Print (...args) { this.info(...args) },
-  console
-) {
+class CustomConsole {
 
   constructor (console, name) {
-    super()
-    this.console = console
-    this.name ??= name
-    this.padLength = Math.max(maxContextLength, this.name.length)
+    this.console  = console
+    this.name     = name
+    this.indent   = Math.max(globalMaxIndent, this.name.length)
+    const prefix  = (text, color) => () => bold(color(`${this.name.padEnd(this.indent)} ${text}`))
     this.prefixes = {
-      info:  bold(green(  `${this.name.padEnd(maxContextLength)} LOG  `)),
-      info:  bold(green(  `${this.name.padEnd(maxContextLength)} INFO `)),
-      warn:  bold(yellow( `${this.name.padEnd(maxContextLength)} WARN `)),
-      error: bold(red(    `${this.name.padEnd(maxContextLength)} ERROR`)),
-      trace: bold(magenta(`${this.name.padEnd(maxContextLength)} TRACE`))
-    }
-  }
-
-  name = ''
-
-  padLength = 0
-
-  format = (arg) => {
-    if (typeof arg === 'object') {
-      return `${indent()}${render(arg).replace(/\n/g, indent())}`.trim()
-    } else {
-      return `${indent()}${String(arg)}`
-    }
-    function indent (n = this.padLength + 7) {
-      return "\n" + [...Array(n)].map(x=>' ').join('')
+      log:   prefix('LOG  ', blue),
+      info:  prefix('INFO ', green),
+      warn:  prefix('WARN ', yellow),
+      error: prefix('ERROR', red),
+      trace: prefix('TRACE', magenta)
     }
   }
 
   console = console
 
-  log     = (...args) => this.console.log(this.prefixes.log,   ...args)
+  name    = ''
 
-  info    = (...args) => this.console.info(this.prefixes.info,  ...args)
+  indent  = 0
 
-  warn    = (...args) => this.console.warn(this.prefixes.warn,  ...args)
+  format = (arg) => {
+    const indented = (n = this.indent + 7) => {
+      return "\n" + [...Array(n)].map(x=>' ').join('')
+    }
+    if (typeof arg === 'object') {
+      return `${indented()}${render(arg).replace(/\n/g, indented())}`.trim()
+    } else {
+      return `${indented()}${String(arg)}`
+    }
+  }
 
-  error   = (...args) => this.console.error(this.prefixes.error, ...args)
+  log     = (...args) => this.console.log(this.prefixes.log(),   ...args)
+
+  info    = (...args) => this.console.info(this.prefixes.info(),  ...args)
+
+  warn    = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
+
+  error   = (...args) => this.console.error(this.prefixes.error(), ...args)
 
   debugEnabled = process.env.DEBUG
 
   debug = (...args) => {
     if (this.debugEnabled) {
-      this.console.debug(args.map(format).join('').slice(1))
+      this.console.debug(args.map(this.format).join('').slice(1))
     }
     return args[0]
   }
 
   trace = (...args) => {
     if (this.debugEnabled) {
-      this.console.debug(this.prefixes.trace, ...args.map(format))
+      this.console.debug(this.prefixes.trace(), ...args.map(this.format))
       this.console.trace()
     }
     return args[0]
@@ -137,10 +119,6 @@ function timestamp (d = new Date()) {
     .slice(0, -3)
 }
 
-module.exports           = Konzola
-module.exports.default   = Konzola
-module.exports.Console   = Konzola
-module.exports.Konzola   = Konzola
 module.exports.colors    = colors
 module.exports.bold      = colors.bold
 module.exports.render    = render

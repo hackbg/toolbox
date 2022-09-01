@@ -1,43 +1,57 @@
-let maxContextLength = 0
+let globalMaxIndent = 0
 
-function Konzola (context) {
+export class CustomConsole {
 
-  maxContextLength = Math.max(maxContextLength, context.length)
+  constructor (console, name) {
+    this.console = console
+    this.name ??= name
+    this.indent = Math.max(globalMaxIndent, this.name.length)
+    const prefix = (text, style) => () => [`%c${this.name.padEnd(globalMaxIndent)} ${text}`, style]
+    this.prefixes = {
+      log:   prefix('LOG  ', 'font-weight:bold'),
+      info:  prefix('INFO ', 'font-weight:bold'),
+      warn:  prefix('WARN ', 'font-weight:bold'),
+      error: prefix('ERROR', 'font-weight:bold'),
+      trace: prefix('TRACE', 'font-weight:bold')
+    }
+  }
 
-  const INFO  = () => [`%cINFO  ${context.padEnd(maxContextLength)}`, 'font-weight:bold']
-  const WARN  = () => [`%cWARN  ${context.padEnd(maxContextLength)}`, 'font-weight:bold']
-  const ERROR = () => [`%cERROR ${context.padEnd(maxContextLength)}`, 'font-weight:bold']
-  const TRACE = () => [`%cTRACE ${context.padEnd(maxContextLength)}`, 'font-weight:bold']
+  console = console
 
-  const INDENT = "\n      "
-  const format = (arg) => arg
+  name = ''
 
-  const log = (...args) => console.log(...args)
+  align = 0
 
-  return Object.assign(log, {
-    log,
-    format,
-    info:  (...args) => console.info(...INFO(),  ...args),
-    warn:  (...args) => console.warn(...WARN(),  ...args),
-    error: (...args) => console.error(...ERROR(), ...args),
-    trace: (...args) => {
-      console.debug(...TRACE(), ...args.map(format))
-      console.trace()
-    },
-    debug: (...args) => {
-      if (!process.env.NO_DEBUG) {
-        console.debug(args.map(format).join('').slice(1))
-      }
-      return args[0]
-    },
-    table: (rows = []) => console.log(table(rows)),
-  })
+  format = (arg) => arg
+
+  log     = (...args) => this.console.log(this.prefixes.log(),   ...args)
+
+  info    = (...args) => this.console.info(this.prefixes.info(),  ...args)
+
+  warn    = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
+
+  error   = (...args) => this.console.error(this.prefixes.error(), ...args)
+
+  debugEnabled = true
+
+  debug = (...args) => {
+    if (this.debugEnabled) {
+      this.console.debug(args.map(this.format).join('').slice(1))
+    }
+    return args[0]
+  }
+
+  trace = (...args) => {
+    if (this.debugEnabled) {
+      this.console.debug(this.prefixes.trace(), ...args.map(this.format))
+      this.console.trace()
+    }
+    return args[0]
+  }
+
+  table = (rows = []) => this.console.table(rows)
 
 }
-
-export default Konzola
-export { Konzola }
-export const Console = Konzola
 
 export function timestamp (d = new Date()) {
   return d.toISOString()
