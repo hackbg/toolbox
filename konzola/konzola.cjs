@@ -80,6 +80,8 @@ module.exports.CustomConsole = class CustomConsole {
       error: prefix('ERROR', red),
       trace: prefix('TRACE', magenta)
     }
+    Object.defineProperty(this, 'prefixes', { enumerable: false, writable: true })
+    Object.defineProperty(this, 'console',  { enumerable: false, writable: true })
   }
 
   console = console
@@ -107,7 +109,7 @@ module.exports.CustomConsole = class CustomConsole {
 
   error   = (...args) => this.console.error(this.prefixes.error(), ...args)
 
-  debugEnabled = process.env.DEBUG
+  debugEnabled = process.env.DEBUG || false
 
   debug = (...args) => {
     if (this.debugEnabled) {

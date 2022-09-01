@@ -274,6 +274,13 @@ export class Commands<C extends object> {
 /** A context contains the environment context. It is extensible. */
 export class Context {
 
+  constructor () {
+    if (!process.env.DEBUG) {
+      Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
+      Object.defineProperty(this, 'env', { enumerable: false, writable: true })
+    }
+  }
+
   /** Start of command execution. */
   timestamp: string
     = timestamp()
@@ -282,7 +289,7 @@ export class Context {
   env: Record<string, string|undefined>
     = { ...process.env }
 
-  /** Current working directory. */
+  /** Current working directory at launch of process. */
   cwd: string
     = process.cwd()
 
