@@ -1,9 +1,9 @@
-import { Console, bold } from '@hackbg/konzola'
+import { CustomConsole, bold } from '@hackbg/konzola'
 import Docker from 'dockerode'
 import { basename, dirname } from 'path'
 import { Readable, Writable, Transform } from 'stream'
 
-const console = Console('Dokeres')
+const log = new CustomConsole(console, 'Dokeres')
 
 export { Docker }
 
@@ -139,23 +139,23 @@ export class Image {
   _available: Promise<string|null>|null = null
   async ensure () {
     return await (this._available ??= new Promise(async(resolve, reject)=>{
-      console.info('Ensuring image is present:', bold(String(this.name)))
+      log.info('Ensuring image is present:', bold(String(this.name)))
       const PULLING  = `Image ${this.name} not found, pulling...`
       const BUILDING = `Image ${this.name} not found upstream, building...`
       const NO_FILE  = `Image ${this.name} not found and no Dockerfile provided; can't proceed.`
       try {
         await this.check()
       } catch (_e) {
-        console.error(_e)
+        log.error(_e)
         try {
-          console.warn(`${PULLING} ${_e.message}`)
+          log.warn(`${PULLING} ${_e.message}`)
           await this.pull()
         } catch (e) {
           if (!this.dockerfile) {
             reject(`${NO_FILE} (${e.message})`)
           } else {
-            console.warn(`${BUILDING} ${_e.message}`)
-            console.info(bold('Using dockerfile:'), this.dockerfile)
+            log.warn(`${BUILDING} ${_e.message}`)
+            log.info(bold('Using dockerfile:'), this.dockerfile)
             await this.build()
           }
         }
@@ -179,10 +179,10 @@ export class Image {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
           if (event.error) {
-            console.error(event.error)
+            log.error(event.error)
             throw new Error(`Pulling ${name} failed.`)
           }
-          console.info(
+          log.info(
             `📦 docker pull says:`,
             ['id', 'status', 'progress'].map(x=>event[x]).join('│')
           )
@@ -206,10 +206,10 @@ export class Image {
     )
     await follow(dockerode, build, (event) => {
       if (event.error) {
-        console.error(event.error)
+        log.error(event.error)
         throw new Error(`Building ${name} from ${dockerfile} in ${context} failed.`)
       }
-      console.info(
+      log.info(
         `📦 docker build says:`,
         event.progress || event.status || event.stream || JSON.stringify(event)
       )
@@ -345,8 +345,8 @@ export class Container {
     if (this.container) throw Errors.ContainerAlreadyCreated()
     this.container = await this.dockerode.createContainer(this.dockerodeOpts)
     if (this.warnings) {
-      console.warn(`Creating container ${this.shortId} emitted warnings:`)
-      console.info(this.warnings)
+      log.warn(`Creating container ${this.shortId} emitted warnings:`)
+      log.info(this.warnings)
     }
     return this
   }
@@ -372,11 +372,11 @@ export class Container {
     const id = this.shortId
     const prettyId = bold(id.slice(0,8))
     if (await this.isRunning) {
-      console.info(`Stopping ${prettyId}...`)
+      log.info(`Stopping ${prettyId}...`)
       await this.dockerode.getContainer(id).kill()
-      console.info(`Stopped ${prettyId}`)
+      log.info(`Stopped ${prettyId}`)
     } else {
-      console.warn(`Container already stopped: ${prettyId}`)
+      log.warn(`Container already stopped: ${prettyId}`)
     }
     return this
   }
@@ -418,26 +418,26 @@ export function waitUntilLogsSay (
   waitSeconds = 7,
   logFilter   = (data: string) => true
 ) {
-  console.info('Waiting for logs to say:', expected)
+  log.info('Waiting for logs to say:', expected)
   return new Promise((ok, fail)=>{
     const opts = { stdout: true, stderr: true, follow: true, tail: 100 }
     //@ts-ignore
     container.logs(opts, (err, stream?: Readable) => {
       if (!stream) return fail(new Error('no stream returned from container'))
       if (err) return fail(err)
-      console.info('Trailing logs...')
+      log.info('Trailing logs...')
       stream.on('error', error => fail(error))
       stream.on('data', function ondata (data) {
         const dataStr = String(data).trim()
         if (logFilter(dataStr)) {
-          console.info(bold(`${container.id.slice(0,8)} says:`), dataStr)
+          log.info(bold(`${container.id.slice(0,8)} says:`), dataStr)
         }
         if (dataStr.indexOf(expected)>-1) {
-          console.info(bold(`Found expected message:`), expected)
+          log.info(bold(`Found expected message:`), expected)
           stream.off('data', ondata)
           if (thenDetach) stream.destroy()
           if (waitSeconds > 0) {
-            console.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
+            log.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
             return setTimeout(ok, waitSeconds * 1000)
           }
         }

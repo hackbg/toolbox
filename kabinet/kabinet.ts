@@ -13,8 +13,8 @@ const rimrafSync = rimrafCb.sync
 import TOML from 'toml'
 import YAML from 'js-yaml'
 
-import { Console } from '@hackbg/konzola'
-const console = Console('@hackbg/kabinet')
+import { CustomConsole } from '@hackbg/konzola'
+const log = new CustomConsole(console, '@hackbg/kabinet')
 
 export default function $ (base: string|URL|Path, ...fragments: string[]) {
   return new Path(base, ...fragments)
@@ -253,7 +253,7 @@ export function getDirName (url: URL) {
 
 export function mkdir (...fragments: string[]) {
   const path = resolve(...fragments)
-  if (!existsSync(path)) console.info('Creating directory:', path)
+  if (!existsSync(path)) log.info('Creating directory:', path)
   mkdirp.sync(path, {mode: 0o770})
   return path
 }
@@ -276,7 +276,7 @@ export function withTmpFile <T> (fn: (path: string)=>T): T {
 
 export function touch (...fragments: string[]) {
   const path = resolve(...fragments)
-  if (!existsSync(path)) console.info('Creating file:', path)
+  if (!existsSync(path)) log.info('Creating file:', path)
   writeFileSync(path, '')
   return path
 }
