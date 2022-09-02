@@ -68,11 +68,16 @@ module.exports.timestamp = timestamp
 
 module.exports.CustomConsole = class CustomConsole {
 
+  static maxIndent = 0
+
   constructor (console, name) {
     this.console  = console
     this.name     = name
-    this.indent   = Math.max(globalMaxIndent, (this.name||'').length)
-    const prefix  = (text, color) => () => bold(color(`${this.name.padEnd(this.indent)} ${text}`))
+    CustomConsole.maxIndent = Math.max(CustomConsole.maxIndent, (this.name||'').length)
+    const prefix  = (text, color) => () => {
+      const indent = CustomConsole.maxIndent = Math.max(CustomConsole.maxIndent, (this.name||'').length)
+      return bold(color(`${this.name.padEnd(indent)} ${text}`))
+    }
     this.prefixes = {
       log:   prefix('LOG  ', blue),
       info:  prefix('INFO ', green),
@@ -87,8 +92,6 @@ module.exports.CustomConsole = class CustomConsole {
   console = console
 
   name    = ''
-
-  indent  = 0
 
   format = (arg) => {
     const indented = (n = this.indent + 7) => {
