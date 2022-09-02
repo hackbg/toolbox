@@ -23,10 +23,12 @@ export class Overridable {
     override(false, this, options)
   }
   /** Return copy of self with overridden properties. */
-  where (options: Record<string, unknown> = {}) {
+  where (options: Partial<this> = {}) {
     return new (this.constructor as any)(this, options)
   }
 }
+
+type valof<T> = T[keyof T]
 
 /** Override only allowed properties. */
 export function override (
@@ -43,12 +45,13 @@ export function override (
 ): Record<string, valof<typeof overrides>> {
   const filtered: Record<string, valof<typeof overrides>> = {}
   for (const [key, val] of Object.entries(overrides)) {
+    if (val === undefined) continue
     if (allowed.includes(key)) {
       const current: typeof val = (self as any)[key]
       if (strict && current && current !== val) {
         throw new Error(`Tried to override pre-defined ${key}`)
       }
-      (self as any)[key] = val
+      ;(self as any)[key] = val
     } else {
       (filtered as any)[key] = val
     }
