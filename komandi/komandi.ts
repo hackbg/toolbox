@@ -131,7 +131,7 @@ export class Step<C, D> extends Timed<D, Error> {
       }
       this.succeed(result as D)
     } catch (e) {
-      this.fail(e)
+      this.fail(e as Error)
     }
     return context as unknown as D
   }
@@ -174,7 +174,7 @@ export class Command<C extends object> extends Timed<C, Error> {
       try {
         this.context = step.run(this.context) as typeof this.context
       } catch (e) {
-        this.failed = e
+        this.failed = e as Error
         break
       }
     }
