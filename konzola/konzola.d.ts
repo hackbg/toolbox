@@ -26,7 +26,9 @@ declare module '@hackbg/konzola' {
   }
 
   export class CustomError extends Error {
-    static define (name: string, message: (...args: any)=>string): typeof this
+    static define (name: string, message: (...args: any)=>string): {
+      new (...args: Parameters<typeof message>): CustomError
+    }
   }
 
   export const timestamp: Function
