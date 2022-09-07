@@ -87,7 +87,7 @@ export class Task<C, X> extends Lazy<X> {
 
 }
 
-export type StepFn = <C, D>(this: C, ...args: any[]) => D|Promise<D>
+export type StepFn<C, D> = (this: C, ...args: any[]) => D|Promise<D>
 
 /** A step is a value object around a function that takes context as first argument. */
 export class Step<C, D> extends Timed<D, Error> {
@@ -95,7 +95,7 @@ export class Step<C, D> extends Timed<D, Error> {
   log: CustomConsole
 
   constructor (
-    public impl: StepFn,
+    public impl: StepFn<C, D>,
     public name = impl.name,
     public info?: string
   ) {
@@ -163,9 +163,7 @@ export class Command<C extends object> extends Timed<C, Error> {
 
   /** Run the command with the specified arguments.
     * Commands can be ran only once. */
-  async run <C extends typeof this, D extends typeof this> (
-    args: string[] = process.argv.slice(2)
-  ): Promise<D> {
+  async run (args: string[] = process.argv.slice(2)) {
     if (this.started) {
       throw new Error('Command already started.')
     }
@@ -181,7 +179,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     this.ended = + new Date()
     this.log.commandEnded(this)
     if (this.failed) throw this.failed
-    return this.context as unknown as D
+    return this.context
   }
 
   get longestName (): number {
@@ -192,100 +190,69 @@ export class Command<C extends object> extends Timed<C, Error> {
 
 }
 
-export class Context {
+export class CommandContext {
 
-  constructor () {
+  log = new CommandsConsole(console, this.name)
+
+  constructor (
+    public readonly name: string,
+    public readonly info: string = 'undocumented'
+  ) {
     if (!process.env.DEBUG) {
       Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
-      Object.defineProperty(this, 'env', { enumerable: false, writable: true })
+      Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
     }
   }
 
   /** Start of command execution. */
-  timestamp: string
-    = timestamp()
+  timestamp: string = timestamp()
 
   /** Process environment at lauch of process. */
-  env: Record<string, string|undefined>
-    = { ...process.env }
+  env: Record<string, string|undefined> = { ...process.env }
 
   /** Current working directory at launch of process. */
-  cwd: string
-    = process.cwd()
+  cwd: string = process.cwd()
 
-  /** Currently registered commands. */
-  commands: Record<string, Command<Context>>
-    = {}
+  /** All registered commands. */
+  commandTree: Record<string, Command<this>|CommandContext> = {}
 
   /** Currently executing command. */
-  currentCommand: string
-    = ''
+  currentCommand: string = ''
 
   /** Extra arguments passed from the command line. */
-  args: string[]
-    = []
+  args: string[] = []
 
-  /** Logging service */
-  log
-    = new CommandsConsole(console, this.currentCommand)
-
-  /** Run in the current context. */
-  async run <C extends this, D extends this> (
-    operation:    Step<C, D>,
-    extraContext: Record<string, any> = {},
-    extraArgs:    unknown[] = []
-  ): Promise<D> {
-    if (!operation) {
-      throw new Error('Tried to run missing operation.')
-    }
-    const params = Object.keys(extraContext)
-    console.info(
-      'Running', bold(operation.name||'(unnamed)'),
-      ...((params.length > 0) ? ['with set:', bold(params.join(', '))] : [])
-    )
-    try {
-      //@ts-ignore
-      return await operation({ ...this, ...extraContext }, ...extraArgs)
-    } catch (e) {
-      throw e
-    }
+  subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
+    const self = this
+    return new Lazy(()=>{
+      this.log.info()
+      this.log.info('Subtask  ', cb.name ? bold(cb.name) : '')
+      return cb.bind(self)()
+    })
   }
-
-}
-
-export class Commands<C extends Context> extends Context {
-
-  constructor (
-    public readonly name:     string,
-    public readonly before:   Step<C, unknown>[]         = [],
-    public readonly after:    Step<C, unknown>[]         = [],
-    public readonly commands: Record<string, Command<C>> = {}
-  ) {
-    super()
-    Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
-    Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
-  }
-
-  log = new CommandsConsole(console, '@hackbg/komandi')
 
   /** Define a command. Remember to put `.entrypoint(import.meta.url)`
     * at the end of your main command object. */
   command (
     name: string,
     info: string,
-    ...steps: (Step<C, unknown>|((context: C, ...args: any[])=>unknown))[]
-  ) {
+    ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
+  ): this {
     // store command
-    this.commands[name] = new Command(
-      name, info, [...this.before, ...steps, ...this.after].map(step=>Step.from(step))
-    ) as unknown as Command<C>
+    this.commandTree[name] = new Command<this>(name, info, steps.map(step=>Step.from(step)))
+    return this
+  }
+
+  /** Define a command subtree. */
+  commands <D> (name: string, info: string, subtree: CommandContext): this {
+    this.commandTree[name] = subtree
     return this
   }
 
   /** Filter commands by each word from the list of arguments
     * then pass the rest as arguments to the found command. */
-  parse (args: string[]): [Command<C>|null, ...string[]] {
-    let commands = Object.entries(this.commands)
+  parse (args: string[]): [Command<this>|CommandContext|null, ...string[]] {
+    let commands = Object.entries(this.commandTree)
     for (let i = 0; i < args.length; i++) {
       const arg          = args[i]
       const nextCommands = []
@@ -296,14 +263,14 @@ export class Commands<C extends Context> extends Context {
           nextCommands.push([name.slice(arg.length).trim(), command])
         }
       }
-      commands = nextCommands as [string, Command<C>][]
+      commands = nextCommands as [string, Command<this>][]
       if (commands.length === 0) return [null]
     }
     return [null]
   }
 
   /** Parse and execute a command */
-  async runCommand (argv = process.argv.slice(2)) {
+  async run (argv = process.argv.slice(2)) {
     if (argv.length === 0) {
       this.log.usage(this)
       process.exit(1)
@@ -327,7 +294,7 @@ export class Commands<C extends Context> extends Context {
   launch (argv = process.argv.slice(2)) {
     const [command, ...args] = this.parse(argv)
     if (command) {
-      return this.runCommand(args)
+      return this.run(args)
     } else {
       this.log.usage(this)
       process.exit(1)
@@ -341,13 +308,13 @@ export class CommandsConsole extends CustomConsole {
   name = '@hackbg/komandi'
 
   // Usage of Command API
-  usage ({ name, commands }: Commands<any>) {
+  usage ({ name, commandTree }: CommandContext) {
     let longest = 0
-    for (const name of Object.keys(commands)) {
+    for (const name of Object.keys(commandTree)) {
       longest = Math.max(name.length, longest)
     }
     this.log()
-    for (const [cmdName, { info }] of Object.entries(commands)) {
+    for (const [cmdName, { info }] of Object.entries(commandTree)) {
       this.log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
     }
     this.log()
