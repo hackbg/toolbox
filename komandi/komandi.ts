@@ -55,15 +55,6 @@ export abstract class Timed<T, U> {
 /** Base class for class-based deploy procedure. Adds progress logging. */
 export class Task<C, X> extends Lazy<X> {
 
-  static get run () {
-    const self = this
-    Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
-    return runTask
-    async function runTask <C> (context: C) {
-      return new self(context, () => {/*ignored*/})
-    }
-  }
-
   log: CustomConsole = new CustomConsole(console, this.constructor.name)
 
   constructor (public readonly context: C, getResult: ()=>X) {
@@ -85,6 +76,15 @@ export class Task<C, X> extends Lazy<X> {
     })
   }
 
+  static get run () {
+    const self = this
+    Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
+    return runTask
+    async function runTask <C> (context: C) {
+      return new self(context, () => {/*ignored*/})
+    }
+  }
+
 }
 
 export type StepFn = <C, D>(this: C, ...args: any[]) => D|Promise<D>
@@ -92,15 +92,7 @@ export type StepFn = <C, D>(this: C, ...args: any[]) => D|Promise<D>
 /** A step is a value object around a function that takes context as first argument. */
 export class Step<C, D> extends Timed<D, Error> {
 
-  static from <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
-    if (specifier instanceof Step) {
-      return specifier
-    } else if (typeof specifier === 'function') {
-      return new (this as any)(specifier)
-    } else {
-      throw new Error(`Can't create step from: ${specifier}`)
-    }
-  }
+  log: CustomConsole
 
   constructor (
     public impl: StepFn,
@@ -110,8 +102,6 @@ export class Step<C, D> extends Timed<D, Error> {
     super()
     this.log = new CustomConsole(console, this.name)
   }
-
-  log: CustomConsole
 
   /** - Always async.
     * - Bind "this" in impl.
@@ -134,6 +124,16 @@ export class Step<C, D> extends Timed<D, Error> {
       this.fail(e as Error)
     }
     return context as unknown as D
+  }
+
+  static from <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
+    if (specifier instanceof Step) {
+      return specifier
+    } else if (typeof specifier === 'function') {
+      return new (this as any)(specifier)
+    } else {
+      throw new Error(`Can't create step from: ${specifier}`)
+    }
   }
 
 }
@@ -192,14 +192,79 @@ export class Command<C extends object> extends Timed<C, Error> {
 
 }
 
-export class Commands<C extends object> {
+export class Context {
+
+  constructor () {
+    if (!process.env.DEBUG) {
+      Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
+      Object.defineProperty(this, 'env', { enumerable: false, writable: true })
+    }
+  }
+
+  /** Start of command execution. */
+  timestamp: string
+    = timestamp()
+
+  /** Process environment at lauch of process. */
+  env: Record<string, string|undefined>
+    = { ...process.env }
+
+  /** Current working directory at launch of process. */
+  cwd: string
+    = process.cwd()
+
+  /** Currently registered commands. */
+  commands: Record<string, Command<Context>>
+    = {}
+
+  /** Currently executing command. */
+  currentCommand: string
+    = ''
+
+  /** Extra arguments passed from the command line. */
+  args: string[]
+    = []
+
+  /** Logging service */
+  log
+    = new CommandsConsole(console, this.currentCommand)
+
+  /** Run in the current context. */
+  async run <C extends this, D extends this> (
+    operation:    Step<C, D>,
+    extraContext: Record<string, any> = {},
+    extraArgs:    unknown[] = []
+  ): Promise<D> {
+    if (!operation) {
+      throw new Error('Tried to run missing operation.')
+    }
+    const params = Object.keys(extraContext)
+    console.info(
+      'Running', bold(operation.name||'(unnamed)'),
+      ...((params.length > 0) ? ['with set:', bold(params.join(', '))] : [])
+    )
+    try {
+      //@ts-ignore
+      return await operation({ ...this, ...extraContext }, ...extraArgs)
+    } catch (e) {
+      throw e
+    }
+  }
+
+}
+
+export class Commands<C extends Context> extends Context {
 
   constructor (
     public readonly name:     string,
     public readonly before:   Step<C, unknown>[]         = [],
     public readonly after:    Step<C, unknown>[]         = [],
     public readonly commands: Record<string, Command<C>> = {}
-  ) {}
+  ) {
+    super()
+    Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
+    Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
+  }
 
   log = new CommandsConsole(console, '@hackbg/komandi')
 
@@ -238,7 +303,7 @@ export class Commands<C extends object> {
   }
 
   /** Parse and execute a command */
-  async run (argv = process.argv.slice(2)) {
+  async runCommand (argv = process.argv.slice(2)) {
     if (argv.length === 0) {
       this.log.usage(this)
       process.exit(1)
@@ -262,72 +327,10 @@ export class Commands<C extends object> {
   launch (argv = process.argv.slice(2)) {
     const [command, ...args] = this.parse(argv)
     if (command) {
-      return this.run(args)
+      return this.runCommand(args)
     } else {
       this.log.usage(this)
       process.exit(1)
-    }
-  }
-
-}
-
-/** A context contains the environment context. It is extensible. */
-export class Context {
-
-  constructor () {
-    if (!process.env.DEBUG) {
-      Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
-      Object.defineProperty(this, 'env', { enumerable: false, writable: true })
-    }
-  }
-
-  /** Start of command execution. */
-  timestamp: string
-    = timestamp()
-
-  /** Process environment at lauch of process. */
-  env: Record<string, string|undefined>
-    = { ...process.env }
-
-  /** Current working directory at launch of process. */
-  cwd: string
-    = process.cwd()
-
-  /** Currently registered commands. */
-  commands: Record<string, Command<Context>>
-    = {}
-
-  /** Currently executing command. */
-  command: string
-    = ''
-
-  /** Extra arguments passed from the command line. */
-  args: string[]
-    = []
-
-  /** Logging service */
-  log
-    = new CommandsConsole(console, this.command)
-
-  /** Run in the current context. */
-  async run <C extends this, D extends this> (
-    operation:    Step<C, D>,
-    extraContext: Record<string, any> = {},
-    extraArgs:    unknown[] = []
-  ): Promise<D> {
-    if (!operation) {
-      throw new Error('Tried to run missing operation.')
-    }
-    const params = Object.keys(extraContext)
-    console.info(
-      'Running', bold(operation.name||'(unnamed)'),
-      ...((params.length > 0) ? ['with set:', bold(params.join(', '))] : [])
-    )
-    try {
-      //@ts-ignore
-      return await operation({ ...this, ...extraContext }, ...extraArgs)
-    } catch (e) {
-      throw e
     }
   }
 
@@ -339,18 +342,15 @@ export class CommandsConsole extends CustomConsole {
 
   // Usage of Command API
   usage ({ name, commands }: Commands<any>) {
-
     let longest = 0
     for (const name of Object.keys(commands)) {
       longest = Math.max(name.length, longest)
     }
-
     this.log()
     for (const [cmdName, { info }] of Object.entries(commands)) {
       this.log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
     }
     this.log()
-
   }
 
   commandEnded (command: Command<any>) {
