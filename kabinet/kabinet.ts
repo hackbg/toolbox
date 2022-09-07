@@ -26,11 +26,10 @@ export class Path {
   static separator = sep
 
   constructor (base: string|URL|Path = cwd(), ...fragments: string[]) {
-    if (base instanceof Path) {
-      base = base.path
-    }
-    if (base instanceof URL || base.startsWith('file://')) {
+    if (base instanceof URL || (typeof base === 'string' && base.startsWith('file://'))) {
       base = fileURLToPath(base)
+    } else if (typeof base === 'object') {
+      base = base.path
     }
     this.path = resolve(base, ...fragments)
   }
