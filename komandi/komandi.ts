@@ -106,11 +106,11 @@ export class Step<C, D> extends Timed<D, Error> {
   /** - Always async.
     * - Bind "this" in impl.
     * - Return updated copy of context. */
-  async run (context: C, ...args: any[]): Promise<D> {
+  async call (context: C, ...args: any[]): Promise<D> {
     this.start()
     let result: D
     try {
-      const result = await Promise.resolve(this.impl.apply({ ...context }, args))
+      const result = await Promise.resolve(this.impl.call(context, ...args))
       if (typeof result !== 'object') {
         this.log.warn(`Step "${this.name}" returned a non-object.`)
       } else {
@@ -161,16 +161,15 @@ export class Command<C extends object> extends Timed<C, Error> {
 
   log: CommandsConsole
 
-  /** Run the command with the specified arguments.
-    * Commands can be ran only once. */
-  async run (args: string[] = process.argv.slice(2)) {
+  /** Run the command with the specified arguments. */
+  async run (args: string[] = process.argv.slice(2)): Promise<unknown> {
     if (this.started) {
       throw new Error('Command already started.')
     }
     this.started = + new Date()
     for (const step of this.steps) {
       try {
-        this.context = step.run(this.context) as typeof this.context
+        await step.call(this.context)
       } catch (e) {
         this.failed = e as Error
         break
@@ -179,7 +178,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     this.ended = + new Date()
     this.log.commandEnded(this)
     if (this.failed) throw this.failed
-    return this.context
+    return
   }
 
   get longestName (): number {
@@ -192,17 +191,18 @@ export class Command<C extends object> extends Timed<C, Error> {
 
 export class CommandContext {
 
-  log = new CommandsConsole(console, this.name)
-
   constructor (
     public readonly name: string,
     public readonly info: string = 'undocumented'
   ) {
+    this.log = new CommandsConsole(console, name)
     if (!process.env.DEBUG) {
       Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
       Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
     }
   }
+
+  log: CommandsConsole
 
   /** Start of command execution. */
   timestamp: string = timestamp()
@@ -239,7 +239,7 @@ export class CommandContext {
     ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
   ): this {
     // store command
-    this.commandTree[name] = new Command<this>(name, info, steps.map(step=>Step.from(step)))
+    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)), this)
     return this
   }
 
@@ -270,17 +270,17 @@ export class CommandContext {
   }
 
   /** Parse and execute a command */
-  async run (argv = process.argv.slice(2)) {
+  async run (argv = process.argv.slice(2)): Promise<unknown> {
     if (argv.length === 0) {
       this.log.usage(this)
-      process.exit(1)
+    } else {
+      const [command, ...args] = this.parse(argv)
+      if (!command) {
+        console.error('Invalid command:', ...args)
+        throw new Error(`Invalid command: ${args.join(' ')}`)
+      }
+      return await command.run(args)
     }
-    const [command, ...args] = this.parse(argv)
-    if (!command) {
-      console.error('Invalid command:', ...args)
-      process.exit(1)
-    }
-    return await command.run(args)
   }
 
   /** `export default myCommands.main(import.meta.url)`
@@ -297,8 +297,12 @@ export class CommandContext {
       return this.run(args)
     } else {
       this.log.usage(this)
-      process.exit(1)
+      this.exit(1)
     }
+  }
+
+  exit (code?: number) {
+    process.exit(code)
   }
 
 }
