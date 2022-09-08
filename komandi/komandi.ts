@@ -111,19 +111,11 @@ export class Step<C, D> extends Timed<D, Error> {
     let result: D
     try {
       const result = await Promise.resolve(this.impl.call(context, ...args))
-      if (typeof result !== 'object') {
-        this.log.warn(`Step "${this.name}" returned a non-object.`)
-      } else {
-        if (Object.getPrototypeOf(result) !== Object.getPrototypeOf({})) {
-          this.log.warn(`Step "${this.name}" returned a non-plain object.`)
-        }
-        context = { ...context, ...result }
-      }
       this.succeed(result as D)
+      return result
     } catch (e) {
       this.fail(e as Error)
     }
-    return context as unknown as D
   }
 
   static from <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
@@ -153,6 +145,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     readonly name:    string             = '',
     readonly info:    string             = '',
     readonly steps:   Step<C, unknown>[] = [],
+    readonly context: C
   ) {
     super()
     this.log = new CommandsConsole(console, this.name)
@@ -162,10 +155,7 @@ export class Command<C extends object> extends Timed<C, Error> {
   log: CommandsConsole
 
   /** Run the command with the specified arguments. */
-  async run (
-    context: C,
-    args:    string[] = process.argv.slice(2)
-  ): Promise<unknown> {
+  async run (args: string[] = process.argv.slice(2)): Promise<unknown> {
     if (this.started) {
       throw new Error('Command already started.')
     }
@@ -173,7 +163,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     let result
     for (const step of this.steps) {
       try {
-        result = await step.call(context)
+        result = await step.call(this.context)
       } catch (e) {
         this.failed = e as Error
         break
@@ -243,7 +233,7 @@ export class CommandContext {
     ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
   ): this {
     // store command
-    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)))
+    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)), this)
     return this
   }
 
@@ -251,6 +241,40 @@ export class CommandContext {
   commands <D> (name: string, info: string, subtree: CommandContext): this {
     this.commandTree[name] = subtree
     return this
+  }
+
+  /** `export default myCommands.main(import.meta.url)`
+    * once per module after defining all commands */
+  entrypoint (url: string, args = process.argv.slice(2)): this {
+    const self = this
+    if (process.argv[1] === fileURLToPath(url)) {
+      setTimeout(async()=>await self.launch(args).then(this.exit), 0)
+    }
+    return self
+  }
+
+  async launch (argv = process.argv.slice(2)) {
+    const [command, ...args] = this.parse(argv)
+    if (command) {
+      return await this.run(argv)
+    } else {
+      this.log.usage(this)
+      this.exit(1)
+    }
+  }
+
+  /** Parse and execute a command */
+  async run (argv = process.argv.slice(2)): Promise<unknown> {
+    if (argv.length === 0) {
+      this.log.usage(this)
+    } else {
+      const [command, ...args] = this.parse(argv)
+      if (!command) {
+        console.error('Invalid command:', ...args)
+        throw new Error(`Invalid command: ${args.join(' ')}`)
+      }
+      return await command.run(args.slice(1))
+    }
   }
 
   /** Filter commands by each word from the list of arguments
@@ -273,39 +297,7 @@ export class CommandContext {
     return [null]
   }
 
-  /** Parse and execute a command */
-  async run (argv = process.argv.slice(2)): Promise<unknown> {
-    if (argv.length === 0) {
-      this.log.usage(this)
-    } else {
-      const [command, ...args] = this.parse(argv)
-      if (!command) {
-        console.error('Invalid command:', ...args)
-        throw new Error(`Invalid command: ${args.join(' ')}`)
-      }
-      return await command.run(this, args)
-    }
-  }
-
-  /** `export default myCommands.main(import.meta.url)`
-    * once per module after defining all commands */
-  entrypoint (url: string, args = process.argv.slice(2)): this {
-    const self = this
-    setTimeout(()=>{if (process.argv[1] === fileURLToPath(url)) self.launch(args)}, 0)
-    return self
-  }
-
-  launch (argv = process.argv.slice(2)) {
-    const [command, ...args] = this.parse(argv)
-    if (command) {
-      return this.run(args)
-    } else {
-      this.log.usage(this)
-      this.exit(1)
-    }
-  }
-
-  exit (code?: number) {
+  exit (code: number = 0) {
     process.exit(code)
   }
 
@@ -313,7 +305,9 @@ export class CommandContext {
 
 export class CommandsConsole extends CustomConsole {
 
-  name = '@hackbg/komandi'
+  constructor (console, name = '@hackbg/komandi') {
+    super(console, name)
+  }
 
   // Usage of Command API
   usage ({ name, commandTree }: CommandContext) {

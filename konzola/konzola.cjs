@@ -9,8 +9,6 @@ const { fileURLToPath } = require('url')
 
 let globalMaxIndent = 0
 
-
-
 function Konzola (context) {
 
   maxContextLength = Math.max(maxContextLength, context.length)
