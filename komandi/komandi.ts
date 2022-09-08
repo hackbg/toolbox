@@ -153,23 +153,27 @@ export class Command<C extends object> extends Timed<C, Error> {
     readonly name:    string             = '',
     readonly info:    string             = '',
     readonly steps:   Step<C, unknown>[] = [],
-    private  context: C                  = {} as C
   ) {
     super()
     this.log = new CommandsConsole(console, this.name)
+    Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
 
   log: CommandsConsole
 
   /** Run the command with the specified arguments. */
-  async run (args: string[] = process.argv.slice(2)): Promise<unknown> {
+  async run (
+    context: C,
+    args:    string[] = process.argv.slice(2)
+  ): Promise<unknown> {
     if (this.started) {
       throw new Error('Command already started.')
     }
     this.started = + new Date()
+    let result
     for (const step of this.steps) {
       try {
-        await step.call(this.context)
+        result = await step.call(context)
       } catch (e) {
         this.failed = e as Error
         break
@@ -178,7 +182,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     this.ended = + new Date()
     this.log.commandEnded(this)
     if (this.failed) throw this.failed
-    return
+    return result
   }
 
   get longestName (): number {
@@ -239,7 +243,7 @@ export class CommandContext {
     ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
   ): this {
     // store command
-    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)), this)
+    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)))
     return this
   }
 
@@ -279,7 +283,7 @@ export class CommandContext {
         console.error('Invalid command:', ...args)
         throw new Error(`Invalid command: ${args.join(' ')}`)
       }
-      return await command.run(args)
+      return await command.run(this, args)
     }
   }
 
