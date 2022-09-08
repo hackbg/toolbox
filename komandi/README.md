@@ -17,6 +17,9 @@ export default new Commands('run', [/*beforeEach*/], [/*afterEach*/])
   .command('cmd one', 'do one thing',  doOneThing)
   .command('cmd two', 'do two things', doOneThing, doAnotherThing)
   .command('cmd tri', 'do two things in parallel', parallel(doOneThing, doAnotherThing))
+  .commands('cmd sub', 'subcommands', new Commands('sub')
+    .command('four', 'one subcommand')
+    .command('five', 'another subcommand')
 ```
 
 ## Invoking commands
@@ -25,10 +28,12 @@ Commands are matched by string prefix:
 
 ```shell
 /*
-$ npm exec my-script.ts         # lists all commands
-$ npm exec my-script.ts cmd     # lists all commands that start with "cmd"
-$ npm exec my-script.ts cmd one # runs command "cmd one"
+$ npm exec my-script.ts             # lists all commands
+$ npm exec my-script.ts cmd         # lists all commands that start with "cmd"
+$ npm exec my-script.ts cmd one     # runs command "cmd one"
 $ npm exec my-script.ts cmd one two # pass args ["two"] to command "cmd one"
+$ npm exec my-script.ts cmd sub four
+$ npm exec my-script.ts cmd sub five arg1
 */
 ```
 
