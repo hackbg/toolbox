@@ -9,9 +9,9 @@
   "license":     "MIT",
   "description": "Environment configuration.",
   "files":        [ "README.md", "komandi.ts" ],
+  "bin":          { "komandi": "./komandi.cli.cjs" },
   "dependencies": {
     "@hackbg/konzola": "workspace:^2",
-    "@hackbg/kabinet": "workspace:^3",
     "@hackbg/konfizi": "workspace:^2"
   },
   "devDependencies": {

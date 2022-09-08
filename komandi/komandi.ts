@@ -1,5 +1,5 @@
-import $ from '@hackbg/kabinet'
 import { CustomConsole, bold, colors, timestamp } from '@hackbg/konzola'
+import { fileURLToPath } from 'url'
 
 Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
 
@@ -291,7 +291,7 @@ export class CommandContext {
     * once per module after defining all commands */
   entrypoint (url: string, args = process.argv.slice(2)): this {
     const self = this
-    setTimeout(()=>{if (process.argv[1] === $(url).path) self.launch(args)}, 0)
+    setTimeout(()=>{if (process.argv[1] === fileURLToPath(url)) self.launch(args)}, 0)
     return self
   }
 
