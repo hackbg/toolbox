@@ -145,7 +145,6 @@ export class Command<C extends object> extends Timed<C, Error> {
     readonly name:    string             = '',
     readonly info:    string             = '',
     readonly steps:   Step<C, unknown>[] = [],
-    readonly context: C
   ) {
     super()
     this.log = new CommandsConsole(console, this.name)
@@ -155,7 +154,10 @@ export class Command<C extends object> extends Timed<C, Error> {
   log: CommandsConsole
 
   /** Run the command with the specified arguments. */
-  async run (args: string[] = process.argv.slice(2)): Promise<unknown> {
+  async run (
+    args:    string[] = process.argv.slice(2),
+    context: any = this
+  ): Promise<unknown> {
     if (this.started) {
       throw new Error('Command already started.')
     }
@@ -163,7 +165,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     let result
     for (const step of this.steps) {
       try {
-        result = await step.call(this.context)
+        result = await step.call(context, ...args)
       } catch (e) {
         this.failed = e as Error
         break
@@ -233,7 +235,7 @@ export class CommandContext {
     ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
   ): this {
     // store command
-    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)), this)
+    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)))
     return this
   }
 
@@ -245,35 +247,26 @@ export class CommandContext {
 
   /** `export default myCommands.main(import.meta.url)`
     * once per module after defining all commands */
-  entrypoint (url: string, args = process.argv.slice(2)): this {
+  entrypoint (url: string, argv = process.argv.slice(2)): this {
     const self = this
     if (process.argv[1] === fileURLToPath(url)) {
-      setTimeout(async()=>await self.launch(args).then(this.exit), 0)
+      const [command, ...args] = this.parse(argv)
+      if (!command) {
+        this.log.usage(this)
+        this.exit(1)
+      }
+      setTimeout(async()=>await self.run(argv).then(this.exit), 0)
     }
     return self
   }
 
-  async launch (argv = process.argv.slice(2)) {
+  async run (argv: string[], context: any = this) {
     const [command, ...args] = this.parse(argv)
     if (command) {
-      return await this.run(argv)
+      return await command.run(args, context)
     } else {
-      this.log.usage(this)
-      this.exit(1)
-    }
-  }
-
-  /** Parse and execute a command */
-  async run (argv = process.argv.slice(2)): Promise<unknown> {
-    if (argv.length === 0) {
-      this.log.usage(this)
-    } else {
-      const [command, ...args] = this.parse(argv)
-      if (!command) {
-        console.error('Invalid command:', ...args)
-        throw new Error(`Invalid command: ${args.join(' ')}`)
-      }
-      return await command.run(args.slice(1))
+      console.error('Invalid command:', ...args)
+      throw new Error(`Invalid command: ${args.join(' ')}`)
     }
   }
 
@@ -286,7 +279,7 @@ export class CommandContext {
       const nextCommands = []
       for (const [name, command] of commands) {
         if (name === arg) {
-          return [command, ...args]
+          return [command, ...args.slice(i+1)]
         } else if (name.startsWith(arg)) {
           nextCommands.push([name.slice(arg.length).trim(), command])
         }
