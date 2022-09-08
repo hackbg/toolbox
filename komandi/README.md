@@ -18,8 +18,8 @@ export default new Commands('run', [/*beforeEach*/], [/*afterEach*/])
   .command('cmd two', 'do two things', doOneThing, doAnotherThing)
   .command('cmd tri', 'do two things in parallel', parallel(doOneThing, doAnotherThing))
   .commands('cmd sub', 'subcommands', new Commands('sub')
-    .command('four', 'one subcommand')
-    .command('five', 'another subcommand')
+    .command('four', 'one subcommand', () => { /* ... */ })
+    .command('five', 'another subcommand', async () => { /*...*/ })
 ```
 
 ## Invoking commands
