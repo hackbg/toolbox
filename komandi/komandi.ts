@@ -240,9 +240,19 @@ export class CommandContext {
   }
 
   /** Define a command subtree. */
-  commands <D> (name: string, info: string, subtree: CommandContext): this {
+  commands (name: string, info: string, subtree: CommandContext): this {
     this.commandTree[name] = subtree
     return this
+  }
+
+  addCommand <X> (name: string, info: string, step: StepFn<this, X>): StepFn<this, X> {
+    this.command(name, info, step)
+    return step
+  }
+
+  addCommands <C extends CommandContext> (name: string, info: string, subtree: C): C {
+    this.commands(name, info, subtree)
+    return subtree
   }
 
   /** `export default myCommands.main(import.meta.url)`
