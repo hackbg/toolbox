@@ -308,7 +308,8 @@ export class CommandContext {
 
 export class CommandsConsole extends CustomConsole {
 
-  constructor (console, name = '@hackbg/komandi') {
+  constructor (...args: ConstructorParameters<typeof CustomConsole>) {
+    const [console, name = '@hackbg/komandi'] = args
     super(console, name)
   }
 
