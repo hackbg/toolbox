@@ -245,7 +245,7 @@ export class CommandContext {
     return this
   }
 
-  addCommand <X> (name: string, info: string, step: StepFn<this, X>): StepFn<this, X> {
+  addCommand <X extends StepFn<this, unknown>> (name: string, info: string, step: X): X {
     this.command(name, info, step)
     return step
   }
