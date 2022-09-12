@@ -6,10 +6,15 @@ Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
 /** A promise that can be resolved externally. */
 export class Deferred<X> extends Promise<X> {
   constructor () {
+    // ts made me do it!
+    let _resolve: (result: X|PromiseLike<X>)=>void = () => { throw new Error('unreachable') }
+    let _reject:  (reason?: any)=>void             = () => { throw new Error('unreachable') }
     super((resolve, reject)=>{
-      this.resolve = resolve
-      this.reject  = reject
+      _resolve = resolve
+      _reject  = reject
     })
+    this.resolve = _resolve
+    this.reject  = _reject
   }
   resolve: (result: X|PromiseLike<X>)=>void
   reject:  (reason?: any)=>void
