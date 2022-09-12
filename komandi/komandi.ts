@@ -71,7 +71,7 @@ export class Task<C, X> extends Lazy<X> {
     const self = this
     return new Lazy(()=>{
       this.log.info()
-      this.log.info('Subtask  ', cb.name ? bold(cb.name) : '')
+      this.log.info('  Subtask  ', cb.name ? bold(cb.name) : '')
       return cb.bind(self)()
     })
   }
@@ -92,15 +92,14 @@ export type StepFn<C, D> = (this: C, ...args: any[]) => D|Promise<D>
 /** A step is a value object around a function that takes context as first argument. */
 export class Step<C, D> extends Timed<D, Error> {
 
-  log: CustomConsole
-
   constructor (
     public impl: StepFn<C, D>,
     public name = impl.name,
-    public info?: string
+    public description?: string,
+    public log: CustomConsole = new CustomConsole(console, `Step: ${name}`)
   ) {
     super()
-    this.log = new CustomConsole(console, this.name)
+    Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
 
   /** - Always async.
@@ -142,9 +141,9 @@ export function parallel (...operations: Function[]) {
 export class Command<C extends object> extends Timed<C, Error> {
 
   constructor (
-    readonly name:    string             = '',
-    readonly info:    string             = '',
-    readonly steps:   Step<C, unknown>[] = [],
+    readonly name:        string             = '',
+    readonly description: string             = '',
+    readonly steps:       Step<C, unknown>[] = [],
   ) {
     super()
     this.log = new CommandsConsole(console, this.name)
@@ -188,10 +187,10 @@ export class Command<C extends object> extends Timed<C, Error> {
 export class CommandContext {
 
   constructor (
-    public readonly name: string,
-    public readonly info: string = 'undocumented'
+    public name: string,
+    public description: string = 'undocumented'
   ) {
-    this.log = new CommandsConsole(console, name)
+    this.log = new CommandsConsole(console, this.constructor.name)
     if (!process.env.DEBUG) {
       Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
       Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
@@ -231,27 +230,28 @@ export class CommandContext {
     * at the end of your main command object. */
   command (
     name: string,
-    info: string,
+    description: string,
     ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
   ): this {
     // store command
-    this.commandTree[name] = new Command(name, info, steps.map(step=>Step.from(step)))
+    this.commandTree[name] = new Command(name, description, steps.map(step=>Step.from(step)))
     return this
   }
 
   /** Define a command subtree. */
-  commands (name: string, info: string, subtree: CommandContext): this {
+  commands (name: string, description: string, subtree: CommandContext): this {
+    subtree.description = description
     this.commandTree[name] = subtree
     return this
   }
 
-  addCommand <X extends StepFn<this, unknown>> (name: string, info: string, step: X): X {
-    this.command(name, info, step)
+  addCommand <X extends StepFn<this, unknown>> (name: string, description: string, step: X): X {
+    this.command(name, description, step)
     return step
   }
 
-  addCommands <C extends CommandContext> (name: string, info: string, subtree: C): C {
-    this.commands(name, info, subtree)
+  addCommands <C extends CommandContext> (name: string, description: string, subtree: C): C {
+    this.commands(name, description, subtree)
     return subtree
   }
 
@@ -275,9 +275,10 @@ export class CommandContext {
     if (command) {
       return await command.run(args, context)
     } else {
-      console.error('Invalid command:', ...args)
+      const message = `Invalid command: "${args.join(' ')}"`
+      this.log.error(message)
       this.log.usage(this)
-      throw new Error(`Invalid command: ${args.join(' ')}`)
+      throw new Error(message)
     }
   }
 
@@ -320,22 +321,22 @@ export class CommandsConsole extends CustomConsole {
     for (const name of Object.keys(commandTree)) {
       longest = Math.max(name.length, longest)
     }
-    this.log()
-    for (const [cmdName, { info }] of Object.entries(commandTree)) {
-      this.log(`    ... ${name} ${bold(cmdName.padEnd(longest))}  ${info}`)
+    this.info()
+    for (const [cmdName, { description }] of Object.entries(commandTree)) {
+      this.info(`    ${bold(cmdName.padEnd(longest))}  ${description}`)
     }
-    this.log()
+    this.info()
   }
 
   commandEnded (command: Command<any>) {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
-    console.info(`The command`, bold(command.name), result, `in`, command.took)
+    this.info(`The command`, bold(command.name), result, `in`, command.took)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
       const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
       const timing   = (step.took ?? '').padStart(10)
-      console.info(status, bold(name), timing, 's')
+      this.info(status, bold(name), timing, 's')
     }
   }
 
