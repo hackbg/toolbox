@@ -107,14 +107,14 @@ export class Step<C, D> extends Timed<D, Error> {
     * - Return updated copy of context. */
   async call (context: C, ...args: any[]): Promise<D> {
     this.start()
-    let result: D
+    let result: D = undefined as unknown as D
     try {
       const result = await Promise.resolve(this.impl.call(context, ...args))
       this.succeed(result as D)
-      return result
     } catch (e) {
       this.fail(e as Error)
     }
+    return result as unknown as D
   }
 
   static from <C, D> (specifier: Step<unknown, unknown>|Function|unknown): Step<C, D> {
@@ -265,15 +265,15 @@ export class CommandContext {
         this.log.usage(this)
         this.exit(1)
       }
-      setTimeout(async()=>await self.run(argv).then(this.exit), 0)
+      setTimeout(async()=>await self.run(argv).then(()=>this.exit(0)), 0)
     }
     return self
   }
 
-  async run (argv: string[], context: any = this) {
+  async run <T> (argv: string[], context: any = this): Promise<T> {
     const [command, ...args] = this.parse(argv)
     if (command) {
-      return await command.run(args, context)
+      return await command.run(args, context) as T
     } else {
       const message = `Invalid command: "${args.join(' ')}"`
       this.log.error(message)
