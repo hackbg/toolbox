@@ -7,8 +7,6 @@ const { cwd } = require('process')
 const { relative } = require('path')
 const { fileURLToPath } = require('url')
 
-let globalMaxIndent = 0
-
 function Konzola (context) {
 
   maxContextLength = Math.max(maxContextLength, context.length)
