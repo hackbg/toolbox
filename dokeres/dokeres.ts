@@ -3,7 +3,7 @@ import Docker from 'dockerode'
 import { basename, dirname } from 'path'
 import { Readable, Writable, Transform } from 'stream'
 
-const log = new CustomConsole(console, 'Dokeres')
+const log = new CustomConsole('Dokeres')
 
 export { Docker }
 

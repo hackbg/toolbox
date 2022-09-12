@@ -14,7 +14,7 @@ import TOML from 'toml'
 import YAML from 'js-yaml'
 
 import { CustomConsole } from '@hackbg/konzola'
-const log = new CustomConsole(console, '@hackbg/kabinet')
+const log = new CustomConsole('@hackbg/kabinet')
 
 export default function $ (base: string|URL|Path, ...fragments: string[]): Path {
   return new Path(base, ...fragments)

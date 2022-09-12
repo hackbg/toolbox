@@ -55,7 +55,7 @@ export abstract class Timed<T, U> {
 /** Base class for class-based deploy procedure. Adds progress logging. */
 export class Task<C, X> extends Lazy<X> {
 
-  log: CustomConsole = new CustomConsole(console, this.constructor.name)
+  log: CustomConsole = new CustomConsole(this.constructor.name)
 
   constructor (public readonly context: C, getResult: ()=>X) {
     let self: this
@@ -96,7 +96,7 @@ export class Step<C, D> extends Timed<D, Error> {
     public impl: StepFn<C, D>,
     public name = impl.name,
     public description?: string,
-    public log: CustomConsole = new CustomConsole(console, `Step: ${name}`)
+    public log: CustomConsole = new CustomConsole(`Step: ${name}`)
   ) {
     super()
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
@@ -310,10 +310,7 @@ export class CommandContext {
 
 export class CommandsConsole extends CustomConsole {
 
-  constructor (...args: ConstructorParameters<typeof CustomConsole>) {
-    const [console, name = '@hackbg/komandi'] = args
-    super(console, name)
-  }
+  name = '@hackbg/komandi'
 
   // Usage of Command API
   usage ({ name, commandTree }: CommandContext) {
