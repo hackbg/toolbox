@@ -276,6 +276,7 @@ export class CommandContext {
       return await command.run(args, context)
     } else {
       console.error('Invalid command:', ...args)
+      this.log.usage(this)
       throw new Error(`Invalid command: ${args.join(' ')}`)
     }
   }
