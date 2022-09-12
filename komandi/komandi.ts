@@ -3,10 +3,22 @@ import { fileURLToPath } from 'url'
 
 Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
 
-/** A promise that evaluates once. */
+/** A promise that can be resolved externally. */
+export class Deferred<X> extends Promise<X> {
+  constructor () {
+    super((resolve, reject)=>{
+      this.resolve = resolve
+      this.reject  = reject
+    })
+  }
+  resolve: (result: X|PromiseLike<X>)=>void
+  reject:  (reason?: any)=>void
+}
+
+/** A promise that only evaluates once. */
 export class Lazy<X> extends Promise<X> {
   protected readonly resolver: ()=>X|PromiseLike<X>
-  private resolved: PromiseLike<X>|undefined = undefined
+  private resolved?: PromiseLike<X> = undefined
   constructor (resolver: ()=>X|PromiseLike<X>) {
     super(()=>{})
     this.resolver ??= resolver
@@ -146,7 +158,7 @@ export class Command<C extends object> extends Timed<C, Error> {
     readonly steps:       Step<C, unknown>[] = [],
   ) {
     super()
-    this.log = new CommandsConsole(console, this.name)
+    this.log = new CommandsConsole(this.name)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
 
@@ -190,7 +202,7 @@ export class CommandContext {
     public name: string,
     public description: string = 'undocumented'
   ) {
-    this.log = new CommandsConsole(console, this.constructor.name)
+    this.log = new CommandsConsole(this.constructor.name)
     if (!process.env.DEBUG) {
       Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
       Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
