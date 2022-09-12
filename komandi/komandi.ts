@@ -67,7 +67,7 @@ export class Task<C, X> extends Lazy<X> {
     self = this
   }
 
-  subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
+  task <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
       this.log.info()
@@ -218,11 +218,11 @@ export class CommandContext {
   /** Extra arguments passed from the command line. */
   args: string[] = []
 
-  subtask <X> (cb: ()=>X|Promise<X>): Promise<X> {
+  task <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
       this.log.info()
-      this.log.info('Subtask  ', cb.name ? bold(cb.name) : '')
+      this.log.info('Task  ', cb.name ? bold(cb.name) : '')
       return cb.bind(self)()
     })
   }
