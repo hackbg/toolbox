@@ -1,13 +1,16 @@
 export class CustomConsole {
 
-  static maxIndent = 0
+  static indent = 0
 
-  constructor (console, name) {
-    this.console = console
+  static updateIndent = (str='') => this.indent = Math.max(this.indent, str.length)
+
+  constructor (name = '', _console = console) {
     this.name ??= name
+    this.console = _console
+    this.constructor.updateIndent(name)
     const prefix = (text, style) => () => {
-      const indent = Math.max(CustomConsole.maxIndent, (this.name||'').length)
-      return [`%c${this.name.padEnd(globalMaxIndent)} ${text}`, style]
+      const indent = this.constructor.updateIndent(name)
+      return [`%c${this.name.padEnd(CustomConsole.indent)} ${text}`, style]
     }
     this.prefixes = {
       log:   prefix('LOG  ', 'font-weight:bold'),
@@ -18,21 +21,13 @@ export class CustomConsole {
     }
   }
 
-  console = console
+  log   = (...args) => this.console.log(this.prefixes.log(),   ...args)
 
-  name = ''
+  info  = (...args) => this.console.info(this.prefixes.info(),  ...args)
 
-  align = 0
+  warn  = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
 
-  format = (arg) => arg
-
-  log     = (...args) => this.console.log(this.prefixes.log(),   ...args)
-
-  info    = (...args) => this.console.info(this.prefixes.info(),  ...args)
-
-  warn    = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
-
-  error   = (...args) => this.console.error(this.prefixes.error(), ...args)
+  error = (...args) => this.console.error(this.prefixes.error(), ...args)
 
   debugEnabled = true
 
@@ -51,6 +46,8 @@ export class CustomConsole {
     return args[0]
   }
 
+  format = (arg) => arg
+
   table = (rows = []) => this.console.table(rows)
 
 }
@@ -62,12 +59,17 @@ export function timestamp (d = new Date()) {
     .slice(0, -3)
 }
 
-export const bold = x => x
+export const bold = x => String(x)
 
 export class CustomError extends Error {
-  static define (name, message) {
-    const CustomError = class extends this { constructor (...args) { super(message(args)) } }
-    Object.defineProperty(CustomError, 'name', { value: `${name}Error` })
-    return CustomError
+  static define (name, getMessage = () => '') {
+    const fullName = `${name}${this.name}`
+    return Object.defineProperty(class CustomError extends this {
+      constructor (...args) {
+        const message = getMessage(...args)
+        super(message)
+      }
+      name = fullName
+    }, 'name', { value: fullName })
   }
 }

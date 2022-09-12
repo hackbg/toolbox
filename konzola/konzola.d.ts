@@ -16,7 +16,8 @@ declare module '@hackbg/konzola' {
   }
 
   export class CustomConsole implements Console {
-    constructor (host?: Console, name?: string)
+    static indent: number
+    constructor (name?: string, host?: Console)
     log   (...args: any): void
     info  (...args: any): void
     warn  (...args: any): void

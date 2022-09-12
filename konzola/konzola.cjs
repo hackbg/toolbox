@@ -7,71 +7,18 @@ const { cwd } = require('process')
 const { relative } = require('path')
 const { fileURLToPath } = require('url')
 
-function Konzola (context) {
-
-  maxContextLength = Math.max(maxContextLength, context.length)
-
-  const INFO  = () => bold(green(  `${context.padEnd(maxContextLength)} INFO `))
-  const WARN  = () => bold(yellow( `${context.padEnd(maxContextLength)} WARN `))
-  const ERROR = () => bold(red(    `${context.padEnd(maxContextLength)} ERROR`))
-  const TRACE = () => bold(magenta(`${context.padEnd(maxContextLength)} TRACE`))
-
-  const INDENT = (n = maxContextLength+7) => "\n" + [...Array(n)].map(x=>' ').join('')
-  const format = (arg) => {
-    if (typeof arg === 'object') {
-      return INDENT() + render(arg).replace(/\n/g, INDENT()).trim()
-    } else {
-      return INDENT() + String(arg)
-    }
-  }
-
-  const log = (...args) => console.log(...args)
-
-  return Object.assign(log, {
-    log,
-    info:  (...args) => console.info( INFO(),  ...args),
-    warn:  (...args) => console.warn( WARN(),  ...args),
-    error: (...args) => console.error(ERROR(), ...args),
-    trace: (...args) => {
-      console.debug(bold(magenta('TRACE')), ...args.map(format))
-      console.trace()
-    },
-    debug: (...args) => {
-      if (!process.env.NO_DEBUG) {
-        console.debug(args.map(format).join('').slice(1))
-      }
-      return args[0]
-    },
-    table: (rows = []) => console.log(table(rows)),
-    format,
-  })
-
-}
-
-function timestamp (d = new Date()) {
-  return d.toISOString()
-    .replace(/[-:\.Z]/g, '')
-    .replace(/[T]/g, '_')
-    .slice(0, -3)
-}
-
-module.exports.colors    = colors
-module.exports.bold      = colors.bold
-module.exports.render    = render
-module.exports.prompts   = prompts
-module.exports.table     = table
-module.exports.timestamp = timestamp
-
 module.exports.CustomConsole = class CustomConsole {
 
-  static maxIndent = 0
+  static indent = 0
 
-  constructor (console, name) {
-    this.console  = console
-    this.name     = name
-    CustomConsole.maxIndent = Math.max(CustomConsole.maxIndent, (this.name||'').length)
-    const prefix  = (text, color) => () => {
-      const indent = CustomConsole.maxIndent = Math.max(CustomConsole.maxIndent, (this.name||'').length)
+  static updateIndent = (str='') => this.indent = Math.max(this.indent, str.length)
+
+  constructor (name = '', _console = console) {
+    this.name ??= name
+    this.console = _console
+    this.constructor.updateIndent(name)
+    const prefix = (text, color) => () => {
+      const indent = this.constructor.updateIndent(name)
       return bold(color(`${this.name.padEnd(indent)} ${text}`))
     }
     this.prefixes = {
@@ -87,26 +34,15 @@ module.exports.CustomConsole = class CustomConsole {
 
   console = console
 
-  name    = ''
+  name = ''
 
-  format = (arg) => {
-    const indented = (n = this.indent + 7) => {
-      return "\n" + [...Array(n)].map(x=>' ').join('')
-    }
-    if (typeof arg === 'object') {
-      return `${indented()}${render(arg).replace(/\n/g, indented())}`.trim()
-    } else {
-      return `${indented()}${String(arg)}`
-    }
-  }
+  log   = (...args) => this.console.log(this.prefixes.log(),   ...args)
 
-  log     = (...args) => this.console.log(this.prefixes.log(),   ...args)
+  info  = (...args) => this.console.info(this.prefixes.info(),  ...args)
 
-  info    = (...args) => this.console.info(this.prefixes.info(),  ...args)
+  warn  = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
 
-  warn    = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
-
-  error   = (...args) => this.console.error(this.prefixes.error(), ...args)
+  error = (...args) => this.console.error(this.prefixes.error(), ...args)
 
   debugEnabled = process.env.DEBUG || false
 
@@ -125,14 +61,47 @@ module.exports.CustomConsole = class CustomConsole {
     return args[0]
   }
 
+  format = (arg) => {
+    const indented = (n = CustomConsole.indent + 7) => {
+      return "\n" + [...Array(n)].map(x=>' ').join('')
+    }
+    if (typeof arg === 'object') {
+      return `${indented()}${render(arg).replace(/\n/g, indented())}`.trim()
+    } else {
+      return `${indented()}${String(arg)}`
+    }
+  }
+
   table = (rows = []) => this.console.log(table(rows))
 
 }
 
+module.exports.timestamp = function timestamp (d = new Date()) {
+  return d.toISOString()
+    .replace(/[-:\.Z]/g, '')
+    .replace(/[T]/g, '_')
+    .slice(0, -3)
+}
+
+module.exports.bold = x => colors.bold(String(x))
+
 module.exports.CustomError = class CustomError extends Error {
-  static define (name, message) {
-    const CustomError = class extends this { constructor (...args) { super(message(args)) } }
-    Object.defineProperty(CustomError, 'name', { value: `${name}Error` })
-    return CustomError
+  static define (name, getMessage = () => '') {
+    const fullName = `${name}${this.name}`
+    return Object.defineProperty(class CustomError extends this {
+      constructor (...args) {
+        const message = getMessage(...args)
+        super(message)
+      }
+      name = fullName
+    }, 'name', { value: fullName })
   }
 }
+
+module.exports.colors = colors
+
+module.exports.render = render
+
+module.exports.prompts = prompts
+
+module.exports.table = table

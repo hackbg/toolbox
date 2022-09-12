@@ -27,8 +27,8 @@
     "@hackbg/ganesha": "^2.2.5"
   },
   "scripts": {
-    "release:dry": "izomorf dry",
-    "release:wet": "izomorf wet --access=public",
+    "release:dry": "pnpm test && izomorf dry",
+    "release:wet": "pnpm test && izomorf wet --access=public",
     "test":        "ganesha-node README.md"
   }
 }

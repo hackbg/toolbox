@@ -14,6 +14,8 @@ This package includes 2 versions:
 ```typescript
 import * as KonzolaCJS from './konzola.cjs'
 import * as KonzolaMJS from './konzola.browser.mjs'
+import { ok, equal } from 'assert'
+const testEach = x => [KonzolaCJS, KonzolaMJS].forEach(x)
 ```
 
 ## Console formatting
@@ -23,10 +25,13 @@ import * as KonzolaMJS from './konzola.browser.mjs'
 * The methods **debug** and **trace**
   pretty-print any objects that are passed to them.
 
-```typescript
-for (const { CustomConsole } of [KonzolaCJS, KonzolaMJS]) {
+* [ ] TODO: Use console.table (in CLI) and HTML formatting (in browser)
+      to print error boxes
 
-  const log = new CustomConsole(console, 'CustomConsole')
+```typescript
+testEach(({ CustomConsole })=>{
+
+  const log = new CustomConsole('CustomConsole')
 
   log.log('hello\nworld')
   log.info('FYI\nindent')
@@ -38,17 +43,34 @@ for (const { CustomConsole } of [KonzolaCJS, KonzolaMJS]) {
   log.debug({pretty: 'printed'})
   log.trace({this: 'too'})
 
-}
+})
 ```
 
-## Custom events
-
-The `CustomConsole` class that can be extended to define logging events.
-
-Reexports `table`, `colors`, `propmts` and the non-broken version of `prettyjson`
+The console output is formatted as `$NAME $LEVEL $ARGS`, where `$NAME` is specified by the
+constructor and is padded up to the length of the longest name of all `CustomConsole` instances.
 
 ```typescript
-for (const { CustomConsole } of [KonzolaCJS, KonzolaMJS]) {
+testEach(({ CustomConsole })=>{
+
+  CustomConsole.indent = 0
+  new CustomConsole('Foo')
+  equal(CustomConsole.indent, 3)
+  new CustomConsole('FooBar')
+  equal(CustomConsole.indent, 6)
+  new CustomConsole('Baz')
+  equal(CustomConsole.indent, 6)
+
+})
+```
+
+## Custom log events
+
+By extending the `CustomConsole` class, you can define logging events.
+This is meant as the first step towards converting a `console.log`-peppered codebase
+to structured logging.
+
+```typescript
+testEach(({ CustomConsole })=>{
 
   class MyConsole extends CustomConsole {
     myEvent (...params) {
@@ -56,11 +78,59 @@ for (const { CustomConsole } of [KonzolaCJS, KonzolaMJS]) {
     }
   }
 
-  const log = new MyConsole(console, 'MyCustomConsole')
+  const log = new MyConsole('MyCustomConsole')
 
   log.myEvent(1, 2, 3)
 
-}
+})
+```
+
+## Custom errors
+
+By extending the `CustomError` class, you can easily define module-specific error classes.
+This enables you to test for specific error conditions using the `instanceof` operator.
+Names of defined errors are generated automatically, and you can pass a function that
+generates the error message from the passed constructor parameters.
+
+* [ ] TODO: Inherit from `EventEmitter`, allowing structured log data
+      to be emitted from custom logging functions
+* [ ] TODO: Third argument to `this.define`, returning an object containing the properties
+      that will be assigned to the error instance at construction. This allows for custom data
+      to be attached to error instances.
+
+```typescript
+testEach(({ CustomError })=>{
+
+  class AppError extends CustomError {
+
+    static InvalidInput = this.define('InvalidInput',
+      (value) => `${value} (${typeof value}) is not valid input.`)
+
+    static InvalidOutput = this.define('InvalidOutput')
+
+  }
+
+  const error1 = new AppError.InvalidInput('foo')
+  ok(error1 instanceof Error)
+  ok(error1 instanceof CustomError)
+  ok(error1 instanceof AppError)
+  ok(error1 instanceof AppError.InvalidInput)
+  equal(error1.constructor, AppError.InvalidInput)
+  equal(error1.constructor.name, 'InvalidInputAppError')
+  equal(error1.name, 'InvalidInputAppError')
+  equal(error1.message, 'foo (string) is not valid input.')
+
+  const error2 = new AppError.InvalidOutput('ignored')
+  ok(error2 instanceof Error)
+  ok(error2 instanceof CustomError)
+  ok(error2 instanceof AppError)
+  ok(error2 instanceof AppError.InvalidOutput)
+  equal(error2.constructor, AppError.InvalidOutput)
+  equal(error2.constructor.name, 'InvalidOutputAppError')
+  equal(error2.name, 'InvalidOutputAppError')
+  equal(error2.message, '')
+
+})
 ```
 
 ## Other helpers
@@ -70,13 +140,10 @@ timestamp in the format `YYYYMMDD_HHMMSS`:
 
 ```typescript
 import { equal } from 'assert'
-for (const { timestamp } of [KonzolaCJS, KonzolaMJS]) {
+testEach(({ timestamp }) => {
   equal(timestamp(new Date("2020-05-12T23:50:21.817Z")), '20200512_235021')
-}
+})
 ```
 
-## Roadmap
-
-* [ ] Use console.table (in CLI) and HTML formatting (in browser)
-      to print error boxes
-* [ ] Allow structured log data to be emitted from custom logging events
+The packages `table`, `colors`, `propmts` and the non-broken version of `prettyjson`
+are also reexported.
