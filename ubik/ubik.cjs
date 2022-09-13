@@ -360,7 +360,6 @@ async function ubik (cwd, command, ...publishArgs) {
               const value = arguments[0].value
               if (value.startsWith('./') || value.startsWith('../')) {
                 const target = `${resolve(dirname(file), value)}.ts`
-                console.info(`  require("${value}"): looking for `)
                 if (existsSync(target)) {
                   const newValue = `${value}${usedCjsExt}`
                   console.info(`  require("${value}") -> require("${newValue}")`)
