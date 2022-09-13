@@ -27,8 +27,8 @@
     "@types/secure-random": "^1.1.0"
   },
   "scripts": {
-    "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
-    "release:wet": "npm run ts:check && npm run ts:clean && izomorf wet --access=public",
+    "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",
+    "release:wet": "npm run ts:check && npm run ts:clean && ubik wet --access=public",
 
     "test": "ganesha-node README.md",
 

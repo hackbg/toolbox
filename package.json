@@ -25,7 +25,7 @@
     "signal-exit": "^3.0.7"
   },
   "devDependencies": {
-    "@hackbg/izomorf": "workspace:latest",
+    "@hackbg/ubik": "workspace:latest",
     "@types/node": "latest",
     "concurrently": "7.2.2",
     "typedoc": "beta",
@@ -33,8 +33,8 @@
     "vitepress": "^1.0.0-alpha.4"
   },
   "scripts": {
-    "release:dry": "pnpm i && pnpm -r release:dry && izomorf dry",
-    "release:wet": "pnpm i && pnpm -r release:wet && izomorf wet",
+    "release:dry": "pnpm i && pnpm -r release:dry && ubik dry",
+    "release:wet": "pnpm i && pnpm -r release:wet && ubik wet",
     "ts:check": "tsc --noEmit",
     "ts:clean": "rm -rf dist packages/*/dist packages/*/types",
     "ts:build": "npm run ts:clean && concurrently 'npm:ts:build:*'",
@@ -50,7 +50,7 @@
     "./dokeres",
     "./forkers",
     "./formati",
-    "./izomorf",
+    "./ubik",
     "./kabinet",
     "./komandi",
     "./konzola",

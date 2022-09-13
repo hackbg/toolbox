@@ -1,6 +1,6 @@
 <div style="text-align:center">
 
-# `@hackbg/izomorf`
+# `@hackbg/ubik`
 
 Shim for publishing isomorphic TypeScript libraries to NPM,
 in response to the current multilevel fragmentation of the JS packaging landscape.
@@ -23,12 +23,12 @@ to make TS/ESM/CJS portability more seamless.
 ```json
 {
   "devDependencies": {
-    "@hackbg/izomorf": "latest"
+    "@hackbg/ubik": "latest"
   },
   "scripts": {
-    "clean":       "izomorf clean",
-    "release:dry": "npm run clean && izomorf dry",
-    "release:wet": "npm run clean && izomorf wet --access=public"
+    "clean":       "ubik clean",
+    "release:dry": "npm run clean && ubik dry",
+    "release:wet": "npm run clean && ubik wet --access=public"
   }
 }
 ```

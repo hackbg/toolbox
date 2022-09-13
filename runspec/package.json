@@ -11,7 +11,7 @@
   "bin": { "runspec": "runspec.cjs" },
   "files": ["README.md", "runspec.cjs", "runspec.d.ts"],
   "scripts": {
-    "release:dry": "izomorf dry",
-    "release:wet": "izomorf wet --access=public"
+    "release:dry": "ubik dry",
+    "release:wet": "ubik wet --access=public"
   }
 }

@@ -24,10 +24,10 @@
     "dotenv": { "optional": true }
   },
   "scripts": {
-    "release:dry": "npm test && npm run ts:check && npm run ts:clean && izomorf dry",
-    "release:wet": "npm test && npm run ts:check && npm run ts:clean && izomorf wet --access=public",
+    "release:dry": "npm test && npm run ts:check && npm run ts:clean && ubik dry",
+    "release:wet": "npm test && npm run ts:check && npm run ts:clean && ubik wet --access=public",
     "test":        "ganesha-node README.md",
     "ts:check":    "tsc --noEmit",
-    "ts:clean":    "izomorf clean && rm -rf dist types *.dist.*"
+    "ts:clean":    "ubik clean && rm -rf dist types *.dist.*"
   }
 }

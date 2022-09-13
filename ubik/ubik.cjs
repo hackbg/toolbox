@@ -48,7 +48,7 @@ const runPackageManager = (...args) =>
   execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
 
 // Entry point:
-if (require.main === module) izomorf(process.cwd(), ...process.argv.slice(2))
+if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
   .then(()=>process.exit(0))
   .catch(async ({name, message, stack})=>{
     const RE_FRAME = new RegExp("(file:///.+)(:\\d+:\\d+\\\))")
@@ -61,10 +61,10 @@ if (require.main === module) izomorf(process.cwd(), ...process.argv.slice(2))
   })
 
 // Export for programmatical reuse:
-module.exports = module.exports.default = izomorf
+module.exports = module.exports.default = ubik
 
 // Main function:
-async function izomorf (cwd, command, ...publishArgs) {
+async function ubik (cwd, command, ...publishArgs) {
 
   // Dispatch command.
   switch (command) {
@@ -78,10 +78,10 @@ async function izomorf (cwd, command, ...publishArgs) {
   function usage () {
     console.log(`
     Usage:
-      izomorf fix   - apply compatibility fix
-      izomorf dry   - test publishing of package with temporary compatibility fix
-      izomorf wet   - publish package with temporary compatibility fix
-      izomorf clean - delete compiled files`)
+      ubik fix   - apply compatibility fix
+      ubik dry   - test publishing of package with temporary compatibility fix
+      ubik wet   - publish package with temporary compatibility fix
+      ubik clean - delete compiled files`)
   }
 
   /** Remove output directories and output files */
@@ -129,7 +129,7 @@ async function izomorf (cwd, command, ...publishArgs) {
       console.log(`${name} ${version} already exists, not publishing:`, url)
       return
     } else if (response.status !== 404) {
-      throw new Error(`izomorf: NPM returned ${response.statusCode}`)
+      throw new Error(`ubik: NPM returned ${response.statusCode}`)
     }
   }
 

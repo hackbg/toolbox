@@ -10,9 +10,9 @@
   "description": "Command runner.",
   "files":       [ "README.md", "konfizi.ts" ],
   "scripts": {
-    "release:dry": "npm run ts:check && npm run ts:clean && izomorf dry",
-    "release:wet": "npm run ts:check && npm run ts:clean && izomorf wet --access=public",
+    "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",
+    "release:wet": "npm run ts:check && npm run ts:clean && ubik wet --access=public",
     "ts:check":    "tsc --noEmit",
-    "ts:clean":    "izomorf clean && rm -rf dist types *.dist.*"
+    "ts:clean":    "ubik clean && rm -rf dist types *.dist.*"
   }
 }
