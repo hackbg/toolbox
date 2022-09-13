@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Node natives
-const {extname, resolve, basename, relative, join, isAbsolute} = require('path')
+const {extname, resolve, basename, dirname, relative, join, isAbsolute} = require('path')
 const {existsSync, readFileSync, writeFileSync, readdirSync, copyFileSync, unlinkSync} = require('fs')
 const {execSync, execFileSync} = require('child_process')
 const {request} = require('https')
@@ -90,9 +90,9 @@ async function ubik (cwd, command, ...publishArgs) {
     console.log('Original package.json:', packageJson, '\n')
     /** In wet mode, try a dry run first. */
     if (wet) preliminaryDryRun(); else makeSureRunIsDry(publishArgs)
+    const isTypeScript = (packageJson.main||'').endsWith('.ts')
     try {
       /** Do the TypeScript magic if it's necessary. */
-      const isTypeScript = (packageJson.main||'').endsWith('.ts')
       if (isTypeScript) await prepareTypeScript(); else prepareJavaScript()
       if (wet) performRelease(); else console.log('\nDry run successful:', tag)
     } finally {
@@ -108,6 +108,7 @@ async function ubik (cwd, command, ...publishArgs) {
       await flattenFiles(packageJson)
       await patchPackageJson(packageJson)
       await patchESMImports(packageJson)
+      await patchCJSRequires(packageJson)
       // Print the contents of the package
       console.warn("\nTemporary modification to package.json (don't commit!)", packageJson)
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
@@ -179,9 +180,10 @@ async function ubik (cwd, command, ...publishArgs) {
   function readPackageJson () {
     const original    = readFileSync($('package.json'), 'utf8')
     const packageJson = JSON.parse(original)
-    if (packageJson.ubik) {
-      throw new Error('This is a modified, temporary package.json. Restore the original and try again.')
-    }
+    if (packageJson.ubik) throw new Error(
+      `This is already the modified, temporary package.json. Restore the original and try again ` +
+      `(e.g. "git checkout package.json")`
+    )
     return { packageJson, restoreOriginalPackageJson }
     function restoreOriginalPackageJson () {
       writeFileSync($('package.json'), original, 'utf8')
@@ -254,7 +256,7 @@ async function ubik (cwd, command, ...publishArgs) {
     const { usedEsmExt, usedCjsExt } = getExtensions(isESModule)
 
     // Collect output in package root and add it to "files" in package.json:
-    console.log('\nFlattening package:')
+    console.log('\nFlattening package...')
     const files = [
       ...collect(esmOut, '.js',   usedEsmExt),
       ...collect(cjsOut, '.js',   usedCjsExt),
@@ -262,18 +264,18 @@ async function ubik (cwd, command, ...publishArgs) {
     ]
     packageJson.files = [...new Set([...packageJson.files||[], ...files])].sort()
 
-    console.log('\nRemoving dist directories:')
+    console.log('\nRemoving dist directories...')
     await cleanDirs()
 
     function collect (dir, ext1, ext2) {
-      console.info(`Collecting from "${dir}/*${ext1}" into "./*${ext2}"`)
+      console.info(`\nCollecting from "${dir}/*${ext1}" into "./*${ext2}"`)
       const inputs  = readdirSync($(dir))
       const outputs = []
       for (const file of inputs) {
         if (file.endsWith(ext1)) {
           const srcFile = $(dir, file)
           const newFile = replaceExtension(file, ext1, ext2)
-          console.log(`  ${toRel(srcFile)} -> ${newFile}`)
+          console.log(`  Moving ${toRel(srcFile)} -> ${newFile}`)
           copyFileSync(srcFile, newFile)
           unlinkSync(srcFile)
           outputs.push(newFile)
@@ -307,7 +309,7 @@ async function ubik (cwd, command, ...publishArgs) {
   }
 
   async function patchESMImports (packageJson) {
-    console.info('\nPatching ESM imports:')
+    console.info('\nPatching ESM imports...')
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt } = getExtensions(isESModule)
     const declarationsToPatch = [
@@ -317,7 +319,7 @@ async function ubik (cwd, command, ...publishArgs) {
       'ExportAllDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
-      console.info('Patching', file)
+      console.info('\nPatching', file)
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source)
       let modified = false
@@ -344,7 +346,46 @@ async function ubik (cwd, command, ...publishArgs) {
   async function patchCJSRequires (packageJson) {
     console.info('\nPatching CJS requires:')
     const isESModule = (packageJson.type === 'module')
-    const { usedEsmExt } = getExtensions(isESModule)
+    const { usedCjsExt } = getExtensions(isESModule)
+    for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
+      console.info('Patching', file, '...')
+      const source = readFileSync(file, 'utf8')
+      const parsed = recast.parse(source)
+      let modified = false
+      recast.types.visit(parsed, {
+        visitCallExpression (path) { // TODO: use path.parentPath to detect scope shadowing
+          const { callee: { type, name }, arguments, loc: { start: { line, column } } } = path.value
+          if (type === 'Identifier' && name === 'require') {
+            if (arguments.length === 1 && arguments[0].type === 'Literal') {
+              const value = arguments[0].value
+              if (value.startsWith('./') || value.startsWith('../')) {
+                const target = `${resolve(dirname(file), value)}.ts`
+                console.info(`  require("${value}"): looking for `)
+                if (existsSync(target)) {
+                  const newValue = `${value}${usedCjsExt}`
+                  console.info(`  require("${value}") -> require("${newValue}")`)
+                  arguments[0].value = newValue
+                  modified = true
+                } else {
+                  console.info(`  require("${value}"): ${relative(cwd, target)} not found, ignoring`)
+                }
+              }
+            } else {
+              console.warn(
+                `Non-standard require() call encountered at ${file}:${line}:${column}. `+
+                `This library only patches calls of the format "require('./my-module')".'\n` +
+                `File an issue at https://github.com/hackbg/toolbox if you need ` +
+                `to patch more complex require calls.`
+              )
+            }
+          }
+          this.traverse(path)
+        }
+      })
+      if (modified) {
+        writeFileSync(file, recast.print(parsed).code, 'utf8')
+      }
+    }
   }
 
 }
@@ -357,7 +398,7 @@ if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
     const RE_FRAME = new RegExp("(file:///.+)(:\\d+:\\d+\\\))")
     const cwd   = process.cwd()
     const trim  = x => x.slice(3).replace(RE_FRAME, (y, a, b) => relative(cwd, fileURLToPath(a))+b)
-    const frame = x => '     │' + trim(x)
+    const frame = x => '  │' + trim(x)
     const error = `${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`
     console.error(error)
     process.exit(1)
