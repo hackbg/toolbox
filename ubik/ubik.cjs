@@ -262,7 +262,7 @@ async function ubik (cwd, command, ...publishArgs) {
     await cleanDirs()
 
     function collect (dir, ext1, ext2) {
-      console.info(`Collecting from "${dir}/*${ext1}" into "${subdir}/*${ext2}"`)
+      console.info(`Collecting from "${dir}/*${ext1}" into "./*${ext2}"`)
       const inputs  = readdirSync($(dir))
       const outputs = []
       for (const file of inputs) {
