@@ -119,10 +119,6 @@ async function ubik (cwd, command, ...publishArgs) {
       runPackageManager('publish', '--no-git-checks',  ...publishArgs)
     }
 
-    function runPackageManager (...args) {
-      return execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
-    }
-
     function prepareJavaScript () {
       console.info('No TypeScript detected, publishing as-is')
       // Publish the package, unmodified, to NPM
@@ -217,6 +213,10 @@ async function ubik (cwd, command, ...publishArgs) {
 
   function preliminaryDryRun () {
     runPackageManager('publish', '--dry-run')
+  }
+
+  function runPackageManager (...args) {
+    return execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
   }
 
   function makeSureRunIsDry (publishArgs = []) {
