@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Bunch of Node-natives
-const { extname, resolve, basename, relative, join, isAbsolute } = require('path')
-const { existsSync, readFileSync, writeFileSync, readdirSync, copyFileSync, unlinkSync } = require('fs')
-const { execSync, execFileSync } = require('child_process')
-const { request } = require('https')
-const { fileURLToPath } = require('url')
+
+// Node natives
+const {extname, resolve, basename, relative, join, isAbsolute} = require('path')
+const {existsSync, readFileSync, writeFileSync, readdirSync, copyFileSync, unlinkSync} = require('fs')
+const {execSync, execFileSync} = require('child_process')
+const {request} = require('https')
+const {fileURLToPath} = require('url')
 const process = require('process')
 
 // To bail early if the package is already uploaded
@@ -39,29 +40,12 @@ const distExts     = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
 // Changes x.a to x.b:
 const replaceExtension = (x, a, b) => `${basename(x, a)}${b}`
 
+// Determine which package manager to use:
 let packageManager = 'npm'
 if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_MANAGER
 try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
 try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
 console.info('Using package manager:', packageManager)
-const runPackageManager = (...args) => execFileSync(packageManager, args, {
-  cwd:   process.cwd(),
-  env:   process.env,
-  stdio: 'inherit',
-})
-
-// Entry point:
-if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
-  .then(()=>process.exit(0))
-  .catch(async ({name, message, stack})=>{
-    const RE_FRAME = new RegExp("(file:///.+)(:\\d+:\\d+\\\))")
-    const cwd   = process.cwd()
-    const trim  = x => x.slice(3).replace(RE_FRAME, (y, a, b) => relative(cwd, fileURLToPath(a))+b)
-    const frame = x => '     │' + trim(x)
-    const error = `${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`
-    console.error(error)
-    process.exit(1)
-  })
 
 // Export for programmatical reuse:
 module.exports = module.exports.default = ubik
@@ -81,10 +65,103 @@ async function ubik (cwd, command, ...publishArgs) {
   function usage () {
     console.log(`
     Usage:
-      ubik fix   - apply compatibility fix
-      ubik dry   - test publishing of package with temporary compatibility fix
-      ubik wet   - publish package with temporary compatibility fix
+      ubik fix   - apply compatibility fix without publishing
+      ubik dry   - test publishing of package with compatibility fix
+      ubik wet   - publish package with compatibility fix
       ubik clean - delete compiled files`)
+  }
+
+  /** Perform a release. */
+  async function release (
+    /** Whether to actually publish to NPM, or just go through the movements ("dry run")  */
+    wet  = false,
+    /** Whether to keep the modified package.json - for further inspection, or for        */
+    /** reuse in environments where on-demand compilation of TypeScript is not supported. */
+    keep = false
+  ) {
+    /** Need the contents of package.json and a way to restore it after modification. */
+    const { packageJson, restoreOriginalPackageJson } = readPackageJson()
+    const { name, version } = packageJson
+    /** First deduplication: Make sure the Git tag doesn't exist. */
+    const tag = ensureFreshTag(name, version)
+    /** Second deduplication: Make sure the library is not already published. */
+    if (await isPublished(name, version)) return
+    /** Print the contents of package.json if we'll be publishing. */
+    console.log('Original package.json:', packageJson, '\n')
+    /** In wet mode, try a dry run first. */
+    if (wet) preliminaryDryRun(); else makeSureRunIsDry(publishArgs)
+    try {
+      /** Do the TypeScript magic if it's necessary. */
+      const isTypeScript = (packageJson.main||'').endsWith('.ts')
+      if (isTypeScript) await prepareTypeScript(); else prepareJavaScript()
+      if (wet) performRelease(); else console.log('\nDry run successful:', tag)
+    } finally {
+      /** Restore everything to a (near-)pristine state. */
+      await cleanup()
+    }
+
+    return packageJson
+
+    async function prepareTypeScript () {
+      packageJson.ubik = true
+      await compileTypeScript()
+      await flattenFiles(packageJson)
+      await patchPackageJson(packageJson)
+      await patchESMImports(packageJson)
+      // Print the contents of the package
+      console.warn("\nTemporary modification to package.json (don't commit!)", packageJson)
+      writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
+      console.log()
+      execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
+      // Publish the package, thus modified, to NPM
+      console.log(`\n${packageManager} publish --no-git-checks`, ...publishArgs)
+      runPackageManager('publish', '--no-git-checks',  ...publishArgs)
+    }
+
+    function runPackageManager (...args) {
+      return execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
+    }
+
+    function prepareJavaScript () {
+      console.info('No TypeScript detected, publishing as-is')
+      // Publish the package, unmodified, to NPM
+      console.log(`\n${packageManager} publish`, ...publishArgs)
+      runPackageManager('publish', ...publishArgs)
+    }
+
+    function performRelease () {
+      console.log('\nPublished:', tag)
+      // Add Git tag
+      if (!process.env.IZOMORF_NO_TAG) {
+        execSync(`git tag -f "${tag}"`, { cwd, stdio: 'inherit' })
+        if (!process.env.IZOMORF_NO_PUSH) {
+          execSync('git push --tags', { cwd, stdio: 'inherit' })
+        }
+      }
+    }
+
+    async function cleanup () {
+      if (keep) {
+        console.info((await boxen).default([
+          "WARNING: Not restoring original package.json.",
+          "Make sure you don't commit it!",
+          "Use `git checkout package.json` to bring back the original.",
+          'On-demand compilation of TS might not work.',
+          '("main" and "exports" now point to the compiled code',
+          'instead of the original source).',
+        ].join('\n'), { padding: 1, margin: 1 }))
+      } else {
+        restoreOriginalPackageJson()
+        if (isTypeScript) {
+          console.info((await boxen).default([
+            "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
+            "will remain in place. Make sure you don't commit them! Add their extensions",
+            "to `.gitignore` if you haven't already, and invoke this tool in `clean` mode",
+            "to get rid of them.",
+          ].join('\n'), { padding: 1, margin: 1 }))
+        }
+      }
+    }
   }
 
   /** Remove output directories and output files */
@@ -144,79 +221,6 @@ async function ubik (cwd, command, ...publishArgs) {
     if (!publishArgs.includes('--dry-run')) publishArgs.unshift('--dry-run')
   }
 
-  /** Perform a release. */
-  async function release (
-    /** Whether to actually publish to NPM, or just go through the movements ("dry run")  */
-    wet  = false,
-    /** Whether to keep the modified package.json - for further inspection, or for        */
-    /** reuse in environments where on-demand compilation of TypeScript is not supported. */
-    keep = false
-  ) {
-    const { packageJson, restoreOriginalPackageJson } = readPackageJson()
-    const { name, version } = packageJson
-    const tag = ensureFreshTag(name, version)
-    if (await isPublished(name, version)) return
-    console.log('Original package.json:', packageJson, '\n')
-    if (wet) { preliminaryDryRun() } else { makeSureRunIsDry(publishArgs) }
-    const isTypeScript = (packageJson.main||'').endsWith('.ts')
-    try {
-      if (isTypeScript) {
-        packageJson.ubik = true
-        await compileTypeScript()
-        await flattenFiles(packageJson)
-        await patchPackageJson(packageJson)
-        await patchImports(packageJson)
-        // Print the contents of the package
-        console.warn("\nTemporary modification to package.json (don't commit!)", packageJson)
-        writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
-        console.log()
-        execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
-        // Publish the package, thus modified, to NPM
-        console.log(`\n${packageManager} publish --no-git-checks`, ...publishArgs)
-        runPackageManager('publish', '--no-git-checks',  ...publishArgs)
-      } else {
-        console.info('No TypeScript detected, publishing as-is')
-        // Publish the package, unmodified, to NPM
-        console.log(`\n${packageManager} publish`, ...publishArgs)
-        runPackageManager('publish', ...publishArgs)
-      }
-      if (wet) {
-        console.log('\nPublished:', tag)
-        // Add Git tag
-        if (!process.env.IZOMORF_NO_TAG) {
-          execSync(`git tag -f "${tag}"`, { cwd, stdio: 'inherit' })
-          if (!process.env.IZOMORF_NO_PUSH) {
-            execSync('git push --tags', { cwd, stdio: 'inherit' })
-          }
-        }
-      } else {
-        console.log('\nDry run successful:', tag)
-      }
-    } finally {
-      if (keep) {
-        console.info((await boxen).default([
-          "WARNING: Not restoring original package.json.",
-          "Make sure you don't commit it!",
-          "Use `git checkout package.json` to bring back the original.",
-          'On-demand compilation of TS might not work.',
-          '("main" and "exports" now point to the compiled code',
-          'instead of the original source).',
-        ].join('\n'), { padding: 1, margin: 1 }))
-      } else {
-        restoreOriginalPackageJson()
-        if (isTypeScript) {
-          console.info((await boxen).default([
-            "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
-            "will remain in place. Make sure you don't commit them! Add their extensions",
-            "to `.gitignore` if you haven't already, and invoke this tool in `clean` mode",
-            "to get rid of them.",
-          ].join('\n'), { padding: 1, margin: 1 }))
-        }
-      }
-    }
-    return packageJson
-  }
-
   // Find file relative to working directory
   function $ (...args) {
     return join(cwd, ...args)
@@ -270,7 +274,7 @@ async function ubik (cwd, command, ...publishArgs) {
           const srcFile = $(dir, file)
           const newFile = replaceExtension(file, ext1, ext2)
           console.log(`  ${toRel(srcFile)} -> ${newFile}`)
-          copyFileSync(srcFile, $(newFile))
+          copyFileSync(srcFile, newFile)
           unlinkSync(srcFile)
           outputs.push(newFile)
         }
@@ -302,7 +306,7 @@ async function ubik (cwd, command, ...publishArgs) {
     }
   }
 
-  async function patchImports (packageJson) {
+  async function patchESMImports (packageJson) {
     console.info('\nPatching ESM imports:')
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt } = getExtensions(isESModule)
@@ -337,4 +341,24 @@ async function ubik (cwd, command, ...publishArgs) {
     }
   }
 
+  async function patchCJSRequires (packageJson) {
+    console.info('\nPatching CJS requires:')
+    const isESModule = (packageJson.type === 'module')
+    const { usedEsmExt } = getExtensions(isESModule)
+  }
+
 }
+
+// Entry point:
+if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
+  .then(()=>process.exit(0))
+  .catch(async ({name, message, stack})=>{
+    // Format errors:
+    const RE_FRAME = new RegExp("(file:///.+)(:\\d+:\\d+\\\))")
+    const cwd   = process.cwd()
+    const trim  = x => x.slice(3).replace(RE_FRAME, (y, a, b) => relative(cwd, fileURLToPath(a))+b)
+    const frame = x => '     │' + trim(x)
+    const error = `${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`
+    console.error(error)
+    process.exit(1)
+  })
