@@ -44,8 +44,11 @@ if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_
 try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
 try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
 console.info('Using package manager:', packageManager)
-const runPackageManager = (...args) =>
-  execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
+const runPackageManager = (...args) => execFileSync(packageManager, args, {
+  cwd:   process.cwd(),
+  env:   process.env,
+  stdio: 'inherit',
+})
 
 // Entry point:
 if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
