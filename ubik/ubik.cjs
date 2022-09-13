@@ -36,8 +36,16 @@ const distCjsExt   = '.dist.cjs'
 const distJsExt    = '.dist.js'
 const distExts     = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
 
-// What it says on the tin:
+// Changes x.a to x.b:
 const replaceExtension = (x, a, b) => `${basename(x, a)}${b}`
+
+let packageManager = 'npm'
+if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_MANAGER
+try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
+try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
+console.info('Using package manager:', packageManager)
+const runPackageManager = (...args) =>
+  execFileSync(packageManager, args, { cwd, stdio: 'inherit', env: process.env })
 
 // Entry point:
 if (require.main === module) izomorf(process.cwd(), ...process.argv.slice(2))
@@ -126,7 +134,7 @@ async function izomorf (cwd, command, ...publishArgs) {
   }
 
   function preliminaryDryRun () {
-    execFileSync('pnpm', ['publish', '--dry-run'], { cwd, stdio: 'inherit', env: process.env })
+    runPackageManager('publish', '--dry-run')
   }
 
   function makeSureRunIsDry (publishArgs = []) {
@@ -161,19 +169,13 @@ async function izomorf (cwd, command, ...publishArgs) {
         console.log()
         execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
         // Publish the package, thus modified, to NPM
-        console.log(`\npnpm publish --no-git-checks`, ...publishArgs)
-        execFileSync(
-          'pnpm', ['publish', '--no-git-checks', ...publishArgs],
-          { cwd, stdio: 'inherit', env: process.env }
-        )
+        console.log(`\n${packageManager} publish --no-git-checks`, ...publishArgs)
+        runPackageManager('publish', '--no-git-checks',  ...publishArgs)
       } else {
         console.info('No TypeScript detected, publishing as-is')
         // Publish the package, unmodified, to NPM
-        console.log(`\npnpm publish`, ...publishArgs)
-        execFileSync(
-          'pnpm', ['publish', ...publishArgs],
-          { cwd, stdio: 'inherit', env: process.env }
-        )
+        console.log(`\n${packageManager} publish`, ...publishArgs)
+        runPackageManager('publish', ...publishArgs)
       }
       if (wet) {
         console.log('\nPublished:', tag)
@@ -256,14 +258,14 @@ async function izomorf (cwd, command, ...publishArgs) {
     console.log('\nRemoving dist directories:')
     await cleanDirs()
 
-    function collect (dir, ext, ext2) {
-      console.info(`Collecting from "${dir}/*${ext}" into "*${ext2}"`)
+    function collect (dir, ext1, ext2) {
+      console.info(`Collecting from "${dir}/*${ext1}" into "${subdir}/*${ext2}"`)
       const inputs  = readdirSync($(dir))
       const outputs = []
       for (const file of inputs) {
-        if (file.endsWith(ext)) {
+        if (file.endsWith(ext1)) {
           const srcFile = $(dir, file)
-          const newFile = replaceExtension(file, ext, ext2)
+          const newFile = replaceExtension(file, ext1, ext2)
           console.log(`  ${toRel(srcFile)} -> ${newFile}`)
           copyFileSync(srcFile, $(newFile))
           unlinkSync(srcFile)

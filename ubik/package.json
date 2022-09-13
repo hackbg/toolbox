@@ -1,19 +1,19 @@
 {
-  "name": "@hackbg/izomorf",
-  "version": "4.2.9",
+  "name": "@hackbg/ubik",
+  "version": "1.0.0",
   "type": "module",
-  "main": "izomorf.cjs",
+  "main": "ubik.cjs",
   "bin": {
-    "izomorf": "./izomorf.cjs"
+    "ubik": "./ubik.cjs"
   },
   "description": "Publish flat isomorphic packages from TypeScript with PNPM.",
   "files": [
     "README.md",
-    "izomorf.cjs"
+    "ubik.cjs"
   ],
   "scripts": {
-    "release:dry": "./izomorf.cjs dry",
-    "release:wet": "./izomorf.cjs wet"
+    "release:dry": "./ubik.cjs dry",
+    "release:wet": "./ubik.cjs wet"
   },
   "dependencies": {
     "boxen": "^7.0.0",
