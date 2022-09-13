@@ -22,6 +22,7 @@ export class Deferred<X> extends Promise<X> {
 
 /** A promise that only evaluates once. */
 export class Lazy<X> extends Promise<X> {
+  static all = (lazies: Promise<unknown>[]) => new Lazy(()=>Promise.all(lazies))
   protected readonly resolver: ()=>X|PromiseLike<X>
   private resolved?: PromiseLike<X> = undefined
   constructor (resolver: ()=>X|PromiseLike<X>) {
