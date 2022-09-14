@@ -16,6 +16,7 @@ const concurrently = require('concurrently')
 
 // To fix import statements when compiling to ESM
 const recast       = require('recast')
+const recastTS     = require('recast/parsers/typescript')
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
@@ -108,6 +109,7 @@ async function ubik (cwd, command, ...publishArgs) {
       await flattenFiles(packageJson)
       await patchPackageJson(packageJson)
       await patchESMImports(packageJson)
+      await patchDTSImports(packageJson)
       await patchCJSRequires(packageJson)
       // Print the contents of the package
       console.warn("\nTemporary modification to package.json (don't commit!)", packageJson)
@@ -246,9 +248,10 @@ async function ubik (cwd, command, ...publishArgs) {
 
   // If "type" === "module", .dist.js is used for the ESM files, otherwise for the CJS ones.
   function getExtensions (isESModule) {
-    const usedEsmExt = isESModule ? distJsExt : distEsmExt
-    const usedCjsExt = isESModule ? distCjsExt : distJsExt
-    return { usedEsmExt, usedCjsExt }
+    return {
+      usedEsmExt: isESModule ? distJsExt  : distEsmExt,
+      usedCjsExt: isESModule ? distCjsExt : distJsExt
+    }
   }
 
   async function flattenFiles (packageJson) {
@@ -288,7 +291,6 @@ async function ubik (cwd, command, ...publishArgs) {
   async function patchPackageJson (packageJson) {
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt, usedCjsExt } = getExtensions(isESModule)
-
     const main        = $(packageJson.main    || 'index.ts')
     const browserMain = $(packageJson.browser || 'index.browser.ts') // TODO
     // Set "main", "types", and "exports" in package.json.
@@ -330,6 +332,39 @@ async function ubik (cwd, command, ...publishArgs) {
         const isNotPatched = !oldValue.endsWith(usedEsmExt)
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}${usedEsmExt}`
+          console.info('  ', oldValue, '->', newValue)
+          declaration.source.value = newValue
+          modified = true
+        } else {
+          console.info('  ', oldValue)
+        }
+      }
+      if (modified) {
+        writeFileSync(file, recast.print(parsed).code, 'utf8')
+      }
+    }
+  }
+
+  async function patchDTSImports (packageJson) {
+    console.info('\nPatching DTS imports...')
+    const declarationsToPatch = [
+      'ImportDeclaration',
+      'ExportDeclaration',
+      'ImportAllDeclaration',
+      'ExportAllDeclaration'
+    ]
+    for (const file of packageJson.files.filter(x=>x.endsWith(distDtsExt))) {
+      console.info('\nPatching', file)
+      const source = readFileSync(file, 'utf8')
+      const parsed = recast.parse(source, { parser: recastTS })
+      let modified = false
+      for (const declaration of parsed.program.body) {
+        if (!declarationsToPatch.includes(declaration.type)) continue
+        const oldValue     = declaration.source.value
+        const isRelative   = oldValue.startsWith('./') || oldValue.startsWith('../')
+        const isNotPatched = !oldValue.endsWith(distDtsExt)
+        if (isRelative && isNotPatched) {
+          const newValue = `${oldValue}.dist`
           console.info('  ', oldValue, '->', newValue)
           declaration.source.value = newValue
           modified = true
