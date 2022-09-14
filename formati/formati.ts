@@ -1,5 +1,5 @@
 import { bech32, bech32m } from 'bech32'
-import SecureRandom from 'secure-random'
+import * as SecureRandom from 'secure-random'
 
 /** Replaces of randomBytes from node:crypto.
   * Returns Uint8Array of given length. */
