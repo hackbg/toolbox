@@ -9,9 +9,9 @@ const interpreter = process.argv[0]
 const transpiler  = ganesha
 const entrypoint  = process.argv[1]
 const argv        = process.argv.slice(2)
-console.info('Interpreter:', interpreter)
-console.info('Transpiler: ', transpiler)
-console.info('Entrypoint: ', entrypoint)
-console.info('Arguments:  ', argv)
+console.info('  Interpreter:', interpreter)
+console.info('  Transpiler: ', transpiler)
+console.info('  Entrypoint: ', entrypoint)
+console.info('  Arguments:  ', argv)
 console.info()
 require('@hackbg/ganesha').main([interpreter, transpiler, entrypoint, ...argv])

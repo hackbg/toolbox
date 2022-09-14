@@ -78,7 +78,6 @@ export class Task<C, X> extends Lazy<X> {
   constructor (public readonly context: C, getResult: ()=>X) {
     let self: this
     super(()=>{
-      this.log.info()
       this.log.info('Task     ', this.constructor.name ? bold(this.constructor.name) : '')
       return getResult.bind(self)()
     })
@@ -88,7 +87,6 @@ export class Task<C, X> extends Lazy<X> {
   task <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
-      this.log.info()
       this.log.info('  Subtask  ', cb.name ? bold(cb.name) : '')
       return cb.bind(self)()
     })
@@ -238,7 +236,6 @@ export class CommandContext {
   task <X> (cb: ()=>X|Promise<X>): Promise<X> {
     const self = this
     return new Lazy(()=>{
-      this.log.info()
       this.log.info('Task  ', cb.name ? bold(cb.name) : '')
       return cb.bind(self)()
     })
@@ -289,12 +286,18 @@ export class CommandContext {
   }
 
   async run <T> (argv: string[], context: any = this): Promise<T> {
+    if (argv.length === 0) {
+      const message = 'No command invoked.'
+      this.log.info(message)
+      this.log.usage(this)
+      return null as T
+    }
     const [command, ...args] = this.parse(argv)
     if (command) {
       return await command.run(args, context) as T
     } else {
-      const message = `Invalid command: "${args.join(' ')}"`
-      this.log.error(message)
+      const message = `No such command in ${this.constructor.name}.`
+      this.log.warn(message)
       this.log.usage(this)
       throw new Error(message)
     }
@@ -331,16 +334,21 @@ export class CommandsConsole extends CustomConsole {
   name = '@hackbg/komandi'
 
   // Usage of Command API
-  usage ({ name, commandTree }: CommandContext) {
+  usage ({ constructor: { name }, commandTree }: CommandContext) {
     let longest = 0
     for (const name of Object.keys(commandTree)) {
       longest = Math.max(name.length, longest)
     }
-    this.info()
-    for (const [cmdName, { description }] of Object.entries(commandTree)) {
-      this.info(`    ${bold(cmdName.padEnd(longest))}  ${description}`)
+    const commands = Object.entries(commandTree)
+    if (commands.length > 0) {
+      this.info()
+      for (const [cmdName, { description }] of Object.entries(commandTree)) {
+        this.info(`    ${bold(cmdName.padEnd(longest))}  ${description}`)
+      }
+      this.info()
+    } else {
+      this.info(`${name} exposes no commands.`)
     }
-    this.info()
   }
 
   commandEnded (command: Command<any>) {
