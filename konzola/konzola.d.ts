@@ -24,6 +24,7 @@ declare module '@hackbg/konzola' {
     error (...args: any): void
     debug (...args: any): void
     trace (...args: any): void
+    br (): void
   }
 
   export class CustomError extends Error {

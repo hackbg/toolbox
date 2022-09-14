@@ -50,6 +50,8 @@ export class CustomConsole {
 
   table = (rows = []) => this.console.table(rows)
 
+  br = () => this.console.log()
+
 }
 
 export function timestamp (d = new Date()) {

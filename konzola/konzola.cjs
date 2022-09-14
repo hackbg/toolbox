@@ -74,6 +74,8 @@ module.exports.CustomConsole = class CustomConsole {
 
   table = (rows = []) => this.console.log(table(rows))
 
+  br = () => this.console.log()
+
 }
 
 module.exports.timestamp = function timestamp (d = new Date()) {
