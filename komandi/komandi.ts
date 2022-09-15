@@ -99,7 +99,7 @@ export class Task<C, X> extends Lazy<X> {
     this.context = context
     this.resolver = () => {
       this.log.info('Task     ', name)
-      return this.cb.bind(this)()/*which is why this works*/
+      return this.cb.bind(this.context)()
     }
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
@@ -407,11 +407,11 @@ export class CommandsConsole extends CustomConsole {
     }
     const commands = Object.entries(commandTree)
     if (commands.length > 0) {
-      this.info()
+      this.br()
       for (const [cmdName, { description }] of Object.entries(commandTree)) {
         this.info(`    ${bold(cmdName.padEnd(longest))}  ${description}`)
       }
-      this.info()
+      this.br()
     } else {
       this.info(`${name} exposes no commands.`)
     }
@@ -420,7 +420,7 @@ export class CommandsConsole extends CustomConsole {
   commandEnded (command: Command<any>) {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
-    this.info(`The command`, bold(command.name), result, `in`, command.took)
+    this.info(`The command "${bold(command.name)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
       const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
