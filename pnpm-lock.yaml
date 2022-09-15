@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@hackbg/dokeres': workspace:^4.1.2
-      '@hackbg/formati': workspace:^3.0.1
+      '@hackbg/formati': workspace:^3.0.2
       '@hackbg/kabinet': workspace:^3.1.1
       '@hackbg/komandi': workspace:^5
       '@hackbg/konzola': workspace:^2
@@ -35,7 +35,7 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/ubik': link:ubik
-      '@types/node': 18.7.17
+      '@types/node': 18.7.18
       concurrently: 7.2.2
       typedoc: 0.23.0-beta.7_typescript@4.7.4
       typescript: 4.7.4
@@ -471,7 +471,7 @@ packages:
       '@ganesha/core': 1.1.0
       '@ganesha/node': 2.1.0
       '@ganesha/node-legacy': 1.0.0
-      '@types/node': 18.7.17
+      '@types/node': 18.7.18
       chokidar: 3.5.3
       cross-spawn: 7.0.3
     dev: true
@@ -574,8 +574,8 @@ packages:
     resolution: {integrity: sha512-KcfkBq9H4PI6Vpu5B/KoPeuVDAbmi+2mDBqGPGUgoL7yXQtcWGu2vJWmmRkneWK3Rh0nIAX192Aa87AqKHYChQ==}
     dev: false
 
-  /@types/node/18.7.17:
-    resolution: {integrity: sha512-0UyfUnt02zIuqp7yC8RYtDkp/vo8bFaQ13KkSEvUAohPOAlnVNbj5Fi3fgPSuwzakS+EvvnnZ4x9y7i6ASaSPQ==}
+  /@types/node/18.7.18:
+    resolution: {integrity: sha512-m+6nTEOadJZuTPkKR/SYK3A2d7FZrgElol9UP1Kae90VVU4a6mxnPuLiIW1m4Cq4gZ/nWb9GrdVXJCoCazDAbg==}
     dev: true
 
   /@types/prettyjson/0.0.30:

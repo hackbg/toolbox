@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "5.0.1",
+  "version":     "5.0.2",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",

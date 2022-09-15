@@ -15,12 +15,12 @@ structured invocations but without the unpronounceable parts.
 import { CommandContext, parallel } from '@hackbg/komandi'
 
 export default new CommandContext('run', [/*beforeEach*/], [/*afterEach*/])
-  .command('cmd one', 'do one thing',  doOneThing)
-  .command('cmd two', 'do two things', doOneThing, doAnotherThing)
-  .command('cmd tri', 'do two things in parallel', parallel(doOneThing, doAnotherThing))
-  .commands('cmd sub', 'subcommands', new CommandContext('sub')
-    .command('four', 'one subcommand', () => { /* ... */ })
-    .command('five', 'another subcommand', async () => { /*...*/ }))
+  .addCommand('cmd one', 'do one thing',  doOneThing)
+  .addCommand('cmd two', 'do two things', doOneThing, doAnotherThing)
+  .addCommand('cmd tri', 'do two things in parallel', parallel(doOneThing, doAnotherThing))
+  .addCommands('cmd sub', 'subcommands', new CommandContext('sub')
+    .addCommand('four', 'one subcommand', () => { /* ... */ })
+    .addCommand('five', 'another subcommand', async () => { /*...*/ }))
 ```
 
 ## Implementing commands
@@ -94,6 +94,7 @@ such as a build graph:
 
 ```typescript
 import { deepEqual } from 'assert'
+
 const uploaded = new Set()
 const l1 = new Lazy(()=>{ uploaded.add(1); return 1 })
 const l2 = new Lazy(()=>{ uploaded.add(2); return 2 })
@@ -102,6 +103,7 @@ const l3 = new Lazy(async ()=>{
   uploaded.add(r1 + r2)
   return r1 + r2
 })
+
 deepEqual([...uploaded], [],
   'initial state')
 equal(await l1, 1,
@@ -112,4 +114,36 @@ equal(await l3, 3,
   'resolved value of l3')
 deepEqual([...uploaded], [1, 2, 3],
   'l2 was also evaluated')
+```
+
+## Deferred
+
+```typescript
+import { Deferred } from '@hackbg/komandi'
+const d = new Deferred()
+d.then(val=>`deferred ${val}`)
+d.resolve(1)
+```
+
+## Task
+
+```typescript
+import { Task } from '@hackbg/komandi'
+equal(new Task(function myTask () {}).name, 'myTask')
+equal(new Task('named task', function myTask () {}).name, 'named task')
+const task = new Task(()=>{})
+equal(task.called, false)
+await task
+equal(task.called, true)
+
+class Tasks extends CommandContext {
+  task1 = this.task('task 1', () => { return 1 })
+  task2 = this.task('task 2', async () => { return await this.task1 + 1 })
+}
+const tasks = new Tasks()
+equal(tasks.task1.called, false)
+equal(tasks.task2.called, false)
+await tasks.task2
+equal(tasks.task1.called, true)
+equal(tasks.task2.called, true)
 ```

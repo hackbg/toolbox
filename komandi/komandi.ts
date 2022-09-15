@@ -16,29 +16,107 @@ export class Deferred<X> extends Promise<X> {
     this.resolve = _resolve
     this.reject  = _reject
   }
+  /** Resolve the promise. */
   resolve: (result: X|PromiseLike<X>)=>void
+  /** Reject the promise. */
   reject:  (reason?: any)=>void
+  /** Some magic CC BY-SA 4.0 https://stackoverflow.com/a/60328122 */
+  static get [Symbol.species]() { return Promise; }
+  get [Symbol.toStringTag]() { return 'Deferred' }
 }
 
 /** A promise that only evaluates once. */
-export class Lazy<X> extends Promise<X> {
+export class Lazy<X> extends Deferred<X> {
   static all = (lazies: Promise<unknown>[]) => new Lazy(()=>Promise.all(lazies))
-  protected readonly resolver: ()=>X|PromiseLike<X>
-  private resolved?: PromiseLike<X> = undefined
-  constructor (resolver: ()=>X|PromiseLike<X>) {
-    super(()=>{})
-    this.resolver ??= resolver
+  constructor (
+    /** Function that performs the task, fulfilling the underlying Promise. */
+    public resolver: ()=>X|PromiseLike<X>
+  ) {
+    super()
+    const e = new Error()
+    Error.captureStackTrace(e)
+    this.stack = `\nCreated at:\n` + e.stack.split('\n').slice(1).join('\n')
+    Object.defineProperty(this, 'stack', { enumerable: false, writable: false })
   }
-  /** Lazy#then: only evaluated the first time it is awaited */
-  then <Y, Z> (
+  /** Whether the resolver was called. */
+  called: boolean = false
+  /** Captured stack at construction. Used for a more informative stack trace. */
+  stack:  string  = ''
+  /** Magic, see above. */
+  get [Symbol.toStringTag]() { return 'Lazy' }
+  /** Lazy#then works like Promise#then, but only evaluates the implementation
+    * (`this.resolver`) when called for the first time, as opposed to the normal
+    * behavior of a Promise, which starts evaluating as soon as it's constructed.
+    * If the implementation rejects with an error, this method add the value of
+    * `this.stack` to the error stack.
+    * @returns Promise */
+  async then <Y, Z> (
     resolved:  (value:  X) => Y | PromiseLike<Y>,
     rejected?: (reason: Z) => Z | PromiseLike<Z>
-  ): Promise<Y> {
-    this.resolved ??= Promise.resolve(this.resolver())
-    return this.resolved.then(resolved, rejected) as Promise<Y>
+  ) {
+    if (!this.called) {
+      this.called = true
+      try {
+        this.resolve(await Promise.resolve(this.resolver()))
+      } catch (e) {
+        if (e instanceof Error) e.stack += this.stack
+        this.reject(e)
+      }
+    }
+    return await super.then(resolved, rejected)
   }
 }
 
+export type TaskCallback<X> = ()=>X|Promise<X>
+
+/** Base class for class-based deploy procedure. Adds progress logging. */
+export class Task<C, X> extends Lazy<X> {
+
+  log: CustomConsole = new CustomConsole(this.constructor.name)
+
+  name?: string
+
+  cb?: TaskCallback<X>
+
+  context?: C
+
+  constructor (name: string, cb: TaskCallback<X>, context?: C)
+  constructor (cb: TaskCallback<X>, context?: C)
+  constructor (...args: unknown[]) {
+    let name:    string
+    let cb:      TaskCallback<X>
+    let context: C
+    if (typeof args[0] === 'string') {
+      [name, cb, context] = args as [string, TaskCallback<X>, C]
+      Object.defineProperty(cb, 'name', { value: name??cb.name })
+    } else {
+      [cb, context] = args as [TaskCallback<X>, C]
+      name = cb.name
+    }
+    super(()=>Promise.resolve(null))
+    this.name    = name
+    this.cb      = cb
+    this.context = context
+    this.resolver = () => {
+      this.log.info('Task     ', name)
+      console.log(this)
+      return this.cb.bind(this)()/*which is why this works*/
+    }
+    Object.defineProperty(this, 'log', { enumerable: false, writable: true })
+  }
+
+  //static get run () {
+    //const self = this
+    //Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
+    //return runTask
+    //async function runTask <C> (context: C) {
+      //return new self(context, () => {[>ignored<]})
+    //}
+  //}
+
+}
+
+/** A task timer. */
 export abstract class Timed<T, U> {
   started?: number|false = false
   ended?:   number|false = false
@@ -68,39 +146,6 @@ export abstract class Timed<T, U> {
     this.failed = failed
     throw failed
   }
-}
-
-/** Base class for class-based deploy procedure. Adds progress logging. */
-export class Task<C, X> extends Lazy<X> {
-
-  log: CustomConsole = new CustomConsole(this.constructor.name)
-
-  constructor (public readonly context: C, getResult: ()=>X) {
-    let self: this
-    super(()=>{
-      this.log.info('Task     ', this.constructor.name ? bold(this.constructor.name) : '')
-      return getResult.bind(self)()
-    })
-    self = this
-  }
-
-  task <X> (cb: ()=>X|Promise<X>): Promise<X> {
-    const self = this
-    return new Lazy(()=>{
-      this.log.info('  Subtask  ', cb.name ? bold(cb.name) : '')
-      return cb.bind(self)()
-    })
-  }
-
-  static get run () {
-    const self = this
-    Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
-    return runTask
-    async function runTask <C> (context: C) {
-      return new self(context, () => {/*ignored*/})
-    }
-  }
-
 }
 
 export type StepFn<C, D> = (this: C, ...args: any[]) => D|Promise<D>
@@ -200,6 +245,8 @@ export class Command<C extends object> extends Timed<C, Error> {
 
 }
 
+export type Steps<X> = (Step<X, unknown>|StepFn<X, unknown>)[]
+
 export class CommandContext {
 
   constructor (
@@ -233,43 +280,63 @@ export class CommandContext {
   /** Extra arguments passed from the command line. */
   args: string[] = []
 
-  task <X> (cb: ()=>X|Promise<X>): Promise<X> {
-    const self = this
-    return new Lazy(()=>{
-      this.log.info('Task  ', cb.name ? bold(cb.name) : '')
-      return cb.bind(self)()
-    })
+  /** Define a command during construction.
+    * @returns the passed command
+    * @example
+    *   class MyCommands extends CommandContext {
+    *     doThing = this.command('do-thing', 'command example', async function doThing () {
+    *       // implementation
+    *     })
+    *   } */
+  command <X extends StepFn<this, unknown>> (name: string, description: string, step: X): X {
+    this.addCommand(name, description, step)
+    return step
   }
-
-  /** Define a command. Remember to put `.entrypoint(import.meta.url)`
-    * at the end of your main command object. */
-  command (
-    name: string,
-    description: string,
-    ...steps: (Step<this, unknown>|StepFn<this, unknown>)[]
-  ): this {
+  /** Define a command subtree during construction.
+    * @returns the passed command subtree
+    * @example
+    *   class MyCommands extends CommandContext {
+    *     doThings = this.commands('sub', 'command subtree example', new SubCommands())
+    *   }
+    *   class SubCommands extends CommandContext {
+    *     // ...
+    *   }
+    **/
+  commands <C extends CommandContext> (name: string, description: string, subtree: C): C {
+    this.addCommands(name, description, subtree)
+    return subtree
+  }
+  /** Define a command after the instance is constructed.
+    * @returns this
+    * @example
+    *   export default new CommandContext()
+    *     .addCommand('foo', 'do one thing', async () => { ... })
+    *     .addCommand('bar', 'do another thing', () => { ... })
+    **/
+  addCommand (name: string, description: string, ...steps: Steps<this>): this {
     // store command
     this.commandTree[name] = new Command(name, description, steps.map(step=>Step.from(step)))
     return this
   }
-
-  /** Define a command subtree. */
-  commands (name: string, description: string, subtree: CommandContext): this {
+  /** Define a command subtree after the instance is constructed.
+    * @returns this
+    * @example
+    *   export default new CommandContext()
+    *     .addCommands('empty', 'do nothing in new context', new CommandContext())
+    *     .addCommands('baz', 'do some more things', new CommandContext()
+    *       .addCommand(...)
+    *       .addCommand(...))
+    **/
+  addCommands (name: string, description: string, subtree: CommandContext): this {
     subtree.description = description
     this.commandTree[name] = subtree
     return this
   }
-
-  addCommand <X extends StepFn<this, unknown>> (name: string, description: string, step: X): X {
-    this.command(name, description, step)
-    return step
-  }
-
-  addCommands <C extends CommandContext> (name: string, description: string, subtree: C): C {
-    this.commands(name, description, subtree)
-    return subtree
-  }
-
+  /** Define a lazy task, which is like a promise but does not start evaluating immediately.
+    * Instead, it evaluates once you `await` it or call `.then(...)` on it.
+    * @returns Task */
+  task = <X> (name: string, cb: ()=>X|Promise<X>): Task<this, X> =>
+    new Task(name, cb, this)
   /** `export default myCommands.main(import.meta.url)`
     * once per module after defining all commands */
   entrypoint (url: string, argv = process.argv.slice(2)): this {
