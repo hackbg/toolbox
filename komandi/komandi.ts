@@ -360,6 +360,7 @@ export class CommandContext {
     }
     const [command, ...args] = this.parse(argv)
     if (command) {
+      await this.before(context)
       return await command.run(args, context) as T
     } else {
       const message = `No such command in ${this.constructor.name}.`
@@ -368,6 +369,8 @@ export class CommandContext {
       throw new Error(message)
     }
   }
+
+  before = async (context: any = this): Promise<void> => {}
 
   /** Filter commands by each word from the list of arguments
     * then pass the rest as arguments to the found command. */
@@ -401,15 +404,33 @@ export class CommandsConsole extends CustomConsole {
 
   // Usage of Command API
   usage ({ constructor: { name }, commandTree }: CommandContext) {
-    let longest = 0
+
+    // Align
+    const columns = { name: 0, sub: 0 }
     for (const name of Object.keys(commandTree)) {
-      longest = Math.max(name.length, longest)
+      columns.name = Math.max(name.length, columns.name)
+      let sub = 0
+      if ((commandTree[name] as any).commandTree) {
+        sub = String(Object.keys((commandTree[name] as any).commandTree).length).length
+      }
+      columns.sub = Math.max(sub, columns.sub)
     }
+    columns.name += 1
+    columns.sub  += 3
+
+    // Display
     const commands = Object.entries(commandTree)
     if (commands.length > 0) {
       this.br()
-      for (const [cmdName, { description }] of Object.entries(commandTree)) {
-        this.info(`    ${bold(cmdName.padEnd(longest))}  ${description}`)
+      for (let [name, entry] of Object.entries(commandTree)) {
+        name = bold(name.padEnd(columns.name))
+        let sub = ''
+        if ((entry as any).commandTree) {
+          const keys = Object.keys((entry as any).commandTree)?.length ?? 0
+          sub = `(+${keys})`
+        }
+        sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
+        this.info(`${name} ${sub} ${entry.description}`)
       }
       this.br()
     } else {
