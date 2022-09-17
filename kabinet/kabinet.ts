@@ -4,7 +4,8 @@ import rimrafCb from 'rimraf'
 import symlinkDir from 'symlink-dir'
 import tmp from 'tmp'
 import { cwd } from 'process'
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
+import { tmpdir } from 'os'
+import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync } from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
 
@@ -18,6 +19,10 @@ const log = new CustomConsole('@hackbg/kabinet')
 
 export default function $ (base: string|URL|Path, ...fragments: string[]): Path {
   return new Path(base, ...fragments)
+}
+
+$.tmpDir = function getTmpDir (prefix = 'kabinet-'): Path {
+  return $(mkdtempSync($(tmpdir(), prefix).path))
 }
 
 /** Represents a path to a filesystem entity, i.e. a file or directory. */
