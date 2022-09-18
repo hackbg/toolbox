@@ -14,6 +14,7 @@ import { resolve, dirname, basename, relative, sep } from 'path'
 import TOML from 'toml'
 import YAML from 'js-yaml'
 import { CustomConsole } from '@hackbg/konzola'
+import { Encoding, Crypto } from '@hackbg/formati'
 
 const log = new CustomConsole('@hackbg/kabinet')
 
@@ -176,17 +177,24 @@ export class OpaqueFile extends BaseFile<never> {
 
 export class BinaryFile extends BaseFile<Buffer> {
   static extension = ''
-  load () { return readFileSync(this.path) }
+  load () {
+    return readFileSync(this.path)
+  }
   save (data: Uint8Array): this {
     this.makeParent()
     writeFileSync(this.path, data)
     return this
   }
+  get sha256 () {
+    return Encoding.toHex(new Crypto.Sha256(this.load()).digest())
+  }
 }
 
 export class TextFile extends BaseFile<string> {
   static extension = ''
-  load () { return readFileSync(this.path, 'utf8') }
+  load () {
+    return readFileSync(this.path, 'utf8')
+  }
   save (data: string) {
     this.makeParent()
     writeFileSync(this.path, data, 'utf8')
@@ -196,7 +204,9 @@ export class TextFile extends BaseFile<string> {
 
 export class JSONFile<T> extends BaseFile<T> {
   static extension = '.json'
-  load () { return JSON.parse(readFileSync(this.path, 'utf8')) as T }
+  load () {
+    return JSON.parse(readFileSync(this.path, 'utf8')) as T
+  }
   save (data: unknown) {
     this.makeParent()
     writeFileSync(this.path, JSON.stringify(data, null, 2), 'utf8')
@@ -206,7 +216,9 @@ export class JSONFile<T> extends BaseFile<T> {
 
 export class YAMLFile<T> extends BaseFile<T> {
   static extension = '.yaml'
-  load () { return YAML.load(readFileSync(this.path, 'utf8')) as T }
+  load () {
+    return YAML.load(readFileSync(this.path, 'utf8')) as T
+  }
   save (data: unknown) {
     this.makeParent()
     writeFileSync(this.path, YAML.dump(data), 'utf8')
@@ -216,7 +228,9 @@ export class YAMLFile<T> extends BaseFile<T> {
 
 export class TOMLFile<T> extends BaseFile<T> {
   static extension = '.toml'
-  load () { return TOML.parse(readFileSync(this.path, 'utf8')) as T }
+  load () {
+    return TOML.parse(readFileSync(this.path, 'utf8')) as T
+  }
   save (data: never) {
     throw new Error('TOML serialization not supported')
     return this
