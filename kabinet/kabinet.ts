@@ -5,17 +5,19 @@ import symlinkDir from 'symlink-dir'
 import tmp from 'tmp'
 import { cwd } from 'process'
 import { tmpdir } from 'os'
-import { existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync } from 'fs'
+import {
+  existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync,
+  symlinkSync, readlinkSync
+} from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
-
-const rimrafSync = rimrafCb.sync
-
 import TOML from 'toml'
 import YAML from 'js-yaml'
-
 import { CustomConsole } from '@hackbg/konzola'
+
 const log = new CustomConsole('@hackbg/kabinet')
+
+const rimrafSync = rimrafCb.sync
 
 export default function $ (base: string|URL|Path, ...fragments: string[]): Path {
   return new Path(base, ...fragments)
@@ -35,8 +37,9 @@ export class Path {
       base = fileURLToPath(base)
     } else if (typeof base === 'object') {
       base = base.path
+    } else {
+      this.path = resolve(base, ...fragments)
     }
-    this.path = resolve(base, ...fragments)
   }
 
   /** The represented path. */
@@ -133,6 +136,16 @@ export class Path {
     if (this.path === process.argv[1]) {
       return command(process.argv.slice(2))
     }
+  }
+
+  pointTo (path: string|Path): this {
+    symlinkSync($(path).path, this.path)
+    return this
+  }
+
+  get real (): this {
+    const self = this
+    return new (this.constructor as { new(path: string): typeof self })(readlinkSync(this.path))
   }
 
 }
