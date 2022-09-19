@@ -222,6 +222,9 @@ export class YAMLFile<T> extends BaseFile<T> {
   load () {
     return YAML.load(readFileSync(this.path, 'utf8')) as T
   }
+  loadAll () {
+    return YAML.loadAll(readFileSync(this.path, 'utf8')) as T[]
+  }
   save (data: unknown) {
     this.makeParent()
     writeFileSync(this.path, YAML.dump(data), 'utf8')
