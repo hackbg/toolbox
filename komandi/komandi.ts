@@ -36,7 +36,7 @@ export class Lazy<X> extends Deferred<X> {
     const e = new Error()
     Error.captureStackTrace(e)
     this.stack = `\nCreated at:\n` + e.stack.split('\n').slice(1).join('\n')
-    Object.defineProperty(this, 'stack', { enumerable: false, writable: false })
+    Object.defineProperty(this, 'stack', { enumerable: false, writable: true })
   }
   /** Whether the resolver was called. */
   called: boolean = false
