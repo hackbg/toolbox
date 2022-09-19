@@ -38,9 +38,8 @@ export class Path {
       base = fileURLToPath(base)
     } else if (typeof base === 'object') {
       base = base.path
-    } else {
-      this.path = resolve(base, ...fragments)
     }
+    this.path = resolve(base, ...fragments)
   }
 
   /** The represented path. */
