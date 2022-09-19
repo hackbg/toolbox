@@ -143,9 +143,17 @@ export class Path {
     return this
   }
 
-  get real (): this {
+  get target (): this {
     const self = this
     return new (this.constructor as { new(path: string): typeof self })(readlinkSync(this.path))
+  }
+
+  get real (): this {
+    let self = this
+    while (self.isLink) {
+      self = self.target
+    }
+    return self
   }
 
   get isLink (): boolean {
