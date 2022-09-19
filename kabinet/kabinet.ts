@@ -7,7 +7,7 @@ import { cwd } from 'process'
 import { tmpdir } from 'os'
 import {
   existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync,
-  symlinkSync, readlinkSync
+  symlinkSync, readlinkSync, lstatSync
 } from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
@@ -146,6 +146,10 @@ export class Path {
   get real (): this {
     const self = this
     return new (this.constructor as { new(path: string): typeof self })(readlinkSync(this.path))
+  }
+
+  get isLink (): boolean {
+    return lstatSync(this.path).isSymbolicLink()
   }
 
 }
