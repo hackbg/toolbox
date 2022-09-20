@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/konfizi",
-  "version":     "2.1.0",
+  "version":     "3.0.0",
   "main":        "konfizi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -10,9 +10,8 @@
   "description": "Command runner.",
   "files":       [ "README.md", "konfizi.ts" ],
   "scripts": {
-    "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",
-    "release:wet": "npm run ts:check && npm run ts:clean && ubik wet --access=public",
-    "ts:check":    "tsc --noEmit",
-    "ts:clean":    "ubik clean && rm -rf dist types *.dist.*"
+    "ubik":     "npm run ts:check && ubik",
+    "ts:check": "tsc --noEmit",
+    "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
   }
 }

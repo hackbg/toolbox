@@ -124,7 +124,7 @@ importers:
   komandi:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
-      '@hackbg/konfizi': workspace:^2
+      '@hackbg/konfizi': workspace:^3
       '@hackbg/konzola': workspace:^2.0.1
     dependencies:
       '@hackbg/konfizi': link:../konfizi
