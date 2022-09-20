@@ -10,7 +10,7 @@ export class CustomConsole {
     this.constructor.updateIndent(name)
     const prefix = (text, style) => () => {
       const indent = this.constructor.updateIndent(name)
-      return [`%c${this.name.padEnd(CustomConsole.indent)} ${text}`, style]
+      return [`%c${text} ${this.name.padEnd(CustomConsole.indent)}\n`, style]
     }
     this.prefixes = {
       log:   prefix('LOG  ', 'font-weight:bold'),
@@ -21,13 +21,13 @@ export class CustomConsole {
     }
   }
 
-  log   = (...args) => this.console.log(this.prefixes.log(),   ...args)
+  log   = (...args) => this.console.log(...this.prefixes.log(),   ...args)
 
-  info  = (...args) => this.console.info(this.prefixes.info(),  ...args)
+  info  = (...args) => this.console.info(...this.prefixes.info(),  ...args)
 
-  warn  = (...args) => this.console.warn(this.prefixes.warn(),  ...args)
+  warn  = (...args) => this.console.warn(...this.prefixes.warn(),  ...args)
 
-  error = (...args) => this.console.error(this.prefixes.error(), ...args)
+  error = (...args) => this.console.error(...this.prefixes.error(), ...args)
 
   debugEnabled = true
 
@@ -75,3 +75,6 @@ export class CustomError extends Error {
     }, 'name', { value: fullName })
   }
 }
+
+import * as colors from 'colors'
+export { colors }
