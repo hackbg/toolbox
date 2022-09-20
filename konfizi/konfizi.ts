@@ -75,8 +75,8 @@ export class EnvConfig extends Overridable {
   }
 
   getNumber <T> (name: string, fallback?: ()=>T): number|T {
-    if (this.env.hasOwnProperty(name)) {
-      const value = (process.env[name]??'').trim()
+    if (name in this.env) {
+      const value = (this.env[name]??'').trim()
       if (value === '') {
         if (fallback) {
           return fallback()
@@ -95,8 +95,8 @@ export class EnvConfig extends Overridable {
   }
 
   getString <T> (name: string, fallback?: ()=>T): string|T {
-    if (this.env.hasOwnProperty(name)) {
-      return String(process.env[name] as string)
+    if (name in this.env) {
+      return String(this.env[name] as string)
     } else if (fallback) {
       return fallback()
     } else {
@@ -105,8 +105,8 @@ export class EnvConfig extends Overridable {
   }
 
   getBoolean <T> (name: string, fallback?: ()=>T): boolean|T {
-    if (this.env.hasOwnProperty(name)) {
-      const value = (process.env[name]??'').trim()
+    if (name in this.env) {
+      const value = (this.env[name]??'').trim()
       return !EnvConfig.FALSE.includes(value)
     } else if (fallback) {
       return fallback()
