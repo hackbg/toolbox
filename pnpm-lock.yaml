@@ -7,8 +7,8 @@ importers:
       '@hackbg/dokeres': workspace:^4.1.2
       '@hackbg/formati': workspace:^3.0.2
       '@hackbg/kabinet': workspace:^3.1.1
-      '@hackbg/komandi': workspace:^5
-      '@hackbg/konzola': workspace:^2
+      '@hackbg/komandi': workspace:^6
+      '@hackbg/konzola': workspace:^2.0.1
       '@hackbg/portali': workspace:^1.2.3
       '@hackbg/runspec': workspace:^2.3.1
       '@hackbg/ubik': workspace:latest
@@ -43,7 +43,7 @@ importers:
 
   dokeres:
     specifiers:
-      '@hackbg/konzola': workspace:^2
+      '@hackbg/konzola': workspace:^2.0.1
       '@types/dockerode': ^3.3.8
       colors: 1.4.0
       dockerode: ^3.3.1
@@ -83,8 +83,9 @@ importers:
 
   kabinet:
     specifiers:
+      '@hackbg/formati': workspace:^3.0.3
       '@hackbg/ganesha': ^2.0.3
-      '@hackbg/konzola': workspace:^2
+      '@hackbg/konzola': workspace:^2.0.1
       '@hackbg/runspec': workspace:*
       '@types/js-yaml': ^4.0.5
       '@types/mkdirp': ^1.0.2
@@ -99,6 +100,7 @@ importers:
       tmp: ^0.2.1
       toml: ^3
     dependencies:
+      '@hackbg/formati': link:../formati
       '@hackbg/konzola': link:../konzola
       js-yaml: 4.1.0
       mkdirp: 1.0.4
@@ -123,7 +125,7 @@ importers:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
       '@hackbg/konfizi': workspace:^2
-      '@hackbg/konzola': workspace:^2
+      '@hackbg/konzola': workspace:^2.0.1
     dependencies:
       '@hackbg/konfizi': link:../konfizi
       '@hackbg/konzola': link:../konzola

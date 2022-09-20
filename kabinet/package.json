@@ -10,7 +10,7 @@
   "description":  "File utilities.",
   "files":        [ "README.md", "kabinet.ts" ],
   "dependencies": {
-    "@hackbg/konzola": "workspace:^2",
+    "@hackbg/konzola": "workspace:^2.0.1",
     "@hackbg/formati": "workspace:^3.0.3",
     "js-yaml":         "^4.1.0",
     "mkdirp":          "^1.0.4",
