@@ -5,14 +5,13 @@
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
   "bugs":        "https://github.com/hackbg/toolbox/issues",
-  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "konfizi"},
+  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "komandi"},
   "license":     "MIT",
   "description": "Environment configuration.",
   "files":        [ "README.md", "komandi.ts" ],
   "bin":          { "komandi": "./komandi.cli.cjs" },
   "dependencies": {
-    "@hackbg/konzola": "workspace:^2.0.1",
-    "@hackbg/konfizi": "workspace:^3"
+    "@hackbg/konzola": "workspace:^2.0.1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
