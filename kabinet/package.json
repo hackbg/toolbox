@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/kabinet",
-  "version":      "3.1.2",
+  "version":      "3.2.0",
   "main":         "kabinet.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",
@@ -10,7 +10,7 @@
   "description":  "File utilities.",
   "files":        [ "README.md", "kabinet.ts" ],
   "dependencies": {
-    "@hackbg/konzola": "workspace:^2.0.1",
+    "@hackbg/konzola": "workspace:^2.1",
     "@hackbg/formati": "workspace:^3.0.3",
     "js-yaml":         "^4.1.0",
     "mkdirp":          "^1.0.4",
@@ -30,12 +30,11 @@
     "c8":              "^7.11.2"
   },
   "scripts": {
-    "release:dry": "npm test && npm run ts:check && npm run ts:clean && ubik dry",
-    "release:wet": "npm test && npm run ts:check && npm run ts:clean && ubik wet --access=public",
+    "ubik": "npm run ts:check && npm run test:readme && npm run test:cov && ubik",
 
     "test":        "time ganesha-node node_modules/@hackbg/runspec kabinet.spec.ts.md",
-    "test:cov":    "Ganesha_NoSourceMap=1 time c8 -r text -x *.spec.* ganesha-node node_modules/@hackbg/runspec kabinet.spec.ts",
-    "test:lcov":   "Ganesha_NoSourceMap=1 time c8 -r lcov -x *.spec.* ganesha-node node_modules/@hackbg/runspec kabinet.spec.ts",
+    "test:cov":    "Ganesha_NoSourceMap=1 time c8 -r text -x *.spec.* ganesha-node node_modules/@hackbg/runspec kabinet.spec.ts.md",
+    "test:lcov":   "Ganesha_NoSourceMap=1 time c8 -r lcov -x *.spec.* ganesha-node node_modules/@hackbg/runspec kabinet.spec.ts.md",
     "test:readme": "ganesha-node README.md",
 
     "ts:check":     "tsc --noEmit",
