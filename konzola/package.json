@@ -1,6 +1,6 @@
 {
   "name":    "@hackbg/konzola",
-  "version": "2.0.1",
+  "version": "2.1.0",
 
   "main":    "konzola.cjs",
   "browser": "konzola.browser.mjs",
@@ -27,9 +27,7 @@
     "@hackbg/ganesha": "^2.2.5"
   },
   "scripts": {
-    "ubik":        "ubik",
-    "release:dry": "pnpm test && ubik dry",
-    "release:wet": "pnpm test && ubik wet --access=public",
-    "test":        "ganesha-node README.md"
+    "ubik": "npm run test && ubik",
+    "test": "ganesha-node README.md"
   }
 }
