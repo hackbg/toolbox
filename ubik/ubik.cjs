@@ -76,8 +76,7 @@ async function ubik (cwd, command, ...publishArgs) {
   async function release (
     /** Whether to actually publish to NPM, or just go through the movements ("dry run")  */
     wet  = false,
-    /** Whether to keep the modified package.json - for further inspection, or for        */
-    /** reuse in environments where on-demand compilation of TypeScript is not supported. */
+    /** Whether to keep the modified package.json and dist files */
     keep = false
   ) {
     /** Need the contents of package.json and a way to restore it after modification. */
@@ -106,19 +105,30 @@ async function ubik (cwd, command, ...publishArgs) {
     async function prepareTypeScript () {
       packageJson.ubik = true
       await compileTypeScript()
-      await flattenFiles(packageJson)
+      const collectedFiles = await flattenFiles(packageJson)
       await patchPackageJson(packageJson)
       await patchESMImports(packageJson)
       await patchDTSImports(packageJson)
       await patchCJSRequires(packageJson)
-      // Print the contents of the package
-      console.warn("\nTemporary modification to package.json (don't commit!)", packageJson)
+      // Print the modified package.json and the contents of the package
+      console.warn("\nApplying temporary modification to package.json...", packageJson)
+      copyFileSync($('package.json'), $('package.json.real'))
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
       console.log()
       execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
       // Publish the package, thus modified, to NPM
       console.log(`\n${packageManager} publish --no-git-checks`, ...publishArgs)
       runPackageManager('publish', '--no-git-checks',  ...publishArgs)
+      // Restore the original package.json and remove the dist files
+      if (!keep) {
+        console.warn("\nRestoring original package.json...")
+        unlinkSync($('package.json'))
+        copyFileSync($('package.json.real'), $('package.json'))
+        unlinkSync($('package.json.real'))
+        collectedFiles.forEach(file=>{ console.info(`Deleting ${file}`); unlinkSync(file) })
+      } else {
+        console.warn("\nKeeping modified package.json and dist files")
+      }
     }
 
     function prepareJavaScript () {
@@ -258,6 +268,10 @@ async function ubik (cwd, command, ...publishArgs) {
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt, usedCjsExt } = getExtensions(isESModule)
 
+    // Files given new locations by the flattening.
+    // Deleted after publication - unless you run `ubik fix`, which keeps them around.
+    const collectedFiles = new Set()
+
     // Collect output in package root and add it to "files" in package.json:
     console.log('\nFlattening package...')
     const files = [
@@ -269,6 +283,8 @@ async function ubik (cwd, command, ...publishArgs) {
 
     console.log('\nRemoving dist directories...')
     await cleanDirs()
+
+    return collectedFiles
 
     function collect (dir, ext1, ext2) {
       console.info(`\nCollecting from "${dir}/*${ext1}" into "./*${ext2}"`)
@@ -282,6 +298,7 @@ async function ubik (cwd, command, ...publishArgs) {
           copyFileSync(srcFile, newFile)
           unlinkSync(srcFile)
           outputs.push(newFile)
+          collectedFiles.add(newFile)
         }
       }
       return outputs
