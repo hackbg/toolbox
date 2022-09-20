@@ -25,7 +25,7 @@
     "signal-exit": "^3.0.7"
   },
   "devDependencies": {
-    "@hackbg/ubik": "workspace:latest",
+    "@hackbg/ubik": "workspace:^1.2",
     "@types/node": "latest",
     "concurrently": "7.2.2",
     "typedoc": "beta",
@@ -33,8 +33,7 @@
     "vitepress": "^1.0.0-alpha.4"
   },
   "scripts": {
-    "release:dry": "pnpm i && pnpm -r release:dry && ubik dry",
-    "release:wet": "pnpm i && pnpm -r release:wet && ubik wet",
+    "ubik": "ubik",
     "ts:check": "tsc --noEmit",
     "ts:clean": "rm -rf dist packages/*/dist packages/*/types",
     "ts:build": "npm run ts:clean && concurrently 'npm:ts:build:*'",

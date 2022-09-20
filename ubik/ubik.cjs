@@ -46,7 +46,7 @@ let packageManager = 'npm'
 if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_MANAGER
 try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
 try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
-console.info('Using package manager:', packageManager)
+console.info('\nUsing package manager:', packageManager)
 
 // Export for programmatical reuse:
 module.exports = module.exports.default = ubik
@@ -80,14 +80,14 @@ async function ubik (cwd, command, ...publishArgs) {
     keep = false
   ) {
     /** Need the contents of package.json and a way to restore it after modification. */
-    const { packageJson, restoreOriginalPackageJson } = readPackageJson()
+    const { packageJson } = readPackageJson()
     const { name, version } = packageJson
     /** First deduplication: Make sure the Git tag doesn't exist. */
     const tag = ensureFreshTag(name, version)
     /** Second deduplication: Make sure the library is not already published. */
     if (await isPublished(name, version)) return
     /** Print the contents of package.json if we'll be publishing. */
-    console.log('Original package.json:', packageJson, '\n')
+    console.log('\nOriginal package.json:', packageJson, '\n')
     /** In wet mode, try a dry run first. */
     if (wet) preliminaryDryRun(); else makeSureRunIsDry(publishArgs)
     const isTypeScript = (packageJson.main||'').endsWith('.ts')
@@ -111,7 +111,9 @@ async function ubik (cwd, command, ...publishArgs) {
       await patchDTSImports(packageJson)
       await patchCJSRequires(packageJson)
       // Print the modified package.json and the contents of the package
-      console.warn("\nApplying temporary modification to package.json...", packageJson)
+      console.warn("\nBacking up package.json to package.json.real")
+      copyFileSync($('package.json'), $('package.json.real'))
+      console.warn("\nTemporarily making package.json look like this:", packageJson)
       copyFileSync($('package.json'), $('package.json.real'))
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
       console.log()
@@ -152,21 +154,15 @@ async function ubik (cwd, command, ...publishArgs) {
     async function cleanup () {
       if (keep) {
         console.info((await boxen).default([
-          "WARNING: Not restoring original package.json.",
-          "Make sure you don't commit it!",
-          "Use `git checkout package.json` to bring back the original.",
-          'On-demand compilation of TS might not work.',
-          '("main" and "exports" now point to the compiled code',
-          'instead of the original source).',
+          "WARNING: Not restoring original package.json; keeping built artifacts.",
+          "Make sure you don't commit compilation results!",
+          'On-demand compilation of TS might not work until you restore package.json.real',
         ].join('\n'), { padding: 1, margin: 1 }))
       } else {
-        restoreOriginalPackageJson()
         if (isTypeScript) {
           console.info((await boxen).default([
-            "Restoring the original package.json. Build artifacts (`*.dist.js`, etc.)",
-            "will remain in place. Make sure you don't commit them! Add their extensions",
-            "to `.gitignore` if you haven't already, and invoke this tool in `clean` mode",
-            "to get rid of them.",
+            "Restored the original package.json and deleting build artifacts.",
+            "Use `ubik fix` if you want to keep them (e.g. if you want to publish a tarball).",
           ].join('\n'), { padding: 1, margin: 1 }))
         }
       }
@@ -192,10 +188,7 @@ async function ubik (cwd, command, ...publishArgs) {
       `This is already the modified, temporary package.json. Restore the original and try again ` +
       `(e.g. "git checkout package.json")`
     )
-    return { packageJson, restoreOriginalPackageJson }
-    function restoreOriginalPackageJson () {
-      writeFileSync($('package.json'), original, 'utf8')
-    }
+    return { packageJson }
   }
 
   // Bail if Git tag already exists
@@ -207,7 +200,7 @@ async function ubik (cwd, command, ...publishArgs) {
         `Increment version in package.json or delete tag to proceed.`
       throw new Error(msg)
     } catch (e) {
-      console.info(`${tag} not found, proceeding...`)
+      console.info(`\nGit tag "${tag}" not found, proceeding...`)
       return tag
     }
   }
@@ -216,7 +209,7 @@ async function ubik (cwd, command, ...publishArgs) {
     const url = `https://registry.npmjs.org/${name}/${version}`
     const response = await fetch(url)
     if (response.status === 200) {
-      console.log(`${name} ${version} already exists, not publishing:`, url)
+      console.log(`\n${name} ${version} already exists, not publishing:`, url)
       return
     } else if (response.status !== 404) {
       throw new Error(`ubik: NPM returned ${response.statusCode}`)
@@ -247,7 +240,7 @@ async function ubik (cwd, command, ...publishArgs) {
 
   // Compile TS -> JS
   async function compileTypeScript () {
-    console.info('Compiling TypeScript:')
+    console.info('Compiling TypeScript:\n')
     const result = await concurrently([
       // TS -> ESM
       `${TSC} --outDir ${esmOut} --target es2016 --module es6 --declaration --declarationDir ${dtsOut}`,
@@ -287,14 +280,14 @@ async function ubik (cwd, command, ...publishArgs) {
     return collectedFiles
 
     function collect (dir, ext1, ext2) {
-      console.info(`\nCollecting from "${dir}/*${ext1}" into "./*${ext2}"`)
+      console.info(`  Collecting from "${dir}/*${ext1}" into "./*${ext2}"`)
       const inputs  = readdirSync($(dir))
       const outputs = []
       for (const file of inputs) {
         if (file.endsWith(ext1)) {
           const srcFile = $(dir, file)
           const newFile = replaceExtension(file, ext1, ext2)
-          console.log(`  Moving ${toRel(srcFile)} -> ${newFile}`)
+          console.log(`    Moving ${toRel(srcFile)} -> ${newFile}`)
           copyFileSync(srcFile, newFile)
           unlinkSync(srcFile)
           outputs.push(newFile)
@@ -338,7 +331,7 @@ async function ubik (cwd, command, ...publishArgs) {
       'ExportAllDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
-      console.info('\nPatching', file)
+      console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source)
       let modified = false
@@ -349,11 +342,11 @@ async function ubik (cwd, command, ...publishArgs) {
         const isNotPatched = !oldValue.endsWith(usedEsmExt)
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}${usedEsmExt}`
-          console.info('  ', oldValue, '->', newValue)
+          console.info('    ', oldValue, '->', newValue)
           declaration.source.value = newValue
           modified = true
         } else {
-          console.info('  ', oldValue)
+          console.info('    ', oldValue, 'left as is')
         }
       }
       if (modified) {
@@ -371,7 +364,7 @@ async function ubik (cwd, command, ...publishArgs) {
       'ExportAllDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(distDtsExt))) {
-      console.info('\nPatching', file)
+      console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source, { parser: recastTS })
       let modified = false
@@ -382,11 +375,11 @@ async function ubik (cwd, command, ...publishArgs) {
         const isNotPatched = !oldValue.endsWith(distDtsExt)
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}.dist`
-          console.info('  ', oldValue, '->', newValue)
+          console.info('    ', oldValue, '->', newValue)
           declaration.source.value = newValue
           modified = true
         } else {
-          console.info('  ', oldValue)
+          console.info('    ', oldValue, 'left as is')
         }
       }
       if (modified) {
@@ -396,11 +389,11 @@ async function ubik (cwd, command, ...publishArgs) {
   }
 
   async function patchCJSRequires (packageJson) {
-    console.info('\nPatching CJS requires:')
+    console.info('\nPatching CJS requires...')
     const isESModule = (packageJson.type === 'module')
     const { usedCjsExt } = getExtensions(isESModule)
     for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
-      console.info('Patching', file, '...')
+      console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source)
       let modified = false
@@ -414,11 +407,11 @@ async function ubik (cwd, command, ...publishArgs) {
                 const target = `${resolve(dirname(file), value)}.ts`
                 if (existsSync(target)) {
                   const newValue = `${value}${usedCjsExt}`
-                  console.info(`  require("${value}") -> require("${newValue}")`)
+                  console.info(`    require("${value}") -> require("${newValue}")`)
                   arguments[0].value = newValue
                   modified = true
                 } else {
-                  console.info(`  require("${value}"): ${relative(cwd, target)} not found, ignoring`)
+                  console.info(`    require("${value}"): ${relative(cwd, target)} not found, ignoring`)
                 }
               }
             } else {

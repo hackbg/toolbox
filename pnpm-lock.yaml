@@ -11,7 +11,7 @@ importers:
       '@hackbg/konzola': workspace:^2.0.1
       '@hackbg/portali': workspace:^1.2.3
       '@hackbg/runspec': workspace:^2.3.1
-      '@hackbg/ubik': workspace:latest
+      '@hackbg/ubik': workspace:^1.2
       '@types/node': latest
       bech32: ^2.0.0
       concurrently: 7.2.2
