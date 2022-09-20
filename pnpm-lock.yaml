@@ -165,12 +165,14 @@ importers:
 
   ubik:
     specifiers:
+      babylon: 7.0.0-beta.47
       boxen: ^7.0.0
       concurrently: 7.2.2
       node-fetch: ^2
       recast: ^0.21.2
       rimraf: ^3.0.2
     dependencies:
+      babylon: 7.0.0-beta.47
       boxen: 7.0.0
       concurrently: 7.2.2
       node-fetch: 2.6.7
@@ -889,6 +891,12 @@ packages:
   /astral-regex/2.0.0:
     resolution: {integrity: sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==}
     engines: {node: '>=8'}
+    dev: false
+
+  /babylon/7.0.0-beta.47:
+    resolution: {integrity: sha512-+rq2cr4GDhtToEzKFD6KZZMDBXhjFAr9JjPw9pAppZACeEWqNM294j+NdBzkSHYXwzzBmVjZ3nEVJlOhbR2gOQ==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
     dev: false
 
   /balanced-match/1.0.2:
