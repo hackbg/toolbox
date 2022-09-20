@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/komandi",
-  "version":     "6.1.1",
+  "version":     "6.1.2",
   "main":        "komandi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -11,7 +11,7 @@
   "files":        [ "README.md", "komandi.ts" ],
   "bin":          { "komandi": "./komandi.cli.cjs" },
   "dependencies": {
-    "@hackbg/konzola": "workspace:^2.0.1"
+    "@hackbg/konzola": "workspace:^2.1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
