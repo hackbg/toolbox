@@ -35,7 +35,7 @@ export class Lazy<X> extends Deferred<X> {
     super()
     const e = new Error()
     Error.captureStackTrace(e)
-    this.stack = `\nCreated at:\n` + e.stack.split('\n').slice(1).join('\n')
+    if (e.stack) this.stack = `\nCreated at:\n` + e.stack.split('\n').slice(1).join('\n')
     Object.defineProperty(this, 'stack', { enumerable: false, writable: true })
   }
   /** Whether the resolver was called. */
@@ -93,13 +93,13 @@ export class Task<C, X> extends Lazy<X> {
       [cb, context] = args as [TaskCallback<X>, C]
       name = cb.name
     }
-    super(()=>Promise.resolve(null))
+    super(()=>Promise.resolve(null as unknown as X))
     this.name    = name
     this.cb      = cb
     this.context = context
     this.resolver = () => {
       this.log.info('Task     ', name)
-      return this.cb.bind(this.context)()
+      return this.cb!.bind(this.context)()
     }
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
@@ -356,7 +356,7 @@ export class CommandContext {
       const message = 'No command invoked.'
       this.log.info(message)
       this.log.usage(this)
-      return null as T
+      return null as unknown as T
     }
     const [command, ...args] = this.parse(argv)
     if (command) {
