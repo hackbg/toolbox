@@ -47,6 +47,7 @@ export function required (label: string) {
 
 export * as Base64   from '@waiting/base64'
 export * as Crypto   from '@cosmjs/crypto'
-export * as Encoding from '@iov/encoding'
+export * as Encoding from '@cosmjs/encoding'
 export * as Bech32   from 'bech32'
+
 export { SecureRandom }

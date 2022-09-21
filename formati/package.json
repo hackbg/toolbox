@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/formati",
-  "version": "3.0.3",
+  "version": "3.2.0",
   "main": "formati.ts",
   "type": "module",
   "license": "MIT",
@@ -19,20 +19,19 @@
     "types"
   ],
   "dependencies": {
-    "@cosmjs/crypto":       "^0.20.0",
-    "@iov/encoding":        "^2.5.0",
+    "@cosmjs/crypto":       "^0.29.0",
+    "@cosmjs/encoding":     "^0.29.0",
     "@waiting/base64":      "^4.2.9",
     "bech32":               "^2.0.0",
     "secure-random":        "^1.1.2",
     "@types/secure-random": "^1.1.0"
   },
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
   "scripts": {
-    "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",
-    "release:wet": "npm run ts:check && npm run ts:clean && ubik wet --access=public",
-
-    "test": "ganesha-node README.md",
-
-    "ts:check": "tsc --noEmit",
-    "ts:clean": "rm -rf dist packages/*/dist packages/*/types"
+    "ubik":  "npm run check && npm run test && ubik",
+    "test":  "ganesha-node README.md",
+    "check": "tsc --noEmit"
   }
 }
