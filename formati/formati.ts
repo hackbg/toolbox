@@ -14,6 +14,17 @@ export function pick (obj: Record<string, unknown> = {}, ...keys: string[]): Par
     }, {})
 }
 
+declare const TextEncoder: any;
+declare const TextDecoder: any;
+export const utf8 = {
+  encode (str: string): Uint8Array {
+    return new TextEncoder().encode(str);
+  },
+  decode (data: Uint8Array): string {
+    return new TextDecoder("utf-8", { fatal: true }).decode(data);
+  }
+}
+
 import * as _SecureRandom from 'secure-random'
 const SecureRandom = _SecureRandom.default ?? _SecureRandom
 export { SecureRandom }
@@ -45,3 +56,5 @@ export * from '@noble/hashes/sha256'
 export * as bip32 from '@scure/bip32'
 
 export * as bip39 from '@scure/bip39'
+
+export { wordlist as bip39EN } from '@scure/bip39/wordlists/english'
