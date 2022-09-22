@@ -3,6 +3,7 @@
   "version": "4.2.1",
   "type": "module",
   "main": "toolbox.ts",
+  "private": true,
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {
@@ -13,7 +14,7 @@
   "description": "Baseline utilities.",
   "dependencies": {
     "@hackbg/dokeres": "workspace:^4",
-    "@hackbg/formati": "workspace:^4",
+    "@hackbg/formati": "workspace:^5",
     "@hackbg/kabinet": "workspace:^3",
     "@hackbg/komandi": "workspace:^6",
     "@hackbg/konzola": "workspace:^2",

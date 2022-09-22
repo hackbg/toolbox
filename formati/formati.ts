@@ -42,6 +42,6 @@ export const randomBech32m = (prefix = 'hackbg', bytes = 32) =>
 
 export * from '@noble/hashes/sha256'
 
-export * from '@scure/bip32'
+export * as bip32 from '@scure/bip32'
 
-export * from '@scure/bip39'
+export * as bip39 from '@scure/bip39'
