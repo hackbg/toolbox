@@ -14,7 +14,7 @@ import { resolve, dirname, basename, relative, sep } from 'path'
 import TOML from 'toml'
 import YAML from 'js-yaml'
 import { CustomConsole } from '@hackbg/konzola'
-import { Encoding, Crypto } from '@hackbg/formati'
+import { base16, sha256 } from '@hackbg/formati'
 
 const log = new CustomConsole('@hackbg/kabinet')
 
@@ -197,7 +197,7 @@ export class BinaryFile extends BaseFile<Buffer> {
     return this
   }
   get sha256 () {
-    return Encoding.toHex(new Crypto.Sha256(this.load()).digest())
+    return base16.encode(sha256(this.load()))
   }
 }
 

@@ -13,7 +13,7 @@
   "description": "Baseline utilities.",
   "dependencies": {
     "@hackbg/dokeres": "workspace:^4",
-    "@hackbg/formati": "workspace:^3",
+    "@hackbg/formati": "workspace:^4",
     "@hackbg/kabinet": "workspace:^3",
     "@hackbg/komandi": "workspace:^6",
     "@hackbg/konzola": "workspace:^2",
@@ -43,16 +43,5 @@
     "docs:vp:dev": "vitepress dev",
     "docs:vp:build": "vitepress build",
     "docs:vp:serve": "vitepress serve"
-  },
-  "workspace": true,
-  "packages": [
-    "./dokeres",
-    "./forkers",
-    "./formati",
-    "./ubik",
-    "./kabinet",
-    "./komandi",
-    "./konzola",
-    "./runspec"
-  ]
+  }
 }

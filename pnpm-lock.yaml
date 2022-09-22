@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@hackbg/dokeres': workspace:^4
-      '@hackbg/formati': workspace:^3
+      '@hackbg/formati': workspace:^4
       '@hackbg/kabinet': workspace:^3
       '@hackbg/komandi': workspace:^6
       '@hackbg/konzola': workspace:^2
@@ -67,26 +67,26 @@ importers:
 
   formati:
     specifiers:
-      '@cosmjs/crypto': ^0.29.0
-      '@cosmjs/encoding': ^0.29.0
       '@hackbg/ganesha': ^2.2.5
+      '@noble/hashes': ^1.1.2
+      '@scure/base': ^1.1.1
+      '@scure/bip32': ^1.1.0
+      '@scure/bip39': ^1.1.0
       '@types/secure-random': ^1.1.0
-      '@waiting/base64': ^4.2.9
-      bech32: ^2.0.0
       secure-random: ^1.1.2
     dependencies:
-      '@cosmjs/crypto': 0.29.0
-      '@cosmjs/encoding': 0.29.0
+      '@noble/hashes': 1.1.2
+      '@scure/base': 1.1.1
+      '@scure/bip32': 1.1.0
+      '@scure/bip39': 1.1.0
       '@types/secure-random': 1.1.0
-      '@waiting/base64': 4.2.9
-      bech32: 2.0.0
       secure-random: 1.1.2
     devDependencies:
       '@hackbg/ganesha': 2.3.0
 
   kabinet:
     specifiers:
-      '@hackbg/formati': workspace:^3.2
+      '@hackbg/formati': workspace:^4
       '@hackbg/ganesha': ^2.2.5
       '@hackbg/konzola': workspace:^2.1
       '@hackbg/runspec': workspace:*
@@ -329,36 +329,6 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@cosmjs/crypto/0.29.0:
-    resolution: {integrity: sha512-MPJoebRGh7AcZgbfR25ci7iV+XzJiKwVq4wL8n6M5P2QdrIv7DqqniyFXcBbn9dQjMLMHnOSgT9LRv+VXzUVCA==}
-    dependencies:
-      '@cosmjs/encoding': 0.29.0
-      '@cosmjs/math': 0.29.0
-      '@cosmjs/utils': 0.29.0
-      '@noble/hashes': 1.1.2
-      bn.js: 5.2.1
-      elliptic: 6.5.4
-      libsodium-wrappers: 0.7.10
-    dev: false
-
-  /@cosmjs/encoding/0.29.0:
-    resolution: {integrity: sha512-6HDBtid/YLbyXapY6PdMMIigAtGKyD1w0dUCLU1dOIkPf1q3y43kqoA7WnLkRw0g0/lZY1VGM2fX+2RWU0wxYg==}
-    dependencies:
-      base64-js: 1.5.1
-      bech32: 1.1.4
-      readonly-date: 1.0.0
-    dev: false
-
-  /@cosmjs/math/0.29.0:
-    resolution: {integrity: sha512-ufRRmyDQtJUrH8r1V4N7Q6rTOk9ZX7XIXjJto7cfXP8kcxm7IJXKYk+r0EfDnNHFkxTidYvW/1YXeeNoy8xZYw==}
-    dependencies:
-      bn.js: 5.2.1
-    dev: false
-
-  /@cosmjs/utils/0.29.0:
-    resolution: {integrity: sha512-NiJk3ISX+FU1cQcTTgmJcY84A8mV/p8L5CRewp/2jc/lUmo8j9lMGbX17U7NxVQ9RX5RmrwgdjYnBASzhRCVmA==}
-    dev: false
-
   /@docsearch/css/3.2.0:
     resolution: {integrity: sha512-jnNrO2JVYYhj2pP2FomlHIy6220n6mrLn2t9v2/qc+rM7M/fbIcKMgk9ky4RN+L/maUEmteckzg6/PIYoAAXJg==}
     dev: true
@@ -508,6 +478,29 @@ packages:
 
   /@noble/hashes/1.1.2:
     resolution: {integrity: sha512-KYRCASVTv6aeUi1tsF8/vpyR7zpfs3FUzy2Jqm+MU+LmUKhQ0y2FpfwqkCcxSg2ua4GALJd8k2R76WxwZGbQpA==}
+    dev: false
+
+  /@noble/secp256k1/1.6.3:
+    resolution: {integrity: sha512-T04e4iTurVy7I8Sw4+c5OSN9/RkPlo1uKxAomtxQNLq8j1uPAqnsqG1bqvY3Jv7c13gyr6dui0zmh/I3+f/JaQ==}
+    dev: false
+
+  /@scure/base/1.1.1:
+    resolution: {integrity: sha512-ZxOhsSyxYwLJj3pLZCefNitxsj093tb2vq90mp2txoYeBqbcjDjqFhyM8eUjq/uFm6zJ+mUuqxlS2FkuSY1MTA==}
+    dev: false
+
+  /@scure/bip32/1.1.0:
+    resolution: {integrity: sha512-ftTW3kKX54YXLCxH6BB7oEEoJfoE2pIgw7MINKAs5PsS6nqKPuKk1haTF/EuHmYqG330t5GSrdmtRuHaY1a62Q==}
+    dependencies:
+      '@noble/hashes': 1.1.2
+      '@noble/secp256k1': 1.6.3
+      '@scure/base': 1.1.1
+    dev: false
+
+  /@scure/bip39/1.1.0:
+    resolution: {integrity: sha512-pwrPOS16VeTKg98dYXQyIjJEcWfz7/1YJIwxUEPFfQPtc86Ym/1sVgQ2RLoD43AazMk2l/unK4ITySSpW2+82w==}
+    dependencies:
+      '@noble/hashes': 1.1.2
+      '@scure/base': 1.1.1
     dev: false
 
   /@types/docker-modem/3.0.2:
@@ -751,11 +744,6 @@ packages:
       vue-demi: 0.13.7_vue@3.2.37
     dev: true
 
-  /@waiting/base64/4.2.9:
-    resolution: {integrity: sha512-yzt9ih63oePux/sQM8Df6DTv1IeXGByaHrFiJoPszk0LaJwIGJ3IKhKhT/O6YMo2RignlP2cfxoo1lGmKZPIgQ==}
-    engines: {node: '>=10.4.0'}
-    dev: false
-
   /@zkochan/rimraf/2.1.2:
     resolution: {integrity: sha512-Lc2oK51J6aQWcLWTloobJun5ZF41BbTDdLvE+aMcexoVWFoFqvZmnZoyXR2IZk6NJEVoZW8tjgtvQLfTsmRs2Q==}
     engines: {node: '>=12.10'}
@@ -898,10 +886,6 @@ packages:
       tweetnacl: 0.14.5
     dev: false
 
-  /bech32/1.1.4:
-    resolution: {integrity: sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==}
-    dev: false
-
   /bech32/2.0.0:
     resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
     dev: false
@@ -924,14 +908,6 @@ packages:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.0
-    dev: false
-
-  /bn.js/4.12.0:
-    resolution: {integrity: sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==}
-    dev: false
-
-  /bn.js/5.2.1:
-    resolution: {integrity: sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==}
     dev: false
 
   /body-scroll-lock/4.0.0-beta.0:
@@ -970,10 +946,6 @@ packages:
     dependencies:
       fill-range: 7.0.1
     dev: true
-
-  /brorand/1.1.0:
-    resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
-    dev: false
 
   /buffer-from/1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
@@ -1165,18 +1137,6 @@ packages:
 
   /eastasianwidth/0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
-    dev: false
-
-  /elliptic/6.5.4:
-    resolution: {integrity: sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==}
-    dependencies:
-      bn.js: 4.12.0
-      brorand: 1.1.0
-      hash.js: 1.1.7
-      hmac-drbg: 1.0.1
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
     dev: false
 
   /emoji-regex/8.0.0:
@@ -1523,21 +1483,6 @@ packages:
       function-bind: 1.1.1
     dev: true
 
-  /hash.js/1.1.7:
-    resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
-    dependencies:
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-    dev: false
-
-  /hmac-drbg/1.0.1:
-    resolution: {integrity: sha512-Tti3gMqLdZfhOQY1Mzf/AanLiqh1WTiJgEj26ZuYQ9fbkLomzGchCws4FyrSd4VkpBfiNhaE1On+lOz894jvXg==}
-    dependencies:
-      hash.js: 1.1.7
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
-    dev: false
-
   /html-escaper/2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
     dev: true
@@ -1675,16 +1620,6 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /libsodium-wrappers/0.7.10:
-    resolution: {integrity: sha512-pO3F1Q9NPLB/MWIhehim42b/Fwb30JNScCNh8TcQ/kIc+qGLQch8ag8wb0keK3EP5kbGakk1H8Wwo7v+36rNQg==}
-    dependencies:
-      libsodium: 0.7.10
-    dev: false
-
-  /libsodium/0.7.10:
-    resolution: {integrity: sha512-eY+z7hDrDKxkAK+QKZVNv92A5KYkxfvIshtBJkmg5TSiCnYqZP3i9OO9whE79Pwgm4jGaoHgkM4ao/b9Cyu4zQ==}
-    dev: false
-
   /locate-path/6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
@@ -1730,14 +1665,6 @@ packages:
       array-union: 1.0.2
       arrify: 1.0.1
       minimatch: 3.1.2
-    dev: false
-
-  /minimalistic-assert/1.0.1:
-    resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
-    dev: false
-
-  /minimalistic-crypto-utils/1.0.1:
-    resolution: {integrity: sha512-JIYlbt6g8i5jKfJ3xz7rF0LXmv2TkDxBLUkiBeZ7bAx4GnnNMr8xFpGnOxn6GhTEHx3SjRrZEoU+j04prX1ktg==}
     dev: false
 
   /minimatch/3.1.2:
@@ -1928,10 +1855,6 @@ packages:
     dependencies:
       picomatch: 2.3.1
     dev: true
-
-  /readonly-date/1.0.0:
-    resolution: {integrity: sha512-tMKIV7hlk0h4mO3JTmmVuIlJVXjKk3Sep9Bf5OH0O+758ruuVkUy2J9SttDLm91IEX/WHlXPSpxMGjPj4beMIQ==}
-    dev: false
 
   /recast/0.21.2:
     resolution: {integrity: sha512-jUR1+NtaBQdKDqBJ+qxwMm5zR8aLSNh268EfgAbY+EP4wcNEWb6hZFhFeYjaYanwgDahx5t47CH8db7X2NfKdQ==}
