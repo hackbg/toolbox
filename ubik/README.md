@@ -26,9 +26,8 @@ in response to the current multilevel fragmentation of the JS packaging landscap
 
 ## Usage
 
-* Edit package
+* Edit package, increment version in package.json, commit
 * Test if your package can be released: `pnpm ubik dry`
-* Increment version in package.json, commit
 * Release into the wild: `pnpm ubik wet`
 
 If publishing to tarball, use `pnpm ubik fix` in your CI.
@@ -45,5 +44,8 @@ If publishing to tarball, use `pnpm ubik fix` in your CI.
     depending on `type`  in `package.json`, and uses `.cjs` or `.mjs` for the other version.
   * Patches extensions to make the ESM build work in Node 16+.
 
-* Modifies `package.json` during publication to point to the correct compile outputs for each mode.
+* Publishes to NPM.
+  * Modifies `package.json` during publication to point to the correct compile output for each mode.
   * Backs up the original in `package.json.real` and restores it after publishing the package.
+
+* Adds a Git tag in the format `npm/$PACKAGE/$VERSION` and pushes it.
