@@ -2,21 +2,14 @@
 
 # `@hackbg/ubik`
 
-Shim for publishing isomorphic TypeScript libraries to NPM,
+Opinionated shim for publishing isomorphic TypeScript libraries to NPM,
 in response to the current multilevel fragmentation of the JS packaging landscape.
-
-Modifies package.json during publication of TypeScript packages
-to make TS/ESM/CJS portability more seamless.
 
 </div>
 
 ---
 
 ## Setup
-
-* Requires [PNPM](https://pnpm.io)
-
-  * [ ] TODO: Make optional
 
 * Add to your `package.json`:
 
@@ -26,9 +19,7 @@ to make TS/ESM/CJS portability more seamless.
     "@hackbg/ubik": "latest"
   },
   "scripts": {
-    "clean":       "ubik clean",
-    "release:dry": "npm run clean && ubik dry",
-    "release:wet": "npm run clean && ubik wet --access=public"
+    "ubik": "ubik"
   }
 }
 ```
@@ -36,8 +27,23 @@ to make TS/ESM/CJS portability more seamless.
 ## Usage
 
 * Edit package
-* Test if your package can be released: `pnpm run release:dry`
+* Test if your package can be released: `pnpm ubik dry`
 * Increment version in package.json, commit
-* Release into the wild: `pnpm run release:wet`
+* Release into the wild: `pnpm ubik wet`
 
-And/or add `pnpm run release:dry` to your CI.
+If publishing to tarball, use `pnpm ubik fix` in your CI.
+
+## Features
+
+* Does not remove sources from distribution.
+
+* Does not compact all compiled code into a single file.
+
+* Compiles TypeScript to both CommonJS and ESM targets.
+  * Does not put the compilation output in a subdir.
+  * Intelligently decides whether `.dist.js` will contain CJS or ESM
+    depending on `type`  in `package.json`, and uses `.cjs` or `.mjs` for the other version.
+  * Patches extensions to make the ESM build work in Node 16+.
+
+* Modifies `package.json` during publication to point to the correct compile outputs for each mode.
+  * Backs up the original in `package.json.real` and restores it after publishing the package.

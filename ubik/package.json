@@ -1,10 +1,10 @@
 {
   "name": "@hackbg/ubik",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "main": "ubik.cjs",
   "bin": { "ubik": "./ubik.cjs" },
-  "description": "Publish flat isomorphic packages from TypeScript with PNPM.",
+  "description": "Publish TypeScript packages as both CJS and ESM, fixing ESM extensions for Node 16+.",
   "files": ["README.md", "ubik.cjs"],
   "scripts": { "ubik": "./ubik.cjs" },
   "dependencies": {
