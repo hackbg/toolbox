@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/formati",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "main": "formati.ts",
   "type": "module",
   "license": "MIT",

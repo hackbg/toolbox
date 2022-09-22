@@ -57,4 +57,4 @@ export * as bip32 from '@scure/bip32'
 
 export * as bip39 from '@scure/bip39'
 
-export { wordlist as bip39EN } from '@scure/bip39/wordlists/english'
+export { wordlist as bip39EN } from '@scure/bip39/wordlists/english.js'
