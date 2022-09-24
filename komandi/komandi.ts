@@ -97,6 +97,7 @@ export class Task<C, X> extends Lazy<X> {
     this.name    = name
     this.cb      = cb
     this.context = context
+    this.log     = (context as any)?.log ?? this.log
     this.resolver = () => {
       this.log.info('Task     ', name)
       return this.cb!.bind(this.context)()
