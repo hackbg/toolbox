@@ -175,6 +175,7 @@ export class Image {
     const { name, dockerode } = this
     if (!name) throw new Error(`Can't pull image with no name.`)
     await new Promise<void>((ok, fail)=>{
+      const log = new CustomConsole('Dokeres Pull')
       dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -182,10 +183,8 @@ export class Image {
             log.error(event.error)
             throw new Error(`Pulling ${name} failed.`)
           }
-          log.info(
-            `📦 docker pull says:`,
-            ['id', 'status', 'progress'].map(x=>event[x]).join('│')
-          )
+          const data = ['id', 'status', 'progress'].map(x=>event[x]).join(' ')
+          log.log(data)
         })
         ok()
       })
@@ -204,15 +203,14 @@ export class Image {
       { context, src },
       { t: this.name, dockerfile }
     )
+    const log = new CustomConsole('Dokeres Build')
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)
         throw new Error(`Building ${name} from ${dockerfile} in ${context} failed.`)
       }
-      log.info(
-        `📦 docker build says:`,
-        event.progress || event.status || event.stream || JSON.stringify(event)
-      )
+      const data = event.progress || event.status || event.stream || JSON.stringify(event) || ''
+      log.log(data.trim())
     })
   }
 
