@@ -300,7 +300,7 @@ export function getDirName (url: URL) {
 
 export function mkdir (...fragments: string[]) {
   const path = resolve(...fragments)
-  if (!existsSync(path)) log.info('Creating directory:', path)
+  if (!existsSync(path)) log.log('Creating directory:', $(path).shortPath)
   mkdirp.sync(path, {mode: 0o770})
   return path
 }
@@ -323,7 +323,7 @@ export function withTmpFile <T> (fn: (path: string)=>T): T {
 
 export function touch (...fragments: string[]) {
   const path = resolve(...fragments)
-  if (!existsSync(path)) log.info('Creating file:', path)
+  if (!existsSync(path)) log.log('Creating file:', $(path).shortPath)
   writeFileSync(path, '')
   return path
 }

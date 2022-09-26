@@ -99,7 +99,7 @@ export class Task<C, X> extends Lazy<X> {
     this.context = context
     this.log     = (context as any)?.log ?? this.log
     this.resolver = () => {
-      this.log.info('Task     ', name)
+      this.log.log('Task:    ', bold(name))
       return this.cb!.bind(this.context)()
     }
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })

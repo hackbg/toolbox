@@ -22,8 +22,8 @@ module.exports.CustomConsole = class CustomConsole {
       return bold(color(`${text} ${this.name.padEnd(indent)} │`))
     }
     this.prefixes = {
-      log:   prefix('   LOG │', blue),
-      info:  prefix('  INFO │', green),
+      log:   prefix('   LOG │', green),
+      info:  prefix('  INFO │', blue),
       warn:  prefix('  WARN │', yellow),
       error: prefix(' ERROR │', red),
       trace: prefix(' TRACE │', magenta)
