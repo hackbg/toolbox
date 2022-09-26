@@ -440,12 +440,13 @@ export class CommandsConsole extends CustomConsole {
   commandEnded (command: Command<any>) {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
-    this.info(`The command "${bold(command.name)}" ${result} in ${command.took}`)
+    const method = command.failed ? this.error : this.info
+    method(`The command "${bold(command.name)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
       const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
       const timing   = (step.took ?? '').padStart(10)
-      this.info(status, bold(name), timing, 's')
+      method(status, bold(name), timing, 's')
     }
   }
 
