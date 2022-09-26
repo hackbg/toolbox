@@ -14,7 +14,7 @@ module.exports.CustomConsole = class CustomConsole {
   static updateIndent = (str='') => this.indent = Math.max(this.indent, str.length)
 
   constructor (name = '', _console = console) {
-    this.name ??= name
+    this.name = name || this.name
     this.console = _console
     this.constructor.updateIndent(name)
     const prefix = (text, color) => () => {
