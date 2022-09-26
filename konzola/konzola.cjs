@@ -19,14 +19,14 @@ module.exports.CustomConsole = class CustomConsole {
     this.constructor.updateIndent(name)
     const prefix = (text, color) => () => {
       const indent = this.constructor.updateIndent(name)
-      return bold(color(`${text} ${this.name.padEnd(indent)}`))
+      return bold(color(`${text} ${this.name.padEnd(indent)} │`))
     }
     this.prefixes = {
-      log:   prefix('LOG  ', blue),
-      info:  prefix('INFO ', green),
-      warn:  prefix('WARN ', yellow),
-      error: prefix('ERROR', red),
-      trace: prefix('TRACE', magenta)
+      log:   prefix('   LOG │', blue),
+      info:  prefix('  INFO │', green),
+      warn:  prefix('  WARN │', yellow),
+      error: prefix(' ERROR │', red),
+      trace: prefix(' TRACE │', magenta)
     }
     Object.defineProperty(this, 'prefixes', { enumerable: false, writable: true })
     Object.defineProperty(this, 'console',  { enumerable: false, writable: true })
