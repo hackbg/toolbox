@@ -364,10 +364,8 @@ export class CommandContext {
       await this.before(context)
       return await command.run(args, context) as T
     } else {
-      const message = `No such command in ${this.constructor.name}.`
-      this.log.warn(message)
       this.log.usage(this)
-      throw new Error(message)
+      throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
     }
   }
 
