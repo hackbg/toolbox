@@ -21,6 +21,16 @@ export class CustomConsole {
     }
   }
 
+  get indent () {
+    return this.constructor.indent
+  }
+
+  get width () {
+    return Infinity
+  }
+
+  console = console
+
   log   = (...args) => this.console.log(...this.prefixes.log(),   ...args)
 
   info  = (...args) => this.console.info(...this.prefixes.info(),  ...args)

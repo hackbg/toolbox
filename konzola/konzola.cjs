@@ -14,8 +14,8 @@ module.exports.CustomConsole = class CustomConsole {
   static updateIndent = (str='') => this.indent = Math.max(this.indent, str.length)
 
   constructor (name = '', _console = console) {
-    this.name = name || this.name
-    this.console = _console
+    this.name    ??= name
+    this.console ??= _console
     this.constructor.updateIndent(name)
     const prefix = (text, color) => () => {
       const indent = this.constructor.updateIndent(name)
@@ -32,9 +32,17 @@ module.exports.CustomConsole = class CustomConsole {
     Object.defineProperty(this, 'console',  { enumerable: false, writable: true })
   }
 
-  console = console
+  get indent () {
+    return this.constructor.indent
+  }
 
-  name = ''
+  get width () {
+    return process.stdout.columns || Infinity
+  }
+
+  console
+
+  name
 
   log   = (...args) => this.console.log(this.prefixes.log(),   ...args)
 
