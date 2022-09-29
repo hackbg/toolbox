@@ -7,13 +7,13 @@ import { cwd } from 'process'
 import { tmpdir } from 'os'
 import {
   existsSync, readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync,
-  symlinkSync, readlinkSync, lstatSync
+  symlinkSync, readlinkSync, lstatSync, unlinkSync
 } from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
 import TOML from 'toml'
 import YAML from 'js-yaml'
-import { CustomConsole } from '@hackbg/konzola'
+import { CustomConsole, bold } from '@hackbg/konzola'
 import { base16, sha256 } from '@hackbg/formati'
 
 const log = new CustomConsole('@hackbg/kabinet')
@@ -49,9 +49,21 @@ export class Path {
     return pathToFileURL(this.path)
   }
 
+  resolve (path: string): string {
+    if (this.isDirectory()) {
+      return resolve(this.path, path)
+    } else {
+      return resolve(dirname(this.path), path)
+    }
+  }
+
   relative (path: Path|string): string {
     if (path instanceof Path) path = path.path
-    return relative(this.path, path)
+    if (this.isDirectory()) {
+      return relative(this.path, path)
+    } else {
+      return relative(dirname(this.path), path)
+    }
   }
 
   get name (): string {
@@ -60,6 +72,11 @@ export class Path {
 
   get parent (): string {
     return dirname(this.path)
+  }
+
+  makeParent (): this {
+    mkdirp.sync(dirname(this.path))
+    return this
   }
 
   get shortPath (): string {
@@ -90,46 +107,54 @@ export class Path {
     return new Ctor(this.path)
   }
 
-  /** FIXME */
-  resolve (name: string): string {
-    if (name.includes('/')) throw new Error(`invalid name: ${name}`)
-    return resolve(this.path, basename(name))
-  }
-
-  exists (): boolean {
-    return existsSync(this.path)
-  }
-
-  assert (): this {
-    if (this.exists()) {
-      return this
-    } else {
-      throw new Error(`${this.path} does not exist`)
+  exists () {
+    try {
+      return statSync(this.path)
+    } catch (e) {
+      if (e.code === 'ELOOP') {
+        log.warn('Circular symlink at', bold(this.shortPath))
+        return lstatSync(this.path)
+      } else if (e.code === 'ENOENT') {
+        return null
+      } else {
+        throw e
+      }
     }
   }
 
-  isDirectory (name?: string): boolean {
-    const nameMatches = name ? (name === this.name) : true
-    return this.exists() && statSync(this.path).isDirectory() && nameMatches
-  }
-
-  isFile (name?: string): boolean {
-    const nameMatches = name ? (name === this.name) : true
-    return this.exists() && statSync(this.path).isFile() && nameMatches
-  }
-
-  delete (): this {
-    rimrafSync(this.path)
-    return this
-  }
-
-  makeParent (): this {
-    mkdirp.sync(dirname(this.path))
-    return this
+  assert (): this {
+    if (this.exists()) return this
+    throw new Error(`${this.path} does not exist`)
   }
 
   make (): this {
     throw new Error("@hackbg/kabinet: file or directory? use subclass")
+  }
+
+  /** @returns true if a directory exists at this.path */
+  isDirectory (name?: string): boolean {
+    const nameMatches = name ? (name === this.name) : true
+    return this.exists()?.isDirectory() && nameMatches
+  }
+
+  /** @returns true if a file exists at this.path */
+  isFile (name?: string): boolean {
+    const nameMatches = name ? (name === this.name) : true
+    return this.exists()?.isFile() && nameMatches
+  }
+
+  get isLink (): boolean {
+    return this.exists() && lstatSync(this.path).isSymbolicLink()
+  }
+
+  delete (): this {
+    if (this.exists()) {
+      log.log('Deleting:', bold(this.shortPath))
+      rimrafSync(this.path)
+    } else {
+      log.log('Already deleted:', this.shortPath)
+    }
+    return this
   }
 
   entrypoint <T> (command: (argv:string[])=>T): T|undefined {
@@ -138,28 +163,45 @@ export class Path {
     }
   }
 
-  pointTo (path: string|Path): this {
-    symlinkSync($(path).path, this.path)
-    return this
-  }
-
-  get target (): this {
-    const self = this
-    return new (this.constructor as { new(path: string): typeof self })(
-      resolve(this.parent, readlinkSync(this.path))
-    )
-  }
-
   get real (): this {
     let self = this
+    let visited = new Set([])
     while (self.isLink) {
+      if (visited.has(self.path)) {
+        log.warn(`Symlink loop encountered at`, bold(self.path))
+        break
+      }
+      visited.add(self.path)
       self = self.target
     }
     return self
   }
 
-  get isLink (): boolean {
-    return lstatSync(this.path).isSymbolicLink()
+  get target (): this|null {
+    const self = this
+    const ctor = (this.constructor as { new(path: string): typeof self })
+    return self.exists() ? new ctor(this.resolve(readlinkSync(this.path))) : null
+  }
+
+  /** Turn this entry into a symlink to `Path`. */
+  pointTo (path: string): this {
+    if ($(path).path === this.path) {
+      throw new Error("Tried to create symlink that points to itself.")
+    }
+    if (this.exists()) this.delete()
+    log.log('Pointing:', bold(this.shortPath), 'to', bold(path))
+    symlinkSync(path, this.path)
+    return this
+  }
+
+  /** Turn this entry into a symlink to an absolute path. */
+  absLink (path: string|Path): this {
+    return this.pointTo($(path).path)
+  }
+
+  /** Turn this entry into a symlink to a relative path. */
+  relLink (path: string): this {
+    return this.pointTo(path)
   }
 
 }
