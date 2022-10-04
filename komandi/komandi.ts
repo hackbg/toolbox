@@ -105,6 +105,15 @@ export class Task<C, X> extends Lazy<X> {
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
 
+  /** Define a subtask
+    * @returns A Lazy or Promise containing a task. */
+  task <T> (name: string, cb: (this: typeof this)=>Promise<T>): Task<typeof this, T> {
+    const task = new Task(name, cb, this)
+    const [_, head, ...body] = (task.stack ?? '').split('\n')
+    task.stack = '\n' + head + '\n' + body.slice(3).join('\n')
+    return task
+  }
+
   //static get run () {
     //const self = this
     //Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
