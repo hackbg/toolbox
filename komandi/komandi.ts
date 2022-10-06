@@ -3,71 +3,88 @@ import { fileURLToPath } from 'url'
 
 Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
 
-/** A promise that can be resolved externally. */
-export class Deferred<X> extends Promise<X> {
+function getStack (): string {
+  const e = new Error()
+  Error.captureStackTrace(e)
+  return e.stack ? (`\nFrom:\n` + e.stack.split('\n').slice(2).join('\n')) : ''
+}
+
+/** A Promise that captures the stack at creation. */
+export class Traced<X> extends Promise<X> {
+  /** Captured stack at construction. Used for a more informative stack trace. */
+  stack: string = process.env.Komandi_Trace ? getStack() : ''
+  /** Create a promise and capture stack trace. */
+  constructor (arg) {
+    super(arg)
+    Object.defineProperty(this, 'stack', { enumerable: false, writable: true })
+  }
+}
+
+/** A promise that can be resolved from outsid . */
+export class Deferred<X> extends Traced<X> {
+  /** Whether the promise was already resolved or rejected. */
+  completed: boolean = false
+  /** Resolve the promise. */
+  resolve:   (result: X|PromiseLike<X>)=>void
+  /** Reject the promise. */
+  reject:    (reason?: any)=>void
+  /** Create a manually resolved promise. */
   constructor () {
-    // ts made me do it!
     let _resolve: (result: X|PromiseLike<X>)=>void = () => { throw new Error('unreachable') }
     let _reject:  (reason?: any)=>void             = () => { throw new Error('unreachable') }
     super((resolve, reject)=>{
       _resolve = resolve
       _reject  = reject
     })
-    this.resolve = _resolve
-    this.reject  = _reject
+    this.resolve = x => { this.completed = true; _resolve(x); }
+    this.reject  = x => { this.completed = true; _reject(x);  }
+    process.env.Komandi_Debug && process.on('exit', () => {
+      if (!this.completed) console.warn(`\nUnresolved deferred:\n${this.stack}`)
+    })
+    Object.defineProperty(this, 'resolve', { enumerable: false })
+    Object.defineProperty(this, 'reject',  { enumerable: false })
   }
-  /** Resolve the promise. */
-  resolve: (result: X|PromiseLike<X>)=>void
-  /** Reject the promise. */
-  reject:  (reason?: any)=>void
   /** Some magic CC BY-SA 4.0 https://stackoverflow.com/a/60328122 */
   static get [Symbol.species]() { return Promise; }
+  /** More magic */
   get [Symbol.toStringTag]() { return 'Deferred' }
 }
 
-/** A promise that only evaluates once. */
+/** A lazily evaluated variant of Promise. */
 export class Lazy<X> extends Deferred<X> {
-  static all = (lazies: Promise<unknown>[]) => new Lazy(()=>Promise.all(lazies))
-  constructor (
-    /** Function that performs the task, fulfilling the underlying Promise. */
-    public resolver: ()=>X|PromiseLike<X>
-  ) {
+  /** The function that is called to provide the value. */
+  resolver: ()=>X|PromiseLike<X>
+  /** Whether the resolver has already been called. */
+  started:  boolean = false
+  /** Create a lazily evaluated promise. */
+  constructor (resolver: ()=>X|PromiseLike<X>) {
     super()
-    const e = new Error()
-    Error.captureStackTrace(e)
-    if (e.stack) this.stack = `\nCreated at:\n` + e.stack.split('\n').slice(1).join('\n')
-    Object.defineProperty(this, 'stack', { enumerable: false, writable: true })
+    this.resolver = resolver
+    Object.defineProperty(this, 'resolver', { enumerable: false, writable: true })
   }
-  /** Whether the resolver was called. */
-  called: boolean = false
-  /** Captured stack at construction. Used for a more informative stack trace. */
-  stack:  string  = ''
-  /** Magic, see above. */
-  get [Symbol.toStringTag]() { return 'Lazy' }
-  /** Lazy#then works like Promise#then, but only evaluates the implementation
-    * (`this.resolver`) when called for the first time, as opposed to the normal
-    * behavior of a Promise, which starts evaluating as soon as it's constructed.
-    * If the implementation rejects with an error, this method add the value of
-    * `this.stack` to the error stack.
-    * @returns Promise */
-  async then <Y, Z> (
-    resolved:  (value:  X) => Y | PromiseLike<Y>,
-    rejected?: (reason: Z) => Z | PromiseLike<Z>
-  ) {
-    if (!this.called) {
-      this.called = true
-      try {
-        this.resolve(await Promise.resolve(this.resolver()))
-      } catch (e) {
-        if (e instanceof Error) e.stack += this.stack
-        this.reject(e)
-      }
+  /** @returns Promise */
+  then <Y, Z> (
+    resolved?: ((result: X)   => Y | PromiseLike<Y>) | null,
+    rejected?: ((reason: any) => Z | PromiseLike<Z>) | null
+  ): Promise<Y|Z> {
+    if (!this.started) {
+      this.started = true
+      setImmediate(()=>Promise.resolve(this.resolver())
+        .then(value=>this.resolve(value))
+        .catch(e=>{
+          if (e instanceof Error) e.stack += this.stack
+          this.reject(e)
+        }))
     }
-    return await super.then(resolved, rejected)
+    return super.then(resolved, rejected)
   }
+
+  get [Symbol.toStringTag]() { return 'Lazy' }
+  /** Equivalent to Promise.all but also lazily evaluated. */
+  static all = (lazies: Promise<unknown>[]) => new Lazy(()=>Promise.all(lazies))
 }
 
-export type TaskCallback<X> = ()=>X|Promise<X>
+export type TaskCallback<X> = ()=>X|PromiseLike<X>|Promise<X>
 
 /** Base class for class-based deploy procedure. Adds progress logging. */
 export class Task<C, X> extends Lazy<X> {
@@ -84,25 +101,32 @@ export class Task<C, X> extends Lazy<X> {
   constructor (cb: TaskCallback<X>, context?: C)
   constructor (...args: unknown[]) {
     let name:    string
-    let cb:      TaskCallback<X>
+    let cb:      TaskCallback<X> = () => { throw new Error('Task: no callback specified') }
     let context: C
     if (typeof args[0] === 'string') {
       [name, cb, context] = args as [string, TaskCallback<X>, C]
-      Object.defineProperty(cb, 'name', { value: name??cb.name })
+      if (!cb.name) Object.defineProperty(cb, 'name', { value: `[${name}]` })
     } else {
       [cb, context] = args as [TaskCallback<X>, C]
       name = cb.name
     }
-    super(()=>Promise.resolve(null as unknown as X))
-    this.name    = name
-    this.cb      = cb
-    this.context = context
-    this.log     = (context as any)?.log ?? this.log
-    this.resolver = () => {
+    super(async () => {
       this.log.log('Task:    ', bold(name))
-      return this.cb!.bind(this.context)()
-    }
+      return await Promise.resolve(this.cb!.bind(this.context)())
+    })
+    this.name     = name
+    this.cb       = cb
+    this.context  = context
+    this.log      = (context as any)?.log ?? this.log
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
+    Object.defineProperty(this, 'name', { enumerable: false, writable: true })
+    Object.defineProperty(this, 'started', { enumerable: false, writable: true })
+    Object.defineProperty(this, 'completed', { enumerable: false, writable: true })
+  }
+
+  get [Symbol.toStringTag]() {
+    return (this.started?'started':this.completed?'done':'pending') +
+      ': ' + (this.name??this.cb?.name??'?')
   }
 
   /** Define a subtask
@@ -114,14 +138,7 @@ export class Task<C, X> extends Lazy<X> {
     return task
   }
 
-  //static get run () {
-    //const self = this
-    //Object.defineProperty(runTask, 'name', { value: `run ${this.name}` })
-    //return runTask
-    //async function runTask <C> (context: C) {
-      //return new self(context, () => {[>ignored<]})
-    //}
-  //}
+  static get [Symbol.species]() { return Promise; }
 
 }
 
