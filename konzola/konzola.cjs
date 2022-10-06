@@ -32,6 +32,8 @@ module.exports.CustomConsole = class CustomConsole {
     Object.defineProperty(this, 'console',  { enumerable: false, writable: true })
   }
 
+  get [Symbol.toStringTag]() { return this.name ?? undefined }
+
   get indent () {
     return this.constructor.indent
   }
