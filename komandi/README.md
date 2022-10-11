@@ -132,18 +132,18 @@ import { Task } from '@hackbg/komandi'
 equal(new Task(function myTask () {}).name, 'myTask')
 equal(new Task('named task', function myTask () {}).name, 'named task')
 const task = new Task(()=>{})
-equal(task.called, false)
+equal(task.started, false)
 await task
-equal(task.called, true)
+equal(task.started, true)
 
 class Tasks extends CommandContext {
   task1 = this.task('task 1', () => { return 1 })
   task2 = this.task('task 2', async () => { return await this.task1 + 1 })
 }
 const tasks = new Tasks()
-equal(tasks.task1.called, false)
-equal(tasks.task2.called, false)
+equal(tasks.task1.started, false)
+equal(tasks.task2.started, false)
 await tasks.task2
-equal(tasks.task1.called, true)
-equal(tasks.task2.called, true)
+equal(tasks.task1.started, true)
+equal(tasks.task2.started, true)
 ```

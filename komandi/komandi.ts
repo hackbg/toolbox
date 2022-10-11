@@ -14,8 +14,8 @@ export class Traced<X> extends Promise<X> {
   /** Captured stack at construction. Used for a more informative stack trace. */
   stack: string = process.env.Komandi_Trace ? getStack() : ''
   /** Create a promise and capture stack trace. */
-  constructor (arg) {
-    super(arg)
+  constructor (...args: ConstructorParameters<typeof Promise<X>>) {
+    super(...args)
     Object.defineProperty(this, 'stack', { enumerable: false, writable: true })
   }
 }
@@ -131,7 +131,7 @@ export class Task<C, X> extends Lazy<X> {
 
   /** Define a subtask
     * @returns A Lazy or Promise containing a task. */
-  task <T> (name: string, cb: (this: typeof this)=>Promise<T>): Task<typeof this, T> {
+  task <T> (name: string, cb: (this: Task<C, X>)=>Promise<T>): Task<Task<C, X>, T> {
     const task = new Task(name, cb, this)
     const [_, head, ...body] = (task.stack ?? '').split('\n')
     task.stack = '\n' + head + '\n' + body.slice(3).join('\n')
@@ -466,7 +466,7 @@ export class CommandsConsole extends CustomConsole {
   commandEnded (command: Command<any>) {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
-    const method = command.failed ? this.error : this.info
+    const method = command.failed ? this.error : this.log
     method(`The command "${bold(command.name)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
