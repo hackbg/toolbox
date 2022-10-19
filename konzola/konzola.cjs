@@ -98,10 +98,8 @@ module.exports.timestamp = function timestamp (d = new Date()) {
 module.exports.bold = x => colors.bold(String(x))
 
 module.exports.CustomError = class CustomError extends Error {
-  static subtypes = []
   static define (name, getMessage = () => '') {
     const fullName = `${name}${this.name}`
-    if (this.subtypes.indexOf(name) < 0) this.subtypes.push(name)
     return Object.defineProperty(class CustomError extends this {
       constructor (...args) {
         const message = getMessage(...args)
