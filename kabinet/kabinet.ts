@@ -354,8 +354,9 @@ export function rimraf (path = "") {
 }
 
 export function withTmpDir <T> (fn: (path: string)=>T): T {
-  const {name} = tmp.dirSync()
-  try { return fn(name) } finally { rimrafSync(name) }
+  const name = resolve(tmpdir(), mkdtempSync('tmp'))
+  process.on('exit', () => rimrafSync(name))
+  return fn(name)
 }
 
 export function withTmpFile <T> (fn: (path: string)=>T): T {
