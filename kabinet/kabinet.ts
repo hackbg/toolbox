@@ -354,8 +354,11 @@ export function rimraf (path = "") {
 }
 
 export function withTmpDir <T> (fn: (path: string)=>T): T {
-  const name = resolve(tmpdir(), mkdtempSync('tmp'))
-  process.on('exit', () => rimrafSync(name))
+  const name = mkdtempSync(resolve(tmpdir(), 'temp-'))
+  process.on('exit', () => {
+    log.log('Removing temporary directory', name)
+    rimrafSync(name)
+  })
   return fn(name)
 }
 
