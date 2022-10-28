@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/ubik",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "type": "module",
   "main": "ubik.cjs",
   "bin": { "ubik": "./ubik.cjs" },

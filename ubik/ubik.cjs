@@ -54,6 +54,8 @@ module.exports = module.exports.default = ubik
 // Main function:
 async function ubik (cwd, command, ...publishArgs) {
 
+  console.log(`Ubik v${require(resolve(__dirname, 'package.json')).version}`)
+
   // Dispatch command.
   switch (command) {
     case 'fix':   return await release(false, true)
@@ -328,7 +330,8 @@ async function ubik (cwd, command, ...publishArgs) {
       'ImportDeclaration',
       'ExportDeclaration',
       'ImportAllDeclaration',
-      'ExportAllDeclaration'
+      'ExportAllDeclaration',
+      'ExportNamedDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
       console.info('  Patching', file)
@@ -336,7 +339,7 @@ async function ubik (cwd, command, ...publishArgs) {
       const parsed = recast.parse(source)
       let modified = false
       for (const declaration of parsed.program.body) {
-        if (!declarationsToPatch.includes(declaration.type)) continue
+        if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
         const oldValue     = declaration.source.value
         const isRelative   = oldValue.startsWith('./') || oldValue.startsWith('../')
         const isNotPatched = !oldValue.endsWith(usedEsmExt)
@@ -361,7 +364,8 @@ async function ubik (cwd, command, ...publishArgs) {
       'ImportDeclaration',
       'ExportDeclaration',
       'ImportAllDeclaration',
-      'ExportAllDeclaration'
+      'ExportAllDeclaration',
+      'ExportNamedDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(distDtsExt))) {
       console.info('  Patching', file)
@@ -369,7 +373,7 @@ async function ubik (cwd, command, ...publishArgs) {
       const parsed = recast.parse(source, { parser: recastTS })
       let modified = false
       for (const declaration of parsed.program.body) {
-        if (!declarationsToPatch.includes(declaration.type)) continue
+        if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
         const oldValue     = declaration.source.value
         const isRelative   = oldValue.startsWith('./') || oldValue.startsWith('../')
         const isNotPatched = !oldValue.endsWith(distDtsExt)
