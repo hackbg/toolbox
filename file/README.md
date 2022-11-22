@@ -1,7 +1,7 @@
 ---
 literate: typescript
 ---
-# `@hackbg/kabinet`
+# `@hackbg/file`
 
 **Classes for accessing the filesystem.**
 
@@ -22,7 +22,7 @@ what programs (e.g. smart contracts) you uploaded to an append-only public
 compute service (e.g. a programmable blockchain).
 
 ```javascript
-import $, { OpaqueDirectory, TextFile, JSONFile } from '@hackbg/kabinet'
+import $, { OpaqueDirectory, TextFile, JSONFile } from '@hackbg/file'
 
 const root = $(process.cwd())
 

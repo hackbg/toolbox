@@ -22,4 +22,3 @@
     "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
   }
 }
-

@@ -7,14 +7,14 @@ Parses the values of "empty string", `false`, `no`, and `0` as negatives.
 Example usage with TypeScript:
 
 ```typescript
-import * as Konfizi from '@hackbg/konfizi'
+import { Env, EnvConfig } from '@hackbg/conf'
 
-export class MyConfig extends Konfizi.EnvConfig {
+export class MyConfig extends EnvConfig {
 
   /** This constructor must be copied into every subclass to support the passing of defaults.
     * This is dumb, TODO fix in next version. */
   constructor (
-    env:      Konfizi.Env       = {},
+    env:      Env               = {},
     cwd:      string            = '',
     defaults: Partial<MyConfig> = {}
   ) {

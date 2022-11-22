@@ -1,4 +1,4 @@
-# `@hackbg/runspec` [![NPM version](https://img.shields.io/npm/v/@hackbg/runspec?color=9013fe&label=)](https://www.npmjs.com/package/@hackbg/runspec)
+# `@hackbg/spec` [![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=)](https://www.npmjs.com/package/@hackbg/spec)
 
 **Minimal test runner and reporter.**
 
@@ -36,7 +36,7 @@ export default {
 
 ```typescript
 // index.spec.js
-import runSpec from '@hackbg/runspec'
+import runSpec from '@hackbg/spec'
 import Spec1   from './spec1.spec'
 import Spec2   from './spec2.spec'
 import Spec3   from './spec3.spec'
