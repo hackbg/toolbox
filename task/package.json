@@ -1,0 +1,25 @@
+{
+  "name": "@hackbg/task",
+  "version": "1.0.0",
+  "main": "task.ts",
+  "type": "module",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "task"},
+  "license": "MIT",
+  "description": "Lazily evaluated Promise.",
+  "files": [ "README.md", "task.ts" ],
+  "dependencies": {
+    "@hackbg/logs": "^1"
+  },
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
+  "scripts": {
+    "ubik": "npm test && npm run ts:check && ubik",
+    "test": "ganesha-node README.md",
+    "ts:check": "tsc --noEmit",
+    "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
+  }
+}
+

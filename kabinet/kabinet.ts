@@ -134,17 +134,17 @@ export class Path {
   /** @returns true if a directory exists at this.path */
   isDirectory (name?: string): boolean {
     const nameMatches = name ? (name === this.name) : true
-    return this.exists()?.isDirectory() && nameMatches
+    return !!(this.exists()?.isDirectory() && nameMatches)
   }
 
   /** @returns true if a file exists at this.path */
   isFile (name?: string): boolean {
     const nameMatches = name ? (name === this.name) : true
-    return this.exists()?.isFile() && nameMatches
+    return !!(this.exists()?.isFile() && nameMatches)
   }
 
   get isLink (): boolean {
-    return this.exists() && lstatSync(this.path).isSymbolicLink()
+    return !!(this.exists() && lstatSync(this.path).isSymbolicLink())
   }
 
   delete (): this {
