@@ -13,10 +13,10 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
 import TOML from 'toml'
 import YAML from 'js-yaml'
-import { CustomConsole, bold } from '@hackbg/konzola'
-import { base16, sha256 } from '@hackbg/formati'
+import { Console, bold } from '@hackbg/logs'
+import { base16, sha256 } from '@hackbg/4mat'
 
-const log = new CustomConsole('@hackbg/kabinet')
+const log = new Console('@hackbg/kabinet')
 
 const rimrafSync = rimrafCb.sync
 

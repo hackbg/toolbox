@@ -1,9 +1,9 @@
-import { CustomConsole, bold } from '@hackbg/konzola'
+import { Console, bold } from '@hackbg/logs'
 import Docker from 'dockerode'
 import { basename, dirname } from 'path'
 import { Readable, Writable, Transform } from 'stream'
 
-const log = new CustomConsole('Dokeres')
+const log = new Console('Dokeres')
 
 export { Docker }
 
@@ -175,7 +175,7 @@ export class Image {
     const { name, dockerode } = this
     if (!name) throw new Error(`Can't pull image with no name.`)
     await new Promise<void>((ok, fail)=>{
-      const log = new CustomConsole('Dokeres Pull')
+      const log = new Console('Dokeres Pull')
       dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -203,7 +203,7 @@ export class Image {
       { context, src },
       { t: this.name, dockerfile }
     )
-    const log = new CustomConsole('Dokeres Build')
+    const log = new Console('Dokeres Build')
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)

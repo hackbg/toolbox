@@ -1,12 +1,12 @@
 import open from 'open'
 import onExit from 'signal-exit'
 
-export * from '@hackbg/formati'
-export * from '@hackbg/konzola'
-export * from '@hackbg/kabinet'
-export * from '@hackbg/komandi'
-export * from '@hackbg/dokeres'
-export * from '@hackbg/runspec'
+export * from '@hackbg/4mat'
+export * from '@hackbg/logs'
+export * from '@hackbg/file'
+export * from '@hackbg/cmds'
+export * from '@hackbg/dock'
+export * from '@hackbg/spec'
 
 export {
   open,
