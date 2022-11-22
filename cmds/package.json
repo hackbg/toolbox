@@ -11,8 +11,8 @@
   "files": [ "README.md", "cmds.ts" ],
   "bin": { "cmds": "./cmds.cli.cjs" },
   "dependencies": {
-    "@hackbg/logs": "^1",
-    "@hackbg/task": "^1"
+    "@hackbg/logs": "workspace:^1",
+    "@hackbg/task": "workspace:^1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

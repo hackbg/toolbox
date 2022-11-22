@@ -10,7 +10,7 @@
   "description": "Lazily evaluated Promise.",
   "files": [ "README.md", "task.ts" ],
   "dependencies": {
-    "@hackbg/logs": "^1"
+    "@hackbg/logs": "workspace:^1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

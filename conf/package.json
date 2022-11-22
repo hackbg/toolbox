@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/conf",
-  "version":     "3.0.1",
+  "version":     "1.0.0",
   "main":        "konfizi.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
