@@ -1,6 +1,6 @@
 {
-  "name":         "@hackbg/dokeres",
-  "version":      "4.4.3",
+  "name":         "@hackbg/dock",
+  "version":      "1.0.0",
   "main":         "dokeres.ts",
   "type":         "module",
   "license":      "MIT",
@@ -10,9 +10,10 @@
   "description":  "Docker utilities.",
   "files":        [ "README.md", "dokeres.ts" ],
   "dependencies": {
-    "colors":          "1.4.0",
-    "dockerode":       "^3.3.1",
-    "@hackbg/konzola": "workspace:^2.1"
+    "colors":       "1.4.0",
+    "dockerode":    "^3.3.1",
+    "@hackbg/allo": "workspace:^1",
+    "@hackbg/logs": "workspace:^1"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.8"

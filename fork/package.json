@@ -1,5 +1,5 @@
 {
-  "name": "@hackbg/forkers",
+  "name": "@hackbg/fork",
   "version": "0.3.2",
   "main": "forkers.ts",
   "type": "module",
