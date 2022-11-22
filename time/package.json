@@ -1,20 +1,14 @@
 {
-  "name": "@hackbg/cmds",
+  "name": "@hackbg/time",
   "version": "1.0.0",
-  "main": "cmds.ts",
+  "main": "time.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
-  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "cmds"},
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "time"},
   "license": "MIT",
-  "description": "Minimal command line parser.",
-  "files": [ "README.md", "cmds.ts" ],
-  "bin": { "cmds": "./cmds.cli.cjs" },
-  "dependencies": {
-    "@hackbg/logs": "workspace:^1",
-    "@hackbg/task": "workspace:^1",
-    "@hackbg/time": "workspace:^1"
-  },
+  "description": "Make objects callable.",
+  "files": [ "README.md", "time.ts" ],
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
   },

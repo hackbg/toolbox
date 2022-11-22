@@ -1,5 +1,6 @@
-import { Console, bold, colors, timestamp } from '@hackbg/logs'
-import { Timed } from '@hackbg/task'
+import { Console, bold, colors } from '@hackbg/logs'
+import { timestamp, Timed } from '@hackbg/time'
+import { Task } from '@hackbg/task'
 import { fileURLToPath } from 'url'
 
 Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
@@ -296,7 +297,7 @@ export class CommandsConsole extends Console {
   commandEnded (command: Command<any>) {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
-    const method = command.failed ? this.error : this.log
+    const method = (command.failed ? this.error : this.log).bind(this)
     method(`The command "${bold(command.name)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)

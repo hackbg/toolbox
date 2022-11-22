@@ -6,7 +6,7 @@ export { chalk as colors }
 
 export const bold = chalk.bold
 
-export function imestamp (d = new Date()) {
+export function timestamp (d = new Date()) {
   return d.toISOString()
     .replace(/[-:\.Z]/g, '')
     .replace(/[T]/g, '_')
@@ -58,8 +58,8 @@ export class BaseConsole {
       this.parent = console
       options = args[0] ?? {}
     }
-    this.name   = options.name
-    this.indent = options.indent
+    this.name   = options.name   ?? ''
+    this.indent = options.indent ?? 0
     this.updateIndent(this.name)
     hideProperties(this, 'prefixes')
   }
