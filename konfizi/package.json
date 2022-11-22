@@ -1,5 +1,5 @@
 {
-  "name":        "@hackbg/konfizi",
+  "name":        "@hackbg/conf",
   "version":     "3.0.1",
   "main":        "konfizi.ts",
   "type":        "module",

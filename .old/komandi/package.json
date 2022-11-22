@@ -11,7 +11,7 @@
   "files":        [ "README.md", "komandi.ts" ],
   "bin":          { "komandi": "./komandi.cli.cjs" },
   "dependencies": {
-    "@hackbg/konzola": "workspace:^2.1"
+    "@hackbg/logs": "^1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
