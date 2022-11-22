@@ -1,0 +1,21 @@
+{
+  "name": "@hackbg/many",
+  "version": "1.0.0",
+  "main": "many.ts",
+  "type": "module",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "many"},
+  "license": "MIT",
+  "description": "Generalized sync/async iteration over arrays/objects.",
+  "files": [ "README.md", "many.ts" ],
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
+  "scripts": {
+    "ubik": "npm test && npm run ts:check && ubik",
+    "test": "ganesha-node README.md",
+    "ts:check": "tsc --noEmit",
+    "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
+  }
+}
