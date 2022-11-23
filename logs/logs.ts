@@ -56,7 +56,7 @@ export class BaseConsole {
       options = args[1] as ConsoleOptions
     } else {
       this.parent = console
-      options = args[0] ?? {}
+      options = (args[0] ?? {}) as Partial<ConsoleOptions>
     }
     this.name   = options.name   ?? ''
     this.indent = options.indent ?? 0
