@@ -16,6 +16,11 @@ class Something {
 }
 
 const something = new Something(1)
+```
+
+It works normally:
+
+```typescript
 console.log(something)
 assert.ok(something instanceof Something)
 assert.equal(something.property, 2)
@@ -44,7 +49,11 @@ class CallableSomething extends defineCallable(Something, function (parameter) {
 }
 
 const callable = new CallableSomething(1)
-console.log(callable)
+```
+
+It works like a normal class, and also the instances are callable:
+
+```typescript
 assert.ok(callable instanceof CallableSomething)
 assert.ok(callable instanceof Something)
 assert.ok(callable() === callable)
