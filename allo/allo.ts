@@ -1,11 +1,13 @@
+type Class<T> = new (...args: any[]) => T
+
 /** Define a callable class. Instances of the generated class can be invoked as functions.
   * The body of the function is passed as second argument.
   * The function's `this` identifier is bound to the instance.
   * @returns a callable class extending `Base`. */
 export function defineCallable <T, U extends T, F extends Function> (
-  Base: { new (...args: unknown[]): T },
+  Base: Class<T>,
   fn:   F
-): { new (...args: unknown[]): U } {
+): Class<T> & F {
   return Object.defineProperty(class extends (Base as any) {
     constructor (...args: any) {
       super(...args)
@@ -19,7 +21,7 @@ export function defineCallable <T, U extends T, F extends Function> (
       Object.setPrototypeOf(newPrototype, objectPrototype)
       Object.setPrototypeOf(call, newPrototype)
       Object.defineProperties(call, Object.getOwnPropertyDescriptors(self))
-      return call
+      return call as T
     }
-  }, 'name', { value: `${Base.name}Callable` }) as { new (...args: unknown[]): U }
+  }, 'name', { value: `${Base.name}Callable` }) as Class<T> & F
 }
