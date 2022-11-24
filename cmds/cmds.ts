@@ -14,7 +14,7 @@ export class Step<C, D> extends Timed<D, Error> {
     public impl: StepFn<C, D>,
     public name = impl.name,
     public description?: string,
-    public log: Console = new Console(console, `Step: ${name}`)
+    public log: Console = new Console(`Step: ${name}`)
   ) {
     super()
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
@@ -59,12 +59,12 @@ export function parallel (...operations: Function[]) {
 export class Command<C extends object> extends Timed<C, Error> {
 
   constructor (
-    readonly name:        string             = '',
+    readonly label:       string             = '',
     readonly description: string             = '',
     readonly steps:       Step<C, unknown>[] = [],
   ) {
     super()
-    this.log = new CommandsConsole(this.name)
+    this.log = new CommandsConsole(this.label)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
   }
 
@@ -107,10 +107,10 @@ export type Steps<X> = (Step<X, unknown>|StepFn<X, unknown>)[]
 export class CommandContext {
 
   constructor (
-    public name: string,
+    public label: string,
     public description: string = 'undocumented'
   ) {
-    this.log = new CommandsConsole(this.constructor.name)
+    this.log = new CommandsConsole(console, this.constructor.name)
     if (!process.env.DEBUG) {
       Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
       Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
@@ -256,7 +256,7 @@ export class CommandContext {
 
 export class CommandsConsole extends Console {
 
-  name = '@hackbg/komandi'
+  label = '@hackbg/cmds'
 
   // Usage of Command API
   usage ({ constructor: { name }, commandTree }: CommandContext) {
