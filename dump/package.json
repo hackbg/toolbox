@@ -1,0 +1,22 @@
+{
+  "name": "@hackbg/dump",
+  "version": "1.0.0",
+  "main": "dump.ts",
+  "type": "module",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "dump"},
+  "license": "MIT",
+  "description": "Use Braille characters to print binary data.",
+  "files": [ "README.md", "dump.ts" ],
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
+  "scripts": {
+    "ubik": "npm test && npm run ts:check && ubik",
+    "test": "ganesha-node dump.spec.ts.md",
+    "ts:check": "tsc --noEmit",
+    "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
+  }
+}
+
