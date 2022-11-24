@@ -21,21 +21,25 @@ export interface Console {
   debug (...args: any): void
   trace (...args: any): void
   table (...args: any): void
-  updateIndent? (text: string): number
 }
 
 export interface ConsoleOptions {
-  name:   string
+  label:  string
   indent: number
+  parent: Console | typeof console
 }
 
-export class BaseConsole {
+export class Console extends defineCallable(
+  function print (...args: any[]) {
+    this.log(...args)
+  }
+) {
 
-  name:   ConsoleOptions["name"]
+  label:  ConsoleOptions["label"]
 
   indent: ConsoleOptions["indent"]
 
-  parent: Console
+  parent: Console | typeof console
 
   prefixes = {
     log:   this.definePrefix('   LOG │', x => chalk.bold(chalk.green(x))),
@@ -47,39 +51,32 @@ export class BaseConsole {
     table: this.definePrefix(' TABLE │', x => chalk.bold(chalk.cyan(x))),
   }
 
-  constructor (options?: Partial<ConsoleOptions>)
-  constructor (parent: Console, options?: Partial<ConsoleOptions>)
-  constructor (...args: unknown[]) {
-    let options: Partial<ConsoleOptions> = {}
-    if (args.length >= 2) {
-      this.parent = args[0] as Console
-      options = args[1] as ConsoleOptions
-    } else {
-      this.parent = console
-      options = (args[0] ?? {}) as Partial<ConsoleOptions>
-    }
-    this.name   = options.name   ?? ''
+  constructor (label?: string, options: Partial<ConsoleOptions> = {}) {
+    super()
+    this.label  = options.label  ?? ''
     this.indent = options.indent ?? 0
-    this.updateIndent(this.name)
+    this.parent = options.parent ?? console
+    this.updateIndent(this.label)
     hideProperties(this, 'prefixes')
   }
 
   definePrefix (prefix: string, format: (text: string) => string): () => string {
     return () => {
       const indent = this.updateIndent(prefix)
-      return format(`${prefix} ${this.name.padEnd(indent)} │`)
+      return format(`${prefix} ${this.label.padEnd(indent)} │`)
     }
   }
 
   updateIndent (str: string = ''): number {
-    if (this.parent?.updateIndent) {
-      this.parent.updateIndent(this.name)
+    if (this.parent instanceof Console) {
+      this.parent.updateIndent(this.label)
     }
     return this.indent = Math.max(this.indent, str.length)
   }
 
-  child (options: Partial<ConsoleOptions> = {}) {
-    return new Console(this, options)
+  child (label: string, options: Partial<ConsoleOptions> = {}) {
+    options.parent = this
+    return new Console(label, options)
   }
 
   br () {
@@ -120,12 +117,4 @@ export class BaseConsole {
     this.parent.table(this.prefixes.table(), first, ...rest)
     return first
   }
-
 }
-
-export class Console extends defineCallable(
-  BaseConsole,
-  function print (...args: any[]) {
-    this.log(...args)
-  }
-) {}
