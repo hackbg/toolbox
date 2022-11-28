@@ -107,8 +107,8 @@ export class Task<C, X> extends Lazy<X> {
       [cb, context] = args as [TaskCallback<X>, C]
       name = cb.name
     }
-    super(async () => {
-      this.log('Task:    ', bold(name))
+    super(async function (this: Task<C, X>) {
+      this.log.log('Task:    ', bold(name))
       return await Promise.resolve(this.cb!.bind(this.context)())
     })
     this.name     = name
