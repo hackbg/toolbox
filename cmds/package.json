@@ -13,7 +13,8 @@
   "dependencies": {
     "@hackbg/logs": "workspace:^1",
     "@hackbg/task": "workspace:^1",
-    "@hackbg/time": "workspace:^1"
+    "@hackbg/time": "workspace:^1",
+    "@hackbg/hide": "workspace:^1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

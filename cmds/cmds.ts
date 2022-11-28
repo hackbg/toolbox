@@ -1,3 +1,4 @@
+import { hideProperties } from '@hackbg/hide'
 import { Console, bold, colors } from '@hackbg/logs'
 import { timestamp, Timed } from '@hackbg/time'
 import { Task } from '@hackbg/task'
@@ -107,15 +108,18 @@ export type Steps<X> = (Step<X, unknown>|StepFn<X, unknown>)[]
 export class CommandContext {
 
   constructor (
-    public label: string,
-    public description: string = 'undocumented'
+    label:       string,
+    description?: string
   ) {
-    this.log = new CommandsConsole(console, this.constructor.name)
-    if (!process.env.DEBUG) {
-      Object.defineProperty(this, 'cwd', { enumerable: false, writable: true })
-      Object.defineProperty(this, 'env', { enumerable: false, writable: true }) // perfe
-    }
+    this.label ??= this.constructor.name
+    this.description ??= 'undocumented'
+    this.log = new CommandsConsole(label)
+    hideProperties(this, 'cwd', 'env')
   }
+
+  label: string
+
+  description: string
 
   log: CommandsConsole
 
@@ -298,7 +302,7 @@ export class CommandsConsole extends Console {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
     const method = (command.failed ? this.error : this.log).bind(this)
-    method(`The command "${bold(command.name)}" ${result} in ${command.took}`)
+    method(`The command "${bold(command.label)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
       const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
