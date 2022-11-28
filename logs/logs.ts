@@ -30,7 +30,7 @@ export interface ConsoleOptions {
 }
 
 export class Console extends defineCallable(
-  function print (...args: any[]) {
+  function print (this: Console, ...args: any[]) {
     this.log(...args)
   }
 ) {
@@ -117,4 +117,9 @@ export class Console extends defineCallable(
     this.parent.table(this.prefixes.table(), first, ...rest)
     return first
   }
+
+  get width () {
+    return process.stdout.columns
+  }
+
 }
