@@ -13,8 +13,7 @@ export function defineCallable <F extends Function, A extends unknown[], T, U ex
   return Object.defineProperty(class extends (Base as any) {
     constructor (...args: A) {
       super(...args)
-      const self = this
-      const objectPrototype = Object.getPrototypeOf(self)
+      const objectPrototype = Object.getPrototypeOf(this)
       let call = function (...args: any) { return fn.apply(call, args) }
       Object.defineProperty(call, 'name', { value: fn.name })
       const functionPrototype = Object.getPrototypeOf(call)
@@ -22,8 +21,8 @@ export function defineCallable <F extends Function, A extends unknown[], T, U ex
       Object.defineProperties(newPrototype, Object.getOwnPropertyDescriptors(functionPrototype))
       Object.setPrototypeOf(newPrototype, objectPrototype)
       Object.setPrototypeOf(call, newPrototype)
-      Object.defineProperties(call, Object.getOwnPropertyDescriptors(self))
-      return call as unknown as T
+      Object.defineProperties(call, Object.getOwnPropertyDescriptors(this))
+      return call as unknown as U & F
     }
   }, 'name', { value: `${Base.name}Callable` }) as Class<A, U & F>
 }
