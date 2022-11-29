@@ -1,0 +1,21 @@
+{
+  "name": "@hackbg/over",
+  "version": "1.0.0",
+  "main": "over.ts",
+  "type": "module",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "over"},
+  "license": "MIT",
+  "description": "Implement overrides, fallbacks, and defaults.",
+  "files": [ "README.md", "over.ts" ],
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
+  "scripts": {
+    "ubik":  "npm test && npm run ts:check && ubik",
+    "test":  "ganesha-node over.spec.ts.md",
+    "check": "tsc --noEmit",
+    "clean": "ubik clean && rm -rf dist types *.dist.*"
+  }
+}
