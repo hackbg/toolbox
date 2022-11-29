@@ -50,11 +50,15 @@ importers:
   cmds:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
+      '@hackbg/hide': workspace:^1
       '@hackbg/logs': workspace:^1
       '@hackbg/task': workspace:^1
+      '@hackbg/time': workspace:^1
     dependencies:
+      '@hackbg/hide': link:../hide
       '@hackbg/logs': link:../logs
       '@hackbg/task': link:../task
+      '@hackbg/time': link:../time
     devDependencies:
       '@hackbg/ganesha': 2.3.0
 
@@ -75,6 +79,12 @@ importers:
       dockerode: 3.3.1
     devDependencies:
       '@types/dockerode': 3.3.8
+
+  dump:
+    specifiers:
+      '@hackbg/ganesha': ^2.2.5
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
 
   file:
     specifiers:
@@ -149,6 +159,12 @@ importers:
     devDependencies:
       '@hackbg/ganesha': 2.3.0
 
+  into:
+    specifiers:
+      '@hackbg/ganesha': ^2.2.5
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
+
   logs:
     specifiers:
       '@hackbg/allo': workspace:^1
@@ -162,7 +178,19 @@ importers:
     devDependencies:
       '@hackbg/ganesha': 2.3.0
 
+  many:
+    specifiers:
+      '@hackbg/ganesha': ^2.2.5
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
+
   oops:
+    specifiers:
+      '@hackbg/ganesha': ^2.2.5
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
+
+  over:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
     devDependencies:
@@ -183,6 +211,12 @@ importers:
       '@hackbg/logs': workspace:^1
     dependencies:
       '@hackbg/logs': link:../logs
+    devDependencies:
+      '@hackbg/ganesha': 2.3.0
+
+  time:
+    specifiers:
+      '@hackbg/ganesha': ^2.2.5
     devDependencies:
       '@hackbg/ganesha': 2.3.0
 
