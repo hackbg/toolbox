@@ -32,3 +32,13 @@ export function defineCallable <F extends Function, A extends unknown[], T, U ex
     }
   }, 'name', { value: `${Base.name}Callable` }) as Class<A, U & F>
 }
+
+export function rebind (target: object, source: object): typeof target {
+  // if target is a function make its name writable
+  if ('name' in source) Object.defineProperty(target, 'name', { writable: true })
+  // copy properties
+  for (let key in source) Object.assign(target, { [key]: (source as any)[key] })
+  // copy prototype
+  Object.setPrototypeOf(target, Object.getPrototypeOf(source))
+  return target
+}
