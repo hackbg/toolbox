@@ -15,7 +15,13 @@ export function defineCallable <F extends Function, A extends unknown[], T, U ex
       super(...args)
       const objectPrototype = Object.getPrototypeOf(this)
       let call = function (...args: any) { return fn.apply(call, args) }
-      Object.defineProperty(call, 'name', { value: fn.name })
+      setName(this.name)
+      function setName (name: string) {
+        Object.defineProperty(call, 'name', {
+          get () { return name },
+          set (name) { setName(name) }
+        })
+      }
       const functionPrototype = Object.getPrototypeOf(call)
       const newPrototype = {}
       Object.defineProperties(newPrototype, Object.getOwnPropertyDescriptors(functionPrototype))
