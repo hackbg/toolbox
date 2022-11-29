@@ -1,0 +1,21 @@
+{
+  "name": "@hackbg/into",
+  "version": "1.0.0",
+  "main": "into.ts",
+  "type": "module",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "into"},
+  "license": "MIT",
+  "description": "Resolve partially asynchronous values and collections.",
+  "files": [ "README.md", "into.ts" ],
+  "devDependencies": {
+    "@hackbg/ganesha": "^2.2.5"
+  },
+  "scripts": {
+    "ubik":  "npm test && npm run ts:check && ubik",
+    "test":  "ganesha-node into.spec.ts.md",
+    "check": "tsc --noEmit",
+    "clean": "ubik clean && rm -rf dist types *.dist.*"
+  }
+}
