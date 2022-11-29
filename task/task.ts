@@ -111,10 +111,10 @@ export class Task<C, X> extends Lazy<X> {
       this.log.log('Task:    ', bold(name))
       return await Promise.resolve(this.cb!.bind(this.context)())
     })
-    this.name     = name
-    this.cb       = cb
-    this.context  = context
-    this.log      = (context as any)?.log ?? this.log
+    this.name    = name
+    this.cb      = cb
+    this.context = context
+    this.log     = (context as any)?.log ?? this.log
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
     Object.defineProperty(this, 'name', { enumerable: false, writable: true })
     Object.defineProperty(this, 'started', { enumerable: false, writable: true })
