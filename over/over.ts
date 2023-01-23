@@ -32,6 +32,12 @@ export function fallback <T extends object> (obj: T, options: Partial<T> = {}): 
   return obj
 }
 
+export class ValidationFailed extends Error {
+  constructor (kind: string, expected: any, actual: any) {
+    super(`Validation failed: ${kind}. Expected ${expected}, got ${actual}`)
+  }
+}
+
 /** Throw if fetched metadata differs from configured. */
 export function validated <T> (kind: string, value: T, expected?: T): T {
   if (typeof value === 'string' && typeof expected === 'string') {
@@ -41,7 +47,7 @@ export function validated <T> (kind: string, value: T, expected?: T): T {
     expected = expected.toLowerCase() as unknown as T
   }
   if (typeof expected !== 'undefined' && expected !== value) {
-    throw new Error.ValidationFailed(kind, '', expected, value)
+    throw new ValidationFailed(kind, expected, value)
   }
   return value
 }
