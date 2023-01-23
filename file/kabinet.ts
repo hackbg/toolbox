@@ -165,14 +165,14 @@ export class Path {
 
   get real (): this {
     let self = this
-    let visited = new Set([])
+    let visited = new Set<string>([])
     while (self.isLink) {
       if (visited.has(self.path)) {
         log.warn(`Symlink loop encountered at`, bold(self.path))
         break
       }
       visited.add(self.path)
-      self = self.target
+      self = self.target!
     }
     return self
   }
