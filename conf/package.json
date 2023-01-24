@@ -10,8 +10,8 @@
   "description": "Command runner.",
   "files":       [ "README.md", "konfizi.ts" ],
   "scripts": {
-    "ubik":     "npm run ts:check && ubik",
-    "ts:check": "tsc --noEmit",
-    "ts:clean": "ubik clean && rm -rf dist types *.dist.*"
+    "ubik":  "npm run check && ubik",
+    "check": "tsc --noEmit",
+    "clean": "ubik clean && rm -rf dist types *.dist.*"
   }
 }
