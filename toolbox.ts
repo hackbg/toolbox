@@ -6,7 +6,6 @@ export * from '@hackbg/logs'
 export * from '@hackbg/file'
 export * from '@hackbg/cmds'
 export * from '@hackbg/dock'
-export * from '@hackbg/spec'
 
 export {
   open,
