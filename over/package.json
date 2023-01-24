@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/over",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "over.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
