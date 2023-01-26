@@ -7,11 +7,10 @@
   "bugs":        "https://github.com/hackbg/toolbox/issues",
   "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "runspec"},
   "license":     "MIT",
-  "description": "Test runner.",
+  "description": "Tiny no-gimmicks test runner and reporter. Paired with @hackbg/ganesha, makes @hackbg/ensuite.",
   "bin": { "runspec": "runspec.cjs" },
   "files": ["README.md", "runspec.cjs", "runspec.d.ts"],
   "scripts": {
-    "release:dry": "ubik dry",
-    "release:wet": "ubik wet --access=public"
+    "ubik": "ubik"
   }
 }
