@@ -86,7 +86,7 @@ export type TaskCallback<X> = ()=>X|PromiseLike<X>|Promise<X>
 /** Base class for class-based deploy procedure. Adds progress logging. */
 export class Task<C, X> extends Lazy<X> {
 
-  log: Console = new Console(this.constructor.name)
+  log: Console
 
   name?: string
 
@@ -114,7 +114,7 @@ export class Task<C, X> extends Lazy<X> {
     this.name    = name
     this.cb      = cb
     this.context = context
-    this.log     = (context as any)?.log ?? this.log
+    this.log     = (context as any)?.log ?? new Console(new.target.name)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
     Object.defineProperty(this, 'name', { enumerable: false, writable: true })
     Object.defineProperty(this, 'started', { enumerable: false, writable: true })

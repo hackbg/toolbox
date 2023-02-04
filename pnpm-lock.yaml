@@ -198,8 +198,10 @@ importers:
 
   port:
     specifiers:
+      '@hackbg/logs': workspace:*
       exponential-backoff: ^3.1.0
     dependencies:
+      '@hackbg/logs': link:../logs
       exponential-backoff: 3.1.0
 
   spec:
