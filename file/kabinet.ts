@@ -16,7 +16,7 @@ import YAML from 'js-yaml'
 import { Console, bold } from '@hackbg/logs'
 import { base16, sha256 } from '@hackbg/4mat'
 
-const log = new Console('@hackbg/kabinet')
+const log = new Console('@hackbg/file')
 
 const rimrafSync = rimrafCb.sync
 
@@ -24,7 +24,7 @@ export default function $ (base: string|URL|Path, ...fragments: string[]): Path 
   return new Path(base, ...fragments)
 }
 
-$.tmpDir = function getTmpDir (prefix = 'kabinet-'): Path {
+$.tmpDir = function getTmpDir (prefix = 'file-'): Path {
   return $(mkdtempSync($(tmpdir(), prefix).path))
 }
 
@@ -87,7 +87,7 @@ export class Path {
   at (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isDirectory()) {
-      throw new Error(`@hackbg/kabinet: Path#at: use .in() to descend into directory: ${sub.path}`)
+      throw new Error(`@hackbg/file: Path#at: use .in() to descend into directory: ${sub.path}`)
     }
     return sub
   }
@@ -96,7 +96,7 @@ export class Path {
   in (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isFile()) {
-      throw new Error(`@hackbg/kabinet: use .at() to point to file: ${sub.path}`)
+      throw new Error(`@hackbg/file: use .at() to point to file: ${sub.path}`)
     }
     return sub
   }
@@ -128,7 +128,7 @@ export class Path {
   }
 
   make (): this {
-    throw new Error("@hackbg/kabinet: file or directory? use subclass")
+    throw new Error("@hackbg/file: file or directory? use subclass")
   }
 
   /** @returns true if a directory exists at this.path */
