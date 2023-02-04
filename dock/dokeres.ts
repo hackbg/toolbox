@@ -3,7 +3,7 @@ import Docker from 'dockerode'
 import { basename, dirname } from 'path'
 import { Readable, Writable, Transform } from 'stream'
 
-const log = new Console('Dokeres')
+const log = new Console('@hackbg/dock')
 
 export { Docker }
 
@@ -79,7 +79,7 @@ export class Engine {
     } else if (typeof dockerode === 'string') {
       this.dockerode = new Docker({ socketPath: dockerode })
     } else {
-      throw new Error('Dokeres: invalid init')
+      throw new Error('@hackbg/dock: invalid init')
     }
   }
 
@@ -124,7 +124,7 @@ export class Image {
     readonly extraFiles:  string[]    = []
   ) {
     if (dokeres && !(dokeres instanceof Engine)) {
-      throw new Error('Image: pass a Dokeres.Engine instance')
+      throw new Error('Image: pass a Dock.Engine instance')
     }
     if (!name && !dockerfile) {
       throw new Error('Image: specify at least one of: name, dockerfile')
@@ -175,7 +175,7 @@ export class Image {
     const { name, dockerode } = this
     if (!name) throw new Error(`Can't pull image with no name.`)
     await new Promise<void>((ok, fail)=>{
-      const log = new Console('Dokeres Pull')
+      const log = new Console('@hackbg/dock: Pull')
       dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -203,7 +203,7 @@ export class Image {
       { context, src },
       { t: this.name, dockerfile }
     )
-    const log = new Console('Dokeres Build')
+    const log = new Console('@hackbg/dock: Build')
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)
@@ -416,44 +416,35 @@ export function waitUntilLogsSay (
   waitSeconds = 7,
   logFilter   = (data: string) => true
 ) {
+  const id = container.id.slice(0,8)
+  log.info('Trailing logs for container', id)
   log.info('Waiting for logs to say:', expected)
   return new Promise(async (ok, fail)=>{
-    const stream = await container.logs({
-      stdout: true,
-      stderr: true,
-      follow: true,
-    })
 
+    const says = new Console(`@hackbg/dock: ${id}`)
+    const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
     if (!stream) return fail(new Error('no stream returned from container'))
-
-    log.info('Trailing logs...')
-
     stream.on('error', error => fail(error))
-
     stream.on('data', function ondata (data) {
 
       const dataStr = String(data).trim()
       if (logFilter(dataStr)) {
-        log.info(bold(`${container.id.slice(0,8)} says:`), dataStr)
+        says.info(dataStr)
       }
 
       if (dataStr.indexOf(expected)>-1) {
-
         log.info(bold(`Found expected message:`), expected)
-
         stream.off('data', ondata)
-
         //@ts-ignore
         if (thenDetach) stream.destroy()
-
         if (waitSeconds > 0) {
           log.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
           return setTimeout(ok, waitSeconds * 1000)
         }
-
       }
 
     })
+
   })
 }
 
