@@ -118,12 +118,12 @@ export class Engine {
 export class Image {
 
   constructor (
-    readonly dokeres:     Engine|null,
-    readonly name:        string|null,
-    readonly dockerfile:  string|null = null,
-    readonly extraFiles:  string[]    = []
+    readonly dock:       Engine|null,
+    readonly name:       string|null,
+    readonly dockerfile: string|null = null,
+    readonly extraFiles: string[]    = []
   ) {
-    if (dokeres && !(dokeres instanceof Engine)) {
+    if (dock && !(dock instanceof Engine)) {
       throw new Error('Image: pass a Dock.Engine instance')
     }
     if (!name && !dockerfile) {
@@ -132,8 +132,8 @@ export class Image {
   }
 
   get dockerode (): Docker {
-    if (!this.dokeres || !this.dokeres.dockerode) throw new Error('Docker API client not set')
-    return this.dokeres.dockerode as unknown as Docker
+    if (!this.dock || !this.dock.dockerode) throw new Error('Docker API client not set')
+    return this.dock.dockerode as unknown as Docker
   }
 
   _available: Promise<string|null>|null = null
@@ -194,8 +194,8 @@ export class Image {
   /* Throws if the build fails, and then you have to fix stuff. */
   async build () {
     if (!this.dockerfile) throw Errors.NoDockerfile()
-    if (!this.dokeres?.dockerode) throw Errors.NoDockerode()
-    const { name, dokeres: { dockerode } } = this
+    if (!this.dock?.dockerode) throw Errors.NoDockerode()
+    const { name, dock: { dockerode } } = this
     const dockerfile = basename(this.dockerfile)
     const context = dirname(this.dockerfile)
     const src = [dockerfile, ...this.extraFiles]
@@ -245,11 +245,11 @@ export type ContainerCommand = string|string[]
 export class Container {
 
   static async create (
-    image:         Image,
-    name?:         string,
-    options?:      Partial<ContainerOpts>,
-    command?:      ContainerCommand,
-    entrypoint?:   ContainerCommand,
+    image:       Image,
+    name?:       string,
+    options?:    Partial<ContainerOpts>,
+    command?:    ContainerCommand,
+    entrypoint?: ContainerCommand,
   ) {
     await image.ensure()
     const self = new this(image, name, options, command, entrypoint)
@@ -360,9 +360,19 @@ export class Container {
     return this
   }
 
-  get isRunning (): Promise<boolean> {
+  inspect () {
     if (!this.container) throw Errors.NoContainer()
-    return this.container.inspect().then(({ State: { Running } })=>Running)
+    return this.container.inspect()
+  }
+
+  get isRunning (): Promise<boolean> {
+    return this.inspect()
+      .then(({ State: { Running } })=>Running)
+  }
+
+  get ip (): Promise<string> {
+    return this.inspect()
+      .then(({ NetworkSettings: { IPAddress } })=>IPAddress)
   }
 
   async kill (): Promise<this> {
@@ -417,11 +427,10 @@ export function waitUntilLogsSay (
   logFilter   = (data: string) => true
 ) {
   const id = container.id.slice(0,8)
-  log.info('Trailing logs for container', id)
-  log.info('Waiting for logs to say:', expected)
+  const says = new Console(`@hackbg/dock: ${id}`)
+  says.info('Trailing logs, waiting for:', expected)
   return new Promise(async (ok, fail)=>{
 
-    const says = new Console(`@hackbg/dock: ${id}`)
     const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
     if (!stream) return fail(new Error('no stream returned from container'))
     stream.on('error', error => fail(error))
