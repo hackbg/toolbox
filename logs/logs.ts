@@ -53,7 +53,7 @@ export class Console extends defineCallable(
 
   constructor (label?: string, options: Partial<ConsoleOptions> = {}) {
     super()
-    this.label  = options.label  ?? ''
+    this.label  = options.label  ?? label ?? ''
     this.indent = options.indent ?? 0
     this.parent = options.parent ?? console
     this.updateIndent(this.label)
