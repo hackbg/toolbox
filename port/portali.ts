@@ -34,7 +34,7 @@ export function waitPort ({
   interval?: number
 }): Promise<void> {
 
-  let log = new Console(`${host}:${port}`)
+  let log = new Console(`@hackbg/port: ${host}:${port}`)
   let timer:  ReturnType<typeof setTimeout>|null = null
   let socket: net.Socket                   |null = null
 
