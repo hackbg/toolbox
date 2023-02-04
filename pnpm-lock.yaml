@@ -19,7 +19,7 @@ importers:
       rimraf: ^3.0.2
       signal-exit: ^3.0.7
       typedoc: beta
-      typescript: ^4.7.4
+      typescript: ^4.9
       vitepress: ^1.0.0-alpha.4
     dependencies:
       '@hackbg/4mat': link:4mat
@@ -37,8 +37,8 @@ importers:
       '@hackbg/ubik': link:ubik
       '@types/node': 18.11.18
       concurrently: 7.2.2
-      typedoc: 0.23.0-beta.7_typescript@4.7.4
-      typescript: 4.7.4
+      typedoc: 0.23.0-beta.7_typescript@4.9.5
+      typescript: 4.9.5
       vitepress: 1.0.0-alpha.4
 
   4mat:
@@ -88,16 +88,16 @@ importers:
     specifiers:
       '@hackbg/allo': workspace:^1
       '@hackbg/logs': workspace:^1
-      '@types/dockerode': ^3.3.8
+      '@types/dockerode': ^3.3.14
       colors: 1.4.0
-      dockerode: ^3.3.1
+      dockerode: ^3.3.4
     dependencies:
       '@hackbg/allo': link:../allo
       '@hackbg/logs': link:../logs
       colors: 1.4.0
-      dockerode: 3.3.1
+      dockerode: 3.3.4
     devDependencies:
-      '@types/dockerode': 3.3.8
+      '@types/dockerode': 3.3.14
 
   dump:
     specifiers:
@@ -381,6 +381,10 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
+  /@balena/dockerignore/1.0.2:
+    resolution: {integrity: sha512-wMue2Sy4GAVTk6Ic4tJVcnfdau+gx2EnG7S+uAEe+TWJFqE4YoWN4/H8MSLj4eYJKxGg26lZwboEniNiNwZQ6Q==}
+    dev: false
+
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
@@ -515,15 +519,15 @@ packages:
   /@types/docker-modem/3.0.2:
     resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
     dependencies:
-      '@types/node': 18.11.9
+      '@types/node': 18.11.18
       '@types/ssh2': 0.5.52
     dev: true
 
-  /@types/dockerode/3.3.8:
-    resolution: {integrity: sha512-/Hip29GzPBWfbSS87lyQDVoB7Ja+kr8oOFWXsySxNFa7jlyj3Yws8LaZRmn1xZl7uJH3Xxsg0oI09GHpT1pIBw==}
+  /@types/dockerode/3.3.14:
+    resolution: {integrity: sha512-PUTwtySPzCbjZ/uqRMBWKHtLGqBAlhnLitzHuom19NEX0KBYsQXqbVlig+zbUgYQU1paDeQURXj7QNglh1RI6A==}
     dependencies:
       '@types/docker-modem': 3.0.2
-      '@types/node': 18.11.9
+      '@types/node': 18.11.18
     dev: true
 
   /@types/glob/7.2.0:
@@ -574,13 +578,13 @@ packages:
   /@types/ssh2-streams/0.1.9:
     resolution: {integrity: sha512-I2J9jKqfmvXLR5GomDiCoHrEJ58hAOmFrekfFqmCFd+A6gaEStvWnPykoWUwld1PNg4G5ag1LwdA+Lz1doRJqg==}
     dependencies:
-      '@types/node': 18.11.9
+      '@types/node': 18.11.18
     dev: true
 
   /@types/ssh2/0.5.52:
     resolution: {integrity: sha512-lbLLlXxdCZOSJMCInKH2+9V/77ET2J6NPQHpFI0kda61Dd1KglJs+fPQBchizmzYSOJBgdTajhPqBO1xxLywvg==}
     dependencies:
-      '@types/node': 18.11.9
+      '@types/node': 18.11.18
       '@types/ssh2-streams': 0.1.9
     dev: true
 
@@ -1063,10 +1067,11 @@ packages:
       - supports-color
     dev: false
 
-  /dockerode/3.3.1:
-    resolution: {integrity: sha512-AS2mr8Lp122aa5n6d99HkuTNdRV1wkkhHwBdcnY6V0+28D3DSYwhxAk85/mM9XwD3RMliTxyr63iuvn5ZblFYQ==}
+  /dockerode/3.3.4:
+    resolution: {integrity: sha512-3EUwuXnCU+RUlQEheDjmBE0B7q66PV9Rw5NiH1sXwINq0M9c5ERP9fxgkw36ZHOtzf4AGEEYySnkx/sACC9EgQ==}
     engines: {node: '>= 8.0'}
     dependencies:
+      '@balena/dockerignore': 1.0.2
       docker-modem: 3.0.3
       tar-fs: 2.0.1
     transitivePeerDependencies:
@@ -1987,7 +1992,7 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /typedoc/0.23.0-beta.7_typescript@4.7.4:
+  /typedoc/0.23.0-beta.7_typescript@4.9.5:
     resolution: {integrity: sha512-k8GKXXY4z3HIs7HdSu92jcze1nl71cLiHR329ZflhiO4Ta1rJc4F5uEtwUjCSChXFQaVZUI2l3VaF9nWm1/p7A==}
     engines: {node: '>= 14.14'}
     hasBin: true
@@ -1998,11 +2003,17 @@ packages:
       marked: 4.0.18
       minimatch: 5.1.0
       shiki: 0.10.1
-      typescript: 4.7.4
+      typescript: 4.9.5
     dev: true
 
   /typescript/4.7.4:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: true
+
+  /typescript/4.9.5:
+    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
