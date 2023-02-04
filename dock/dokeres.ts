@@ -417,29 +417,42 @@ export function waitUntilLogsSay (
   logFilter   = (data: string) => true
 ) {
   log.info('Waiting for logs to say:', expected)
-  return new Promise((ok, fail)=>{
-    const opts = { stdout: true, stderr: true, follow: true, tail: 100 }
-    //@ts-ignore
-    container.logs(opts, (err, stream?: Readable) => {
-      if (!stream) return fail(new Error('no stream returned from container'))
-      if (err) return fail(err)
-      log.info('Trailing logs...')
-      stream.on('error', error => fail(error))
-      stream.on('data', function ondata (data) {
-        const dataStr = String(data).trim()
-        if (logFilter(dataStr)) {
-          log.info(bold(`${container.id.slice(0,8)} says:`), dataStr)
+  return new Promise(async (ok, fail)=>{
+    const stream = await container.logs({
+      stdout: true,
+      stderr: true,
+      follow: true,
+    })
+
+    if (!stream) return fail(new Error('no stream returned from container'))
+
+    log.info('Trailing logs...')
+
+    stream.on('error', error => fail(error))
+
+    stream.on('data', function ondata (data) {
+
+      const dataStr = String(data).trim()
+      if (logFilter(dataStr)) {
+        log.info(bold(`${container.id.slice(0,8)} says:`), dataStr)
+      }
+
+      if (dataStr.indexOf(expected)>-1) {
+
+        log.info(bold(`Found expected message:`), expected)
+
+        stream.off('data', ondata)
+
+        //@ts-ignore
+        if (thenDetach) stream.destroy()
+
+        if (waitSeconds > 0) {
+          log.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
+          return setTimeout(ok, waitSeconds * 1000)
         }
-        if (dataStr.indexOf(expected)>-1) {
-          log.info(bold(`Found expected message:`), expected)
-          stream.off('data', ondata)
-          if (thenDetach) stream.destroy()
-          if (waitSeconds > 0) {
-            log.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
-            return setTimeout(ok, waitSeconds * 1000)
-          }
-        }
-      })
+
+      }
+
     })
   })
 }
