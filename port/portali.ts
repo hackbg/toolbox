@@ -1,6 +1,7 @@
 import * as http from 'http'
 import * as net from 'net'
-import { backOff } from "exponential-backoff"
+import { backOff } from 'exponential-backoff'
+import { Console } from '@hackbg/logs'
 
 export { backOff }
 
@@ -33,6 +34,7 @@ export function waitPort ({
   interval?: number
 }): Promise<void> {
 
+  let log = new Console(`${host}:${port}`)
   let timer:  ReturnType<typeof setTimeout>|null = null
   let socket: net.Socket                   |null = null
 
@@ -42,13 +44,16 @@ export function waitPort ({
 
     function tryToConnect() {
 
+      log.debug('Connecting...')
       clearTimerAndDestroySocket()
 
       if (--retries < 0) {
+        log.error('Timed out')
         reject(new Error('out of retries'))
       }
 
       socket = net.createConnection(port, host, () => {
+        log.info('Connected')
         clearTimerAndDestroySocket()
         if (retries > 0) resolve()
       });
@@ -56,6 +61,7 @@ export function waitPort ({
       timer = setTimeout(function() { retry() }, interval)
 
       socket.on('error', () => {
+        log.error('Connection error')
         clearTimerAndDestroySocket()
         setTimeout(retry, interval)
       })
