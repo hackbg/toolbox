@@ -427,8 +427,8 @@ export function waitUntilLogsSay (
   logFilter   = (data: string) => true
 ) {
   const id = container.id.slice(0,8)
-  const says = new Console(`@hackbg/dock: ${id}`)
-  says.info('Trailing logs, waiting for:', expected)
+  const log = new Console(`@hackbg/dock: ${id}`)
+  log.info('Trailing logs, waiting for:', expected)
   return new Promise(async (ok, fail)=>{
 
     const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
@@ -438,7 +438,7 @@ export function waitUntilLogsSay (
 
       const dataStr = String(data).trim()
       if (logFilter(dataStr)) {
-        says.info(dataStr)
+        log.info(dataStr)
       }
 
       if (dataStr.indexOf(expected)>-1) {
