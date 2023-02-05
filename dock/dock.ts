@@ -3,6 +3,9 @@ import Docker from 'dockerode'
 import { basename, dirname } from 'path'
 import { Readable, Writable, Transform } from 'stream'
 
+export * as Mock from './dock-mock'
+import { mockDockerode } from './dock-mock'
+
 const log = new Console('@hackbg/dock')
 
 export { Docker }
@@ -15,46 +18,6 @@ export interface DockerHandle {
   createContainer: Function
   run:             Function
   modem: { followProgress: Function }
-}
-
-export function mockDockerode (callback: Function = () => {}): DockerHandle {
-  return {
-    getImage () {
-      return { async inspect () { return } }
-    },
-    getContainer (options: any) {
-      return mockDockerodeContainer(callback)
-    },
-    async pull () {},
-    buildImage () {},
-    async createContainer (options: any) {
-      return mockDockerodeContainer(callback)
-    },
-    async run (...args: any) {
-      callback({run:args})
-      return [{Error:null,StatusCode:0},Symbol()]
-    },
-    modem: {
-      followProgress (stream: any, complete: Function, callback: any) { complete(null, null) }
-    }
-  }
-}
-
-export function mockDockerodeContainer (callback: Function = () => {}) {
-  return {
-    id: 'mockmockmock',
-    logs (options: any, cb: Function) {
-      cb(...(callback({ createContainer: options })||[null, mockStream()]))
-    },
-    async start   () {},
-    async attach  () { return {setEncoding(){},pipe(){}} },
-    async wait    () { return {Error:null,StatusCode:0}  },
-    async inspect () { return {Image:' ',Name:null,Args:null,Path:null,State:{Running:null}}}
-  }
-}
-
-export function mockStream () {
-  return { on: () => {} }
 }
 
 /** Defaults to the `DOCKER_HOST` environment variable. */
@@ -82,6 +45,8 @@ export class Engine {
       throw new Error('@hackbg/dock: invalid init')
     }
   }
+
+  log: Console
 
   readonly dockerode: DockerHandle
 
@@ -131,37 +96,44 @@ export class Image {
     }
   }
 
+  log = new Console(`@hackbg/dock: ${this.name}`)
+
   get dockerode (): Docker {
     if (!this.dock || !this.dock.dockerode) throw new Error('Docker API client not set')
     return this.dock.dockerode as unknown as Docker
   }
 
   _available: Promise<string|null>|null = null
+
   async ensure () {
-    return await (this._available ??= new Promise(async(resolve, reject)=>{
-      log.info('Ensuring image is present:', bold(String(this.name)))
-      const PULLING  = `Image ${this.name} not found, pulling...`
-      const BUILDING = `Image ${this.name} not found upstream, building...`
-      const NO_FILE  = `Image ${this.name} not found and no Dockerfile provided; can't proceed.`
+
+    this._available ??= new Promise(async(resolve, reject)=>{
+      this.log.info('Ensuring presence')
+      const PULLING  = `Not cached, pulling...`
+      const BUILDING = `Not found in registry, building...`
+      const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
       try {
         await this.check()
       } catch (_e) {
-        log.error(_e)
+        this.log.error(_e)
         try {
-          log.warn(`${PULLING} ${_e.message}`)
+          this.log.warn(`${PULLING} ${_e.message}`)
           await this.pull()
         } catch (e) {
           if (!this.dockerfile) {
             reject(`${NO_FILE} (${e.message})`)
           } else {
-            log.warn(`${BUILDING} ${_e.message}`)
-            log.info(bold('Using dockerfile:'), this.dockerfile)
+            this.log.warn(`${BUILDING} ${_e.message}`)
+            this.log.info(bold('Using dockerfile:'), this.dockerfile)
             await this.build()
           }
         }
       }
       return resolve(this.name)
-    }))
+    })
+
+    return await this._available
+
   }
 
   /** Throws if inspected image does not exist locally. */
@@ -175,7 +147,7 @@ export class Image {
     const { name, dockerode } = this
     if (!name) throw new Error(`Can't pull image with no name.`)
     await new Promise<void>((ok, fail)=>{
-      const log = new Console('@hackbg/dock: Pull')
+      const log = new Console(`@hackbg/dock: ${this.name} (pull)`)
       dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -203,7 +175,7 @@ export class Image {
       { context, src },
       { t: this.name, dockerfile }
     )
-    const log = new Console('@hackbg/dock: Build')
+    const log = new Console(`@hackbg/dock: ${this.name} (build)`)
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)
@@ -285,6 +257,8 @@ export class Container {
   ) {}
 
   container: Docker.Container|null = null
+
+  log = new Console(this.container ? `@hackbg/dock: ${this.container.id}` : '@hackbg/dock')
 
   get dockerode (): Docker {
     return this.image.dockerode as unknown as Docker

@@ -1,14 +1,14 @@
 {
   "name":         "@hackbg/dock",
   "version":      "1.0.1",
-  "main":         "dokeres.ts",
+  "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
   "homepage":     "https://github.com/hackbg/toolbox",
   "bugs":         "https://github.com/hackbg/toolbox/issues",
-  "repository":   {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "dokeres"},
+  "repository":   {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "dock"},
   "description":  "Docker utilities.",
-  "files":        [ "README.md", "dokeres.ts" ],
+  "files":        [ "README.md", "dock.ts" ],
   "dependencies": {
     "colors":       "1.4.0",
     "dockerode":    "^3.3.4",
