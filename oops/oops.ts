@@ -1,6 +1,6 @@
-const _Error = global.Error
+const _Error = Error
 
-export class Error extends _Error {
+const __Error = class Error extends _Error {
 
   /** Define an error subclass. */
   static define <T extends unknown[]> (
@@ -18,3 +18,5 @@ export class Error extends _Error {
   }
 
 }
+
+export { __Error as Error }
