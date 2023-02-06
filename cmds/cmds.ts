@@ -108,13 +108,25 @@ export type Steps<X> = (Step<X, unknown>|StepFn<X, unknown>)[]
 export class CommandContext {
 
   constructor (
-    label:       string,
-    description?: string
+    label:        string,
+    description?: string,
+    repl: boolean = true
   ) {
     this.label ??= this.constructor.name
+
     this.description ??= 'undocumented'
+
     this.log = new CommandsConsole(label)
+
     hideProperties(this, 'cwd', 'env')
+
+    if (repl) {
+      this.addCommand(
+        'repl',
+        'run an interactive shell in this context',
+        this.startREPL.bind(this)
+      )
+    }
   }
 
   label: string
@@ -153,6 +165,7 @@ export class CommandContext {
     this.addCommand(name, description, step)
     return step
   }
+
   /** Define a command subtree during construction.
     * @returns the passed command subtree
     * @example
@@ -167,6 +180,7 @@ export class CommandContext {
     this.addCommands(name, description, subtree)
     return subtree
   }
+
   /** Define a command after the instance is constructed.
     * @returns this
     * @example
@@ -179,6 +193,7 @@ export class CommandContext {
     this.commandTree[name] = new Command(name, description, steps.map(step=>Step.from(step)))
     return this
   }
+
   /** Define a command subtree after the instance is constructed.
     * @returns this
     * @example
@@ -193,41 +208,64 @@ export class CommandContext {
     this.commandTree[name] = subtree
     return this
   }
+
   /** Define a lazy task, which is like a promise but does not start evaluating immediately.
     * Instead, it evaluates once you `await` it or call `.then(...)` on it.
     * @returns Task */
-  task = <X> (name: string, cb: ()=>X|Promise<X>): Task<this, X> =>
-    new Task(name, cb, this)
-  /** `export default myCommands.main(import.meta.url)`
-    * once per module after defining all commands */
+  task = <X> (name: string, cb: ()=>X|Promise<X>): Task<this, X> => {
+    return new Task(name, cb, this)
+  }
+
+  /** If this command tree is the default export of the process entrypoint,
+    * run the commands as specified by the process command line.
+    * @example
+    *     export default myCommands.main(import.meta.url) */
   entrypoint (url: string, argv = process.argv.slice(2)): this {
     const self = this
+
+    // If the process entrypoint matches the passed url
     if (process.argv[1] === fileURLToPath(url)) {
+
+      // Parse the command and arguments
       const [command, ...args] = this.parse(argv)
+
+      // If no command was specified, exit
       if (!command) {
         this.log.usage(this)
         this.exit(1)
       }
+
+      // Otherwise run the specified command
       setTimeout(async()=>await self.run(argv).then(()=>this.exit(0)), 0)
+
     }
+
     return self
   }
 
+  /** Run a command from this command tree. */
   async run <T> (argv: string[], context: any = this): Promise<T> {
+
+    // If no arguments were passed, exit.
     if (argv.length === 0) {
-      const message = 'No command invoked.'
-      this.log.info(message)
+      this.log.info('No command invoked.')
       this.log.usage(this)
       return null as unknown as T
     }
+
+    // Parse the command and arguments
     const [command, ...args] = this.parse(argv)
+
+    // Run the command
     if (command) {
       await this.before(context)
       return await command.run(args, context) as T
-    } else {
-      this.log.usage(this)
-      throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
     }
+
+    // If no command was run, print usage and throw
+    this.log.usage(this)
+    throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
+
   }
 
   before = async (context: any = this): Promise<void> => {}
@@ -256,6 +294,22 @@ export class CommandContext {
     process.exit(code)
   }
 
+  /** Start an interactive REPL with this deployment as global context.
+    * @throws if the `node:repl` and `node:vm` native modules are unavailable. */
+  async startREPL () {
+    return Promise.all([
+      import('node:repl'),
+      import('node:vm')
+    ]).then(([repl, { createContext }])=>{
+      let prompt = '\nFadroma> '
+      let context = createContext(this)
+      setTimeout(()=>Object.assign(repl.start({ prompt }), { context }))
+    }).catch((e: Error)=>{
+      this.log.warn(e)
+      this.log.info('REPL is only available in Node.')
+    })
+  }
+
 }
 
 export class CommandsConsole extends Console {
@@ -276,7 +330,7 @@ export class CommandsConsole extends Console {
       columns.sub = Math.max(sub, columns.sub)
     }
     columns.name += 1
-    columns.sub  += 3
+    columns.sub  += 2
 
     // Display
     const commands = Object.entries(commandTree)
@@ -287,7 +341,7 @@ export class CommandsConsole extends Console {
         let sub = ''
         if ((entry as any).commandTree) {
           const keys = Object.keys((entry as any).commandTree)?.length ?? 0
-          sub = `(+${keys})`
+          sub = `...`
         }
         sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
         this.info(`${name} ${sub} ${entry.description}`)
