@@ -248,6 +248,7 @@ export class CommandContext {
 
     // If no arguments were passed, exit.
     if (argv.length === 0) {
+      this.log.br()
       this.log.info('No command invoked.')
       this.log.usage(this)
       return null as unknown as T
