@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/logs",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "logs.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
@@ -12,7 +12,7 @@
   "dependencies": {
     "@hackbg/allo": "workspace:^1",
     "@hackbg/hide": "workspace:^1",
-    "chalk": "^5"
+    "chalk": "^4"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
