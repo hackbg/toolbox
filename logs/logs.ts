@@ -35,6 +35,19 @@ export class Console extends defineCallable(
   }
 ) {
 
+  constructor (label?: string, options: Partial<ConsoleOptions> = {}) {
+    super()
+    this.label  = options.label  ?? label ?? ''
+    this.indent = options.indent ?? 0
+    this.parent = options.parent ?? console
+    this.updateIndent(this.label)
+    hideProperties(this, 'prefixes', 'parent')
+  }
+
+  get [Symbol.toStringTag]() {
+    return this.label
+  }
+
   label:  ConsoleOptions["label"]
 
   indent: ConsoleOptions["indent"]
@@ -49,15 +62,6 @@ export class Console extends defineCallable(
     debug: this.definePrefix(' DEBUG │', x => chalk.bold(chalk.gray(x))),
     trace: this.definePrefix(' TRACE │', x => chalk.bold(chalk.magenta(x))),
     table: this.definePrefix(' TABLE │', x => chalk.bold(chalk.cyan(x))),
-  }
-
-  constructor (label?: string, options: Partial<ConsoleOptions> = {}) {
-    super()
-    this.label  = options.label  ?? label ?? ''
-    this.indent = options.indent ?? 0
-    this.parent = options.parent ?? console
-    this.updateIndent(this.label)
-    hideProperties(this, 'prefixes')
   }
 
   definePrefix (prefix: string, format: (text: string) => string): () => string {

@@ -96,6 +96,10 @@ export class Image {
     }
   }
 
+  get [Symbol.toStringTag]() {
+    return this.name
+  }
+
   log = new Console(`@hackbg/dock: ${this.name}`)
 
   get dockerode (): Docker {
@@ -255,6 +259,10 @@ export class Container {
     readonly command?:    ContainerCommand,
     readonly entrypoint?: ContainerCommand
   ) {}
+
+  get [Symbol.toStringTag]() {
+    return this.name
+  }
 
   container: Docker.Container|null = null
 
