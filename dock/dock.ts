@@ -108,9 +108,9 @@ export class Image {
   async ensure () {
 
     this._available ??= new Promise(async(resolve, reject)=>{
-      this.log.info('Ensuring presence')
-      const PULLING  = `Not cached, pulling...`
-      const BUILDING = `Not found in registry, building...`
+      this.log.info('Ensuring image exists')
+      const PULLING  = `Not cached, pulling`
+      const BUILDING = `Not found in registry, building`
       const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
       try {
         await this.check()
