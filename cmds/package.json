@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/cmds",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "cmds.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",

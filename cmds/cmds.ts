@@ -299,7 +299,9 @@ export class CommandContext {
     * @throws if the `node:repl` and `node:vm` native modules are unavailable. */
   async startREPL () {
     return Promise.all([
+      //@ts-ignore
       import('node:repl'),
+      //@ts-ignore
       import('node:vm')
     ]).then(([repl, { createContext }])=>{
       let prompt = '\nFadroma> '
