@@ -1,5 +1,5 @@
 ```typescript
-import $, { getDirName, TOMLFile } from './kabinet'
+import $, { getDirName, TOMLFile } from '.'
 
 const Spec = {}
 export default { Spec }

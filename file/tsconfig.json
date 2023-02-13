@@ -1,1 +1,1 @@
-{ "extends": "../tsconfig.json", "include": ["kabinet.ts"] }
+{ "extends": "../tsconfig.json", "include": ["file.ts"] }
