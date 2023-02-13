@@ -33,6 +33,8 @@ export class Path {
 
   static separator = sep
 
+  log: Console
+
   constructor (base: string|URL|Path = cwd(), ...fragments: string[]) {
     if (base instanceof URL || (typeof base === 'string' && base.startsWith('file://'))) {
       base = fileURLToPath(base)
@@ -40,6 +42,7 @@ export class Path {
       base = base.path
     }
     this.path = resolve(base, ...fragments)
+    this.log = new Console(`@hackbg/file: ${this.shortPath}`)
   }
 
   /** The represented path. */
@@ -112,7 +115,7 @@ export class Path {
       return statSync(this.path)
     } catch (e) {
       if (e.code === 'ELOOP') {
-        log.warn('Circular symlink at', bold(this.shortPath))
+        this.log.warn('This is a circular symlink')
         return lstatSync(this.path)
       } else if (e.code === 'ENOENT') {
         return null
@@ -149,10 +152,8 @@ export class Path {
 
   delete (): this {
     if (this.exists()) {
-      log.log('Deleting:', bold(this.shortPath))
+      this.log.log('Deleting')
       rimrafSync(this.path)
-    } else {
-      log.log('Already deleted:', this.shortPath)
     }
     return this
   }
@@ -168,7 +169,7 @@ export class Path {
     let visited = new Set<string>([])
     while (self.isLink) {
       if (visited.has(self.path)) {
-        log.warn(`Symlink loop encountered at`, bold(self.path))
+        this.log.warn(`Symlink loop`)
         break
       }
       visited.add(self.path)
@@ -189,7 +190,7 @@ export class Path {
       throw new Error("Tried to create symlink that points to itself.")
     }
     if (this.exists()) this.delete()
-    log.log('Pointing:', bold(this.shortPath), 'to', bold(path))
+    this.log.log('Pointing to', bold(path))
     symlinkSync(path, this.path)
     return this
   }
@@ -341,9 +342,11 @@ export function getDirName (url: URL) {
 }
 
 export function mkdir (...fragments: string[]) {
-  const path = resolve(...fragments)
-  if (!existsSync(path)) log.log('Creating directory:', $(path).shortPath)
-  mkdirp.sync(path, {mode: 0o770})
+  const path = $(resolve(...fragments))
+  if (!existsSync(path.path)) {
+    mkdirp.sync(path.path, {mode: 0o770})
+    new Console(`@hackbg/file: ${path.shortPath}`).log('Created (directory)')
+  }
   return path
 }
 
@@ -356,7 +359,7 @@ export function rimraf (path = "") {
 export function withTmpDir <T> (fn: (path: string)=>T): T {
   const name = mkdtempSync(resolve(tmpdir(), 'temp-'))
   process.on('exit', () => {
-    log.log('Removing temporary directory', name)
+    new Console(`@hackbg/file: ${name}`).log('Removing temporary directory')
     rimrafSync(name)
   })
   return fn(name)
@@ -368,9 +371,11 @@ export function withTmpFile <T> (fn: (path: string)=>T): T {
 }
 
 export function touch (...fragments: string[]) {
-  const path = resolve(...fragments)
-  if (!existsSync(path)) log.log('Creating file:', $(path).shortPath)
-  writeFileSync(path, '')
+  const path = $(resolve(...fragments))
+  if (!existsSync(path.path)) {
+    new Console(`@hackbg/file: ${path.shortPath}`).log('Creating (file)')
+    writeFileSync(path.path, '')
+  }
   return path
 }
 
@@ -380,8 +385,8 @@ export function touch (...fragments: string[]) {
   * - https://github.com/jonschlinkert/repeat-string/blob/master/index.js
   * by Jon Schlinkert, used under MIT license. */
 export function alignYAML (str: string, pad: number = 0) {
-  const props   = str.match(/^\s*[\S]+:/gm) || []
-  const longest = props.reduce((x, str)=>Math.max(x, str.length), 0) + pad
+  const props: string[] = str.match(/^\s*[\S]+:/gm) || []
+  const longest = props.reduce((x: number, str: string)=>Math.max(x, str.length), 0) + pad
   return str.split('\n').map(function(str) {
     const line = /^(\s*.+[^:#]: )\s*(.*)/gm
     return str.replace(line, function(match, $1, $2) {
