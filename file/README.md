@@ -36,6 +36,8 @@ console.log(root.in('data').at('file.txt').as(TextFile).load())
 
 <div align="center">
 
+---
+
 Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

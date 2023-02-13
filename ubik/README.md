@@ -52,6 +52,9 @@ If publishing to tarball, use `pnpm ubik fix` in your CI.
 
 <div align="center">
 
+---
+
 Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+in response to the Node16/TS4 incompatibility event of Q2 2022.
 
 </div>

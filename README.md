@@ -18,12 +18,13 @@ and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and
 |[**@hackbg/conf**](./conf)|[![NPM version](https://img.shields.io/npm/v/@hackbg/conf?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/conf)|**Environment configuration.**  |TS     |Isomorphic|
 |[**@hackbg/dock**](./dock)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dock?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dock)|**Dockerize commands.**         |TS     |Backend   |
 |[**@hackbg/file**](./file)|[![NPM version](https://img.shields.io/npm/v/@hackbg/file?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/file)|**Filesystem model.**           |TS     |Backend   |
-|[**@hackbg/fork**](./fork)|[![NPM version](https://img.shields.io/npm/v/@hackbg/fork?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/fork)|**Web worker wrapper.**         |TS     |Frontend  |
 |[**@hackbg/logs**](./logs)|[![NPM version](https://img.shields.io/npm/v/@hackbg/logs?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/logs)|**Prefixed console.**           |CJS+ESM|Isomorphic|
 |[**@hackbg/port**](./port)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |TS     |Backend   |
 |[**@hackbg/spec**](./spec)|[![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/spec)|**Test runner and reporter.**   |CJS    |Isomorphic|
 | and more ... |
 
-Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+---
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg).
 
 </div>

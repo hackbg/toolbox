@@ -67,6 +67,8 @@ npm test Spec2 Spec3
 
 <div align="center">
 
+---
+
 Goes well with [Ganesha](https://github.com/hackbg/ganesha) ;-)
 
 Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
