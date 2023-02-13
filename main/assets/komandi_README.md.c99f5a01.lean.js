@@ -1,1 +1,0 @@
-import{_ as s,c as n,o as a,a as l}from"./app.6fac1cb9.js";const i=JSON.parse('{"title":"@hackbg/komandi","description":"","frontmatter":{"literate":"typescript"},"headers":[],"relativePath":"komandi/README.md"}'),p={name:"komandi/README.md"},o=l("",6),e=[o];function t(c,r,F,y,D,A){return a(),n("div",null,e)}var u=s(p,[["render",t]]);export{i as __pageData,u as default};
