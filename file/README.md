@@ -38,6 +38,6 @@ console.log(root.in('data').at('file.txt').as(TextFile).load())
 
 ---
 
-Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

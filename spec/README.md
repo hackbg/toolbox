@@ -71,6 +71,6 @@ npm test Spec2 Spec3
 
 Goes well with [Ganesha](https://github.com/hackbg/ganesha) ;-)
 
-Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

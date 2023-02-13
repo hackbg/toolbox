@@ -32,6 +32,6 @@ await new Dokeres().image(
 
 ---
 
-Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

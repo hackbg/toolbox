@@ -51,6 +51,6 @@ const currentConfig = new MyConfig(process.env, process.cwd, /* {}: defaults */)
 
 ---
 
-Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

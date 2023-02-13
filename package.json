@@ -45,7 +45,7 @@
     "ts:build": "npm run ts:clean && concurrently 'npm:ts:build:*'",
     "ts:build:cjs": "ttsc -p tsconfig.cjs.json",
     "ts:build:esm": "tsc -p tsconfig.esm.json",
-    "docs:typedoc": "typedoc",
+    "docs:typedoc": "NODE_OPTIONS=--max_old_space_size=8192 time ./node_modules/.bin/typedoc --tsconfig ./tsconfig.json --entryPointStrategy packages --entryPoints . --name Toolbox",
     "docs:vp:dev": "vitepress dev",
     "docs:vp:build": "vitepress build",
     "docs:vp:serve": "vitepress serve"
