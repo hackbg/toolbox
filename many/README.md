@@ -1,4 +1,4 @@
-# @hackbg/4mat
+# @hackbg/many
 
 <div align="center">
 

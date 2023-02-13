@@ -1,7 +1,4 @@
----
-literate: typescript
----
-# `@hackbg/file`
+# @hackbg/file
 
 **Classes for accessing the filesystem.**
 
@@ -36,3 +33,9 @@ console.log(dir.list())
 console.log(new JSONFile(root, 'data', 'file.json').load())
 console.log(root.in('data').at('file.txt').as(TextFile).load())
 ```
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

@@ -1,6 +1,12 @@
-# `@hackbg/portali` [![NPM version](https://img.shields.io/npm/v/@hackbg/portali?color=9013fe&label=)](https://www.npmjs.com/package/@hackbg/portali)
+# @hackbg/port
 
 **Network port utilities.**
 
 * Defines `freePort`
 * Reexports `waitPort`
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

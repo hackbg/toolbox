@@ -1,9 +1,9 @@
-# `@hackbg/dokeres`
+# @hackbg/dock
 
-Wanna run something from Node in a reproducible environment? Docker's your friend,
-but `dockerode`'s API is a little rough around the edges.
+Want to run something from Node in a reproducible environment? Use containers.
 
 This package defines the `Dokeres`, `DokeresImage` and `DockeresContainer` classes.
+
 Use `DockerImage` to make sure a specified Docker Image exists on your system,
 pulling or building it if it's missing.
 
@@ -27,3 +27,9 @@ await new Dokeres().image(
   }                                                 //   my-org/my-build-image:v1
 )
 ```
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

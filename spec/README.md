@@ -1,4 +1,4 @@
-# `@hackbg/spec` [![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=)](https://www.npmjs.com/package/@hackbg/spec)
+# @hackbg/spec
 
 **Minimal test runner and reporter.**
 
@@ -65,4 +65,10 @@ npm test Spec1
 npm test Spec2 Spec3
 ```
 
-* Goes well with [Ganesha](https://github.com/hackbg/ganesha) ;-)
+<div align="center">
+
+Goes well with [Ganesha](https://github.com/hackbg/ganesha) ;-)
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

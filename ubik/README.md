@@ -1,6 +1,6 @@
 <div style="text-align:center">
 
-# `@hackbg/ubik`
+# @hackbg/ubik
 
 Opinionated shim for publishing isomorphic TypeScript libraries to NPM,
 in response to the current multilevel fragmentation of the JS packaging landscape.
@@ -49,3 +49,9 @@ If publishing to tarball, use `pnpm ubik fix` in your CI.
   * Backs up the original in `package.json.real` and restores it after publishing the package.
 
 * Adds a Git tag in the format `npm/$PACKAGE/$VERSION` and pushes it.
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

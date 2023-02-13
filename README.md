@@ -7,20 +7,23 @@
 
 General utilities for Node.js.
 
-|Package|NPM|What it does|Target|Dialect|
-|---|---|---|---|---|
-|[**@hackbg/ubik**](./ubik)|[![NPM version](https://img.shields.io/npm/v/@hackbg/ubik?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/ubik)|**Publish TS as CJS+ESM+DTS.**  |Backend   |CJS     |
-|[**@hackbg/4mat**](./4mat)|[![NPM version](https://img.shields.io/npm/v/@hackbg/4mat?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/4mat)|**Data encodings and formats.** |Isomorphic|TS      |
-|[**@hackbg/cmds**](./cmds)|[![NPM version](https://img.shields.io/npm/v/@hackbg/cmds?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/cmds)|**Command runner.**             |Backend   |TS      |
-|[**@hackbg/conf**](./conf)|[![NPM version](https://img.shields.io/npm/v/@hackbg/conf?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/conf)|**Environment configuration.**  |Isomorphic|TS      |
-|[**@hackbg/dock**](./dock)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dock?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dock)|**Dockerize commands.**         |Backend   |TS      |
-|[**@hackbg/file**](./file)|[![NPM version](https://img.shields.io/npm/v/@hackbg/file?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/file)|**Filesystem model.**           |Backend   |TS      |
-|[**@hackbg/fork**](./fork)|[![NPM version](https://img.shields.io/npm/v/@hackbg/fork?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/fork)|**Web worker wrapper.**         |Frontend  |TS      |
-|[**@hackbg/logs**](./logs)|[![NPM version](https://img.shields.io/npm/v/@hackbg/logs?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/logs)|**Prefixed console.**           |Isomorphic|CJS, ESM|
-|[**@hackbg/port**](./port)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |Backend   |TS      |
-|[**@hackbg/spec**](./spec)|[![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/spec)|**Test runner and reporter.**   |Isomorphic|CJS     |
-
-Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://hack.bg),<br>
+Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://foss.hack.bg),<br>
 and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and validation framework.
+
+|Package|NPM|What it does|Source|Target|
+|---|---|---|---|---|
+|[**@hackbg/ubik**](./ubik)|[![NPM version](https://img.shields.io/npm/v/@hackbg/ubik?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/ubik)|**Publish TS as CJS+ESM+DTS.**  |CJS    |Backend   |
+|[**@hackbg/4mat**](./4mat)|[![NPM version](https://img.shields.io/npm/v/@hackbg/4mat?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/4mat)|**Data encodings and formats.** |TS     |Isomorphic|
+|[**@hackbg/cmds**](./cmds)|[![NPM version](https://img.shields.io/npm/v/@hackbg/cmds?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/cmds)|**Command runner.**             |TS     |Backend   |
+|[**@hackbg/conf**](./conf)|[![NPM version](https://img.shields.io/npm/v/@hackbg/conf?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/conf)|**Environment configuration.**  |TS     |Isomorphic|
+|[**@hackbg/dock**](./dock)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dock?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dock)|**Dockerize commands.**         |TS     |Backend   |
+|[**@hackbg/file**](./file)|[![NPM version](https://img.shields.io/npm/v/@hackbg/file?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/file)|**Filesystem model.**           |TS     |Backend   |
+|[**@hackbg/fork**](./fork)|[![NPM version](https://img.shields.io/npm/v/@hackbg/fork?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/fork)|**Web worker wrapper.**         |TS     |Frontend  |
+|[**@hackbg/logs**](./logs)|[![NPM version](https://img.shields.io/npm/v/@hackbg/logs?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/logs)|**Prefixed console.**           |CJS+ESM|Isomorphic|
+|[**@hackbg/port**](./port)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |TS     |Backend   |
+|[**@hackbg/spec**](./spec)|[![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/spec)|**Test runner and reporter.**   |CJS    |Isomorphic|
+| and more ... |
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
 
 </div>

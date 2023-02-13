@@ -1,4 +1,4 @@
-# Konfizi
+# @hackbg/conf
 
 Loads configuration from environment.
 
@@ -46,3 +46,9 @@ export class MyConfig extends EnvConfig {
 
 const currentConfig = new MyConfig(process.env, process.cwd, /* {}: defaults */)
 ```
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>

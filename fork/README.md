@@ -1,8 +1,4 @@
----
-literate: typescript
----
-
-# Forkers 👷🍴🥩
+# @hackbg/fork
 
 Isomorphic Web Workers via `MessageChannel` and `MessagePort`.
 
@@ -148,3 +144,9 @@ class MultiClient extends ExampleClient {
   console.log('Example 2 OK.')
 })()
 ```
+
+<div align="center">
+
+Made with #$%& @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>
