@@ -1,23 +1,23 @@
 name: Toolbox
-on: [push, pull_request]
+on: [push]
 jobs:
 
   overview:
     name:    Can publish
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v2
         with: { submodules: recursive }
+
       - uses: actions/setup-node@v1
-        with: { node-version: 16 }
-      - uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 7.5.0
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --strict-peer-dependencies]
-      - name: pnpm release:dry
-        run: pnpm release:dry
+        with: { node-version: 18 }
+
+      - run: corepack enable && pnpm i --frozen-lockfile --strict-peer-dependencies
+
+      - run: cd file && pnpm test
+
+      - run: pnpm ubik dry
 
   #dokeres:
     #runs-on: ubuntu-latest
