@@ -403,16 +403,17 @@ async function ubik (cwd, command, ...publishArgs) {
       let modified = false
       recast.types.visit(parsed, {
         visitCallExpression (path) { // TODO: use path.parentPath to detect scope shadowing
-          const { callee: { type, name }, arguments, loc: { start: { line, column } } } = path.value
+          const { callee: { type, name }, loc: { start: { line, column } } } = path.value
+          const args = path.value['arguments']
           if (type === 'Identifier' && name === 'require') {
-            if (arguments.length === 1 && arguments[0].type === 'Literal') {
-              const value = arguments[0].value
+            if (args.length === 1 && args[0].type === 'Literal') {
+              const value = args[0].value
               if (value.startsWith('./') || value.startsWith('../')) {
                 const target = `${resolve(dirname(file), value)}.ts`
                 if (existsSync(target)) {
                   const newValue = `${value}${usedCjsExt}`
                   console.info(`    require("${value}") -> require("${newValue}")`)
-                  arguments[0].value = newValue
+                  args[0].value = newValue
                   modified = true
                 } else {
                   console.info(`    require("${value}"): ${relative(cwd, target)} not found, ignoring`)
