@@ -11,13 +11,17 @@ const log = new Console('@hackbg/dock')
 export { Docker }
 
 export interface DockerHandle {
-  getImage:        Function
-  buildImage:      Function
-  getContainer:    Function
-  pull:            Function
-  createContainer: Function
-  run:             Function
-  modem: { followProgress: Function }
+  getImage:         Function
+  buildImage:       Function
+  getContainer:     Function
+  pull:             Function
+  createContainer:  Function
+  run:              Function
+  modem: {
+    host?:          string
+    socketPath?:    string
+    followProgress: Function,
+  },
 }
 
 /** Defaults to the `DOCKER_HOST` environment variable. */
@@ -44,6 +48,8 @@ export class Engine {
     } else {
       throw new Error('@hackbg/dock: invalid init')
     }
+    const api = this.dockerode.modem.host??this.dockerode.modem.socketPath
+    this.log = new Console(`@hackbg/dock: ${api}`)
   }
 
   log: Console
@@ -52,7 +58,7 @@ export class Engine {
 
   image (
     name:        string|null,
-    dockerfile:  string|null,
+    dockerfile?: string|null,
     extraFiles?: string[]
   ): Image {
     return new Image(this, name, dockerfile, extraFiles)
@@ -94,13 +100,14 @@ export class Image {
     if (!name && !dockerfile) {
       throw new Error('Image: specify at least one of: name, dockerfile')
     }
+    this.log = new Console(`@hackbg/dock: ${this.name}`)
   }
 
   get [Symbol.toStringTag]() {
     return this.name
   }
 
-  log = new Console(`@hackbg/dock: ${this.name}`)
+  log: Console
 
   get dockerode (): Docker {
     if (!this.dock || !this.dock.dockerode) throw new Error('Docker API client not set')
@@ -190,7 +197,6 @@ export class Image {
     })
   }
 
-  //@ts-ignore
   async run (name, options, command, entrypoint, outputStream?) {
     return await Container.run(
       this,
@@ -200,6 +206,10 @@ export class Image {
       entrypoint,
       outputStream
     )
+  }
+
+  container (name?, options?, command?, entrypoint?) {
+    return new Container(this, name, options, command, entrypoint)
   }
 
 }
@@ -258,7 +268,9 @@ export class Container {
     readonly options:     Partial<ContainerOpts> = {},
     readonly command?:    ContainerCommand,
     readonly entrypoint?: ContainerCommand
-  ) {}
+  ) {
+    this.log = new Console(name ? `@hackbg/dock: ${name}` : `@hackbg/dock: container`)
+  }
 
   get [Symbol.toStringTag]() {
     return this.name
@@ -266,7 +278,7 @@ export class Container {
 
   container: Docker.Container|null = null
 
-  log = new Console(this.container ? `@hackbg/dock: ${this.container.id}` : '@hackbg/dock')
+  log: Console
 
   get dockerode (): Docker {
     return this.image.dockerode as unknown as Docker
@@ -324,6 +336,9 @@ export class Container {
   async create (): Promise<this> {
     if (this.container) throw Errors.ContainerAlreadyCreated()
     this.container = await this.dockerode.createContainer(this.dockerodeOpts)
+    this.log.label = this.name
+      ? `@hackbg/dock: ${this.name} (${this.container.id})`
+      : `@hackbg/dock: ${this.container.id}`
     if (this.warnings) {
       log.warn(`Creating container ${this.shortId} emitted warnings:`)
       log.info(this.warnings)

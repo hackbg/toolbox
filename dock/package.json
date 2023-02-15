@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "1.0.0",
+  "version":      "1.0.1",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
@@ -16,11 +16,13 @@
     "@hackbg/logs": "workspace:^1"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.14"
+    "@types/dockerode": "^3.3.14",
+    "@hackbg/ganesha":  "^2.2.5"
   },
   "scripts": {
-    "ubik": "npm run ts:check && ubik",
-    "ts:check": "tsc --noEmit",
-    "ts:clean": "rm -rf dist packages/*/dist packages/*/types"
+    "ubik":  "npm run ts:check && ubik",
+    "check": "tsc --noEmit",
+    "test":  "ganesha-node dock.test.ts",
+    "clean": "rm -rf dist packages/*/dist packages/*/types"
   }
 }

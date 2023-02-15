@@ -91,6 +91,7 @@ importers:
   dock:
     specifiers:
       '@hackbg/allo': workspace:^1
+      '@hackbg/ganesha': ^2.2.5
       '@hackbg/logs': workspace:^1
       '@types/dockerode': ^3.3.14
       colors: 1.4.0
@@ -101,6 +102,7 @@ importers:
       colors: 1.4.0
       dockerode: 3.3.4
     devDependencies:
+      '@hackbg/ganesha': 2.3.0
       '@types/dockerode': 3.3.14
 
   dump:
