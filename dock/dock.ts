@@ -197,7 +197,13 @@ export class Image {
     })
   }
 
-  async run (name, options, command, entrypoint, outputStream?) {
+  async run (
+    name?:         string,
+    options?:      Partial<ContainerOpts>,
+    command?:      ContainerCommand,
+    entrypoint?:   ContainerCommand,
+    outputStream?: Writable
+  ) {
     return await Container.run(
       this,
       name,
@@ -208,7 +214,12 @@ export class Image {
     )
   }
 
-  container (name?, options?, command?, entrypoint?) {
+  container (
+    name?:       string,
+    options?:    Partial<ContainerOpts>,
+    command?:    ContainerCommand,
+    entrypoint?: ContainerCommand,
+  ) {
     return new Container(this, name, options, command, entrypoint)
   }
 
