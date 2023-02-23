@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/cmds",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "main": "cmds.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
@@ -10,6 +10,9 @@
   "description": "Minimal command line parser.",
   "files": [ "README.md", "cmds.ts" ],
   "bin": { "cmds": "./cmds.cli.cjs" },
+  "exports": {
+    "cli.cjs": "./cli.cjs"
+  },
   "dependencies": {
     "@hackbg/logs": "workspace:^1",
     "@hackbg/task": "workspace:^1",
