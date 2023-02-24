@@ -230,6 +230,7 @@ importers:
 
   ubik:
     specifiers:
+      acorn: ^8.8.2
       babylon: 7.0.0-beta.47
       boxen: ^7.0.0
       concurrently: 7.2.2
@@ -238,6 +239,7 @@ importers:
       recast: ^0.22.0
       rimraf: ^3.0.2
     dependencies:
+      acorn: 8.8.2
       babylon: 7.0.0-beta.47
       boxen: 7.0.0
       concurrently: 7.2.2

@@ -17,7 +17,7 @@ const concurrently = require('concurrently')
 // To fix import statements after compiling to ESM
 const recast   = require('recast')
 const recastTS = require('recast/parsers/typescript')
-const espree   = require('espree')
+const espree   = require('acorn')
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM

@@ -3,11 +3,19 @@
   "version": "1.3.1",
   "type": "module",
   "main": "ubik.cjs",
-  "bin": { "ubik": "./ubik.cjs" },
+  "bin": {
+    "ubik": "./ubik.cjs"
+  },
   "description": "Publish TypeScript packages as both CJS and ESM, fixing ESM extensions for Node 16+.",
-  "files": ["README.md", "ubik.cjs"],
-  "scripts": { "ubik": "./ubik.cjs" },
+  "files": [
+    "README.md",
+    "ubik.cjs"
+  ],
+  "scripts": {
+    "ubik": "./ubik.cjs"
+  },
   "dependencies": {
+    "acorn": "^8.8.2",
     "babylon": "7.0.0-beta.47",
     "boxen": "^7.0.0",
     "concurrently": "7.2.2",
