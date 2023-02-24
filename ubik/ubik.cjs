@@ -421,7 +421,7 @@ async function ubik (cwd, command, ...publishArgs) {
 
       const ast = acorn.parse(readFileSync(file, 'utf8'), {
         ecmaVersion: process.env.UBIK_ECMA||'latest',
-        sourceType: 'script',
+        sourceType: 'module',
         locations:  true
       })
 
