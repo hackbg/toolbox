@@ -230,8 +230,10 @@ importers:
 
   ubik:
     specifiers:
+      '@types/estree': ^1.0.0
       acorn: ^8.8.2
-      babylon: 7.0.0-beta.47
+      acorn-walk: ^8.2.0
+      astring: ^1.8.4
       boxen: ^7.0.0
       concurrently: 7.2.2
       espree: ^9.4.1
@@ -239,8 +241,10 @@ importers:
       recast: ^0.22.0
       rimraf: ^3.0.2
     dependencies:
+      '@types/estree': 1.0.0
       acorn: 8.8.2
-      babylon: 7.0.0-beta.47
+      acorn-walk: 8.2.0
+      astring: 1.8.4
       boxen: 7.0.0
       concurrently: 7.2.2
       espree: 9.4.1
@@ -558,6 +562,10 @@ packages:
       '@types/node': 18.11.18
     dev: true
 
+  /@types/estree/1.0.0:
+    resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
+    dev: false
+
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
@@ -770,6 +778,11 @@ packages:
       acorn: 8.8.2
     dev: false
 
+  /acorn-walk/8.2.0:
+    resolution: {integrity: sha512-k+iyHEuPgSw6SbuDpGQM+06HQUa04DZ3o+F6CSzXMvvI5KMvnaEqXe+YVe555R9nn6GPt404fos4wcgpw12SDA==}
+    engines: {node: '>=0.4.0'}
+    dev: false
+
   /acorn/8.8.2:
     resolution: {integrity: sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==}
     engines: {node: '>=0.4.0'}
@@ -901,15 +914,14 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /astring/1.8.4:
+    resolution: {integrity: sha512-97a+l2LBU3Op3bBQEff79i/E4jMD2ZLFD8rHx9B6mXyB2uQwhJQYfiDqUwtfjF4QA1F2qs//N6Cw8LetMbQjcw==}
+    hasBin: true
+    dev: false
+
   /available-typed-arrays/1.0.5:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
     engines: {node: '>= 0.4'}
-    dev: false
-
-  /babylon/7.0.0-beta.47:
-    resolution: {integrity: sha512-+rq2cr4GDhtToEzKFD6KZZMDBXhjFAr9JjPw9pAppZACeEWqNM294j+NdBzkSHYXwzzBmVjZ3nEVJlOhbR2gOQ==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
     dev: false
 
   /balanced-match/1.0.2:

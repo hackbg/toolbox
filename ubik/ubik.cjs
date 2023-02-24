@@ -15,9 +15,11 @@ const fetch = require('node-fetch')
 const concurrently = require('concurrently')
 
 // To fix import statements after compiling to ESM
-const recast   = require('recast')
-const recastTS = require('recast/parsers/typescript')
-const espree   = require('acorn')
+const recast    = require('recast')
+const recastTS  = require('recast/parsers/typescript')
+const acorn     = require('acorn')
+const acornWalk = require('acorn-walk')
+const astring   = require('astring')
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
@@ -334,14 +336,19 @@ async function ubik (cwd, command, ...publishArgs) {
       'ExportAllDeclaration',
       'ExportNamedDeclaration'
     ]
+
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
+
       console.info('  Patching', file)
-      const source = readFileSync(file, 'utf8')
-      const ecmaVersion = process.env.UBIK_ECMA||'latest'
-      const parse = source => espree.parse(source, { ecmaVersion, sourceType: 'module' })
-      const parsed = recast.parse(source, { parser: { parse } })
+
+      const ast = acorn.parse(readFileSync(file, 'utf8'), {
+        ecmaVersion: process.env.UBIK_ECMA||'latest',
+        sourceType: 'module'
+      })
+
       let modified = false
-      for (const declaration of parsed.program.body) {
+
+      for (const declaration of ast.body) {
         if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
         const oldValue     = declaration.source.value
         const isRelative   = oldValue.startsWith('./') || oldValue.startsWith('../')
@@ -352,13 +359,16 @@ async function ubik (cwd, command, ...publishArgs) {
           declaration.source.value = newValue
           modified = true
         } else {
-          console.info('    ', oldValue, 'left as is')
+          console.info('    ', oldValue, '->', oldValue)
         }
       }
+
       if (modified) {
-        writeFileSync(file, recast.print(parsed).code, 'utf8')
+        writeFileSync(file, astring.generate(ast), 'utf8')
       }
+
     }
+
   }
 
   async function patchDTSImports (packageJson) {
@@ -400,15 +410,29 @@ async function ubik (cwd, command, ...publishArgs) {
     const isESModule = (packageJson.type === 'module')
     const { usedCjsExt } = getExtensions(isESModule)
     for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
+
       console.info('  Patching', file)
-      const source = readFileSync(file, 'utf8')
-      const parsed = recast.parse(source)
+
+      const ast = acorn.parse(readFileSync(file, 'utf8'), {
+        ecmaVersion: process.env.UBIK_ECMA||'latest',
+        sourceType: 'script',
+        locations:  true
+      })
+
       let modified = false
-      recast.types.visit(parsed, {
-        visitCallExpression (path) { // TODO: use path.parentPath to detect scope shadowing
-          const { callee: { type, name }, loc: { start: { line, column } } } = path.value
-          const args = path.value['arguments']
-          if (type === 'Identifier' && name === 'require') {
+
+      acornWalk.simple(ast, {
+
+        CallExpression (node) {
+
+          const { callee: { type, name }, loc: { start: { line, column } } } = node
+          const args = node['arguments']
+
+          if (
+            type === 'Identifier' &&
+            name === 'require' // GOTCHA: if "require" is renamed to something else, idk
+          ) {
+
             if (args.length === 1 && args[0].type === 'Literal') {
               const value = args[0].value
               if (value.startsWith('./') || value.startsWith('../')) {
@@ -421,6 +445,8 @@ async function ubik (cwd, command, ...publishArgs) {
                 } else {
                   console.info(`    require("${value}"): ${relative(cwd, target)} not found, ignoring`)
                 }
+              } else {
+                console.info(`    require("${value}") -> require("${value}")`)
               }
             } else {
               console.warn(
@@ -431,12 +457,15 @@ async function ubik (cwd, command, ...publishArgs) {
               )
             }
           }
-          this.traverse(path)
+
         }
+
       })
+
       if (modified) {
-        writeFileSync(file, recast.print(parsed).code, 'utf8')
+        writeFileSync(file, astring.generate(ast), 'utf8')
       }
+
     }
   }
 
