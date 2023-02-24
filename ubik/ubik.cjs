@@ -338,7 +338,7 @@ async function ubik (cwd, command, ...publishArgs) {
       console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
       const ecmaVersion = process.env.UBIK_ECMA||'latest'
-      const parse = source => espree.parse(source, { ecmaVersion })
+      const parse = source => espree.parse(source, { ecmaVersion, sourceType: 'module' })
       const parsed = recast.parse(source, { parser: { parse } })
       let modified = false
       for (const declaration of parsed.program.body) {
