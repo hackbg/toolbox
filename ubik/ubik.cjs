@@ -337,7 +337,9 @@ async function ubik (cwd, command, ...publishArgs) {
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
       console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
-      const parsed = recast.parse(source, { parser: espree })
+      const ecmaVersion = process.env.UBIK_ECMA||'latest'
+      const parse = source => espree.parse(source, { ecmaVersion })
+      const parsed = recast.parse(source, { parser: { parse } })
       let modified = false
       for (const declaration of parsed.program.body) {
         if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
