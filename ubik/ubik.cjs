@@ -9,34 +9,35 @@ const {fileURLToPath} = require('url')
 const process = require('process')
 
 // To bail early if the package is already uploaded
-const fetch        = require('node-fetch')
+const fetch = require('node-fetch')
 
 // To speed things up - runs ESM and CJS compilations in paralle
 const concurrently = require('concurrently')
 
-// To fix import statements when compiling to ESM
-const recast       = require('recast')
-const recastTS     = require('recast/parsers/typescript')
+// To fix import statements after compiling to ESM
+const recast   = require('recast')
+const recastTS = require('recast/parsers/typescript')
+const espree   = require('espree')
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
-const boxen        = import('boxen')
+const boxen = import('boxen')
 
 // TypeScript compiler
-const TSC          = process.env.TSC || 'tsc'
+const TSC = process.env.TSC || 'tsc'
 
 // Temporary output directories
-const dtsOut       = 'dist/dts'
-const esmOut       = 'dist/esm'
-const cjsOut       = 'dist/cjs'
-const distDirs     = [dtsOut, esmOut, cjsOut]
+const dtsOut = 'dist/dts'
+const esmOut = 'dist/esm'
+const cjsOut = 'dist/cjs'
+const distDirs = [dtsOut, esmOut, cjsOut]
 
 // Output extensions
-const distDtsExt   = '.dist.d.ts'
-const distEsmExt   = '.dist.mjs'
-const distCjsExt   = '.dist.cjs'
-const distJsExt    = '.dist.js'
-const distExts     = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
+const distDtsExt = '.dist.d.ts'
+const distEsmExt = '.dist.mjs'
+const distCjsExt = '.dist.cjs'
+const distJsExt = '.dist.js'
+const distExts = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
 
 // Changes x.a to x.b:
 const replaceExtension = (x, a, b) => `${basename(x, a)}${b}`
@@ -336,7 +337,7 @@ async function ubik (cwd, command, ...publishArgs) {
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
       console.info('  Patching', file)
       const source = readFileSync(file, 'utf8')
-      const parsed = recast.parse(source)
+      const parsed = recast.parse(source, { parser: espree })
       let modified = false
       for (const declaration of parsed.program.body) {
         if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
