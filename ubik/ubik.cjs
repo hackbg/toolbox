@@ -313,15 +313,21 @@ async function ubik (cwd, command, ...publishArgs) {
     const cjsMain = replaceExtension(main, '.ts', usedCjsExt)
     const dtsMain = replaceExtension(main, '.ts', distDtsExt)
     packageJson.types = toRel(dtsMain)
-    packageJson.exports = { source: toRel(main) }
+    packageJson.exports ??= {}
     if (isESModule) {
-      packageJson.main            = toRel(esmMain)
-      packageJson.exports.require = toRel(cjsMain)
-      packageJson.exports.default = toRel(esmMain)
+      packageJson.main = toRel(esmMain)
+      packageJson.exports["."] = {
+        "source":  toRel(main),
+        "require": toRel(cjsMain),
+        "default": toRel(esmMain)
+      }
     } else {
-      packageJson.main            = toRel(esmMain)
-      packageJson.exports.import  = toRel(cjsMain)
-      packageJson.exports.default = toRel(esmMain)
+      packageJson.main = toRel(esmMain)
+      packageJson.exports["."] = {
+        "source":  toRel(main),
+        "import":  toRel(esmMain),
+        "default": toRel(cjsMain)
+      }
     }
   }
 
