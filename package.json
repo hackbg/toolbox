@@ -16,7 +16,7 @@
     "@hackbg/dock": "workspace:^1",
     "@hackbg/4mat": "workspace:^1",
     "@hackbg/file": "workspace:^1",
-    "@hackbg/cmds": "workspace:^1.1.2",
+    "@hackbg/cmds": "workspace:^1.1.4",
     "@hackbg/logs": "workspace:^1",
     "@hackbg/port": "workspace:^1",
     "@hackbg/spec": "workspace:^1",
