@@ -347,23 +347,37 @@ export class Container {
 
   async create (): Promise<this> {
     if (this.container) throw Errors.ContainerAlreadyCreated()
+
     this.image.log.info('Creating container')
+
+    // Specify the container
     const opts = this.dockerodeOpts
-    this.container = await this.dockerode.createContainer(opts)
-    this.log.label = this.name
-      ? `@hackbg/dock: ${this.name} (${this.container.id})`
-      : `@hackbg/dock: ${this.container.id}`
+
+    // Log mounted volumes
     for (const bind of opts?.HostConfig?.Binds ?? []) {
       this.log.info('Bind:', bind)
     }
+
+    // Log exposed ports
     for (const [containerPort, config] of Object.entries(opts?.HostConfig?.PortBindings ?? {})) {
       const hostPort = (config as any)?.HostPort??'(unknown)'
       this.log.info(`Container port ${containerPort} bound to host port ${hostPort}`)
     }
+
+    // Create the container
+    this.container = await this.dockerode.createContainer(opts)
+
+    // Update the logger tag with the container id
+    this.log.label = this.name
+      ? `@hackbg/dock: ${this.name} (${this.container.id})`
+      : `@hackbg/dock: ${this.container.id}`
+
+    // Display any warnings emitted during container creation
     if (this.warnings) {
-      log.warn(`Creating container ${this.shortId} emitted warnings:`)
-      log.info(this.warnings)
+      this.log.warn(`Creating container ${this.shortId} emitted warnings:`)
+      this.log.info(this.warnings)
     }
+
     return this
   }
 
