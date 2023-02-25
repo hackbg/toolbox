@@ -13,7 +13,7 @@
   "license": "MIT",
   "description": "Baseline utilities.",
   "dependencies": {
-    "@hackbg/dock": "workspace:^1",
+    "@hackbg/dock": "workspace:^1.1",
     "@hackbg/4mat": "workspace:^1",
     "@hackbg/file": "workspace:^1",
     "@hackbg/cmds": "workspace:^1.1.4",

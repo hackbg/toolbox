@@ -119,12 +119,13 @@ export class Image {
   async ensure () {
 
     this._available ??= new Promise(async(resolve, reject)=>{
-      this.log.info('Ensuring image exists')
+      this.log.info('Ensuring that the image exists')
       const PULLING  = `Not cached, pulling`
       const BUILDING = `Not found in registry, building`
       const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
       try {
         await this.check()
+        this.log.info('Image exists')
       } catch (_e) {
         this.log.error(_e)
         try {
@@ -346,10 +347,19 @@ export class Container {
 
   async create (): Promise<this> {
     if (this.container) throw Errors.ContainerAlreadyCreated()
-    this.container = await this.dockerode.createContainer(this.dockerodeOpts)
+    this.image.log.info('Creating container')
+    const opts = this.dockerodeOpts
+    this.container = await this.dockerode.createContainer(opts)
     this.log.label = this.name
       ? `@hackbg/dock: ${this.name} (${this.container.id})`
       : `@hackbg/dock: ${this.container.id}`
+    for (const bind of opts?.HostConfig?.Binds ?? []) {
+      this.log.info('Bind:', bind)
+    }
+    for (const [containerPort, config] of Object.entries(opts?.HostConfig?.PortBindings ?? {})) {
+      const hostPort = (config as any)?.HostPort??'(unknown)'
+      this.log.info(`Container port ${containerPort} bound to host port ${hostPort}`)
+    }
     if (this.warnings) {
       log.warn(`Creating container ${this.shortId} emitted warnings:`)
       log.info(this.warnings)
