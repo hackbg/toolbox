@@ -1,36 +1,52 @@
 # @hackbg/dock
 
-Want to run something from Node in a reproducible environment? Use containers.
+Want to run some operation from Node in a reproducible environment?
+Here's a really simple way to achieve that with containers.
 
-This package defines the `Dokeres`, `DokeresImage` and `DockeresContainer` classes.
+## Overview
 
-Use `DockerImage` to make sure a specified Docker Image exists on your system,
-pulling or building it if it's missing.
+This library builds upon [Dockerode](https://www.npmjs.com/package/dockerode),
+and provides the `Engine`, `Image` and `Container` abstractions, which
+make it easy and performant to package and run reproducible operations
+(such as containerized builds or ETL pipelines).
 
-Request the same image to be built multiple times and
-it's smart enough to build it only once. This lets you e.g.
-launch a zillion dockerized tasks in parallel, while being
-sure that the same Docker image won't be pulled/built a zillion times.
-
-Reexports `Docker` from `dockerode` for finer control.
+* The **`Engine`** class connects to the Docker runtime at `/var/run/docker.sock`
+  or the path specified by the `DOCKER_HOST` environment variable.
+* The **`Image`** class supports specifying both an upstream tag to pull from Docker Hub,
+  and/or a local fallback Dockerfile. This allows for fast iteration when constructing
+  the Dockerized runtime environment.
+* From an `Image` instance, you can launch one or more **`Container`**s.
+  If you like, you can run multiple parallel operations in identical contexts
+  (as specified by a single local `Dockerfile`), and the `Image` will
+  build itself locally, only once and without touching Docker Hub.
 
 ## Example
 
 ```typescript
-await new Dokeres().image(
-  'my-org/my-build-image:v1', // tries to pull this first
-  '/path/to/my/Dockerfile',   // builds from this manifest if pull fails
-).run(                                              // docker run                           \
-  'build-my-thing', {                               //   --name build-my-thing              \
-     readonly: { '/my/project/sources':   '/src'  } //   -v /my/project/sources:/sources:ro \
-     writable: { '/my/project/artifacts': '/dist' } //   -v /my/project/sources:/sources:rw \
-  }                                                 //   my-org/my-build-image:v1
+import Docker from '@hackbg/dock'
+
+const engine = new Docker.Engine()
+
+const image = engine.image(
+  'my-org/my-build-image:v1', // This image will be pulled
+  '/path/to/my/Dockerfile',   // If the pull fails, build from this Dockerfile
+  [] // Any local paths referenced from the Dockerfile should be added here
 )
+
+const container = await image.run(`build_${+new Date()}`, {
+ readonly: { '/my/project/sources':   '/src'  }, // -v ro
+ writable: { '/my/project/artifacts': '/dist' }, // -v rw
+ mapped: { 80: 8080 } // container:host
+})
 ```
 
-<div align="center">
+## Roadmap
+
+* [ ] Support Podman for fully rootless operation
 
 ---
+
+<div align="center">
 
 Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
 
