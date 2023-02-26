@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "1.1.2",
+  "version":      "1.2.0",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
@@ -12,7 +12,6 @@
   "dependencies": {
     "colors":       "1.4.0",
     "dockerode":    "^3.3.4",
-    "@hackbg/allo": "workspace:^1",
     "@hackbg/logs": "workspace:^1"
   },
   "devDependencies": {

@@ -126,19 +126,24 @@ export class Image {
       try {
         await this.check()
         this.log.info('Image exists')
-      } catch (_e) {
-        this.log.error(_e)
-        try {
-          this.log.warn(`${PULLING} ${_e.message}`)
-          await this.pull()
-        } catch (e) {
-          if (!this.dockerfile) {
-            reject(`${NO_FILE} (${e.message})`)
-          } else {
-            this.log.warn(`${BUILDING} ${_e.message}`)
-            this.log.info(bold('Using dockerfile:'), this.dockerfile)
-            await this.build()
+      } catch (e1) {
+        if (e1.statusCode === 404) {
+          // if image doesn't exist locally, try pulling it
+          try {
+            this.log.warn(PULLING)
+            await this.pull()
+          } catch (e2) {
+            this.log.error(e2)
+            if (!this.dockerfile) {
+              reject(`${NO_FILE} (${e2.message})`)
+            } else {
+              this.log.warn(`${BUILDING} ${e2.message}`)
+              this.log.info(bold('Using dockerfile:'), this.dockerfile)
+              await this.build()
+            }
           }
+        } else {
+          throw e1
         }
       }
       return resolve(this.name)
@@ -360,8 +365,9 @@ export class Container {
 
     // Log exposed ports
     for (const [containerPort, config] of Object.entries(opts?.HostConfig?.PortBindings ?? {})) {
-      const hostPort = (config as any)?.HostPort??'(unknown)'
-      this.log.info(`Container port ${containerPort} bound to host port ${hostPort}`)
+      for (const { HostPort = '(unknown)' } of config as Array<{HostPort: unknown}>) {
+        this.log.info(`Container port ${containerPort} bound to host port ${HostPort}`)
+      }
     }
 
     // Create the container
@@ -433,7 +439,62 @@ export class Container {
     logFilter?:   (data: string) => boolean
   ) {
     if (!this.container) throw Errors.NoContainer()
-    return waitUntilLogsSay(this.container, expected, thenDetach, waitSeconds, logFilter)
+    return waitUntilLogsSay(
+      this.container,
+      expected,
+      thenDetach,
+      waitSeconds,
+      logFilter
+    )
+  }
+
+
+  /** Executes a command in the container.
+    * @returns [stdout, stderr] */
+  async exec (...command: string[]): Promise<[string, string]> {
+
+    if (!this.container) throw Errors.NoContainer()
+
+    // Specify the execution
+    const exec = await this.container.exec({
+      Cmd: command,
+      AttachStdin:  true,
+      AttachStdout: true,
+      AttachStderr: true,
+    })
+
+    // Collect stdout
+    let stdout = ''
+    const stdoutStream = new Transform({
+      transform (chunk, encoding, callback) {
+        stdout += chunk
+        callback()
+      }
+    })
+
+    // Collect stderr
+    let stderr = ''
+    const stderrStream = new Transform({
+      transform (chunk, encoding, callback) {
+        stderr += chunk
+        callback()
+      }
+    })
+
+    return new Promise(async (resolve, reject)=>{
+
+      // Start the executon
+      const stream = await exec.start({hijack: true})
+
+      // Bind this promise to the stream
+      stream.on('error', error => reject(error))
+      stream.on('end', () => resolve([stdout, stderr]))
+
+      // Demux the stdout/stderr stream into the two output streams
+      this.dockerode.modem.demuxStream(stream, stdoutStream, stderrStream)
+
+    })
+
   }
 
 }
@@ -449,8 +510,9 @@ export async function follow (dockerode: DockerHandle, stream: any, callback: (d
   })
 }
 
-/** The caveman solution to detecting when the node is ready to start receiving requests:
-  * trail node logs until a certain string is encountered */
+/** (to the tune of "What does the fox say?") The caveman solution
+  * to detecting when a service is ready to start receiving requests:
+  * trail node logs until a certain string is encountered  */
 export function waitUntilLogsSay (
   container: Docker.Container,
   expected:  string,
