@@ -215,7 +215,7 @@ async function ubik (cwd, command, ...publishArgs) {
     const response = await fetch(url)
     if (response.status === 200) {
       console.log(`\n${name} ${version} already exists, not publishing:`, url)
-      return
+      return true
     } else if (response.status !== 404) {
       throw new Error(`ubik: NPM returned ${response.statusCode}`)
     }

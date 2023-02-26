@@ -26,7 +26,7 @@
     "signal-exit": "^3.0.7"
   },
   "devDependencies": {
-    "@hackbg/ubik": "workspace:^1.2",
+    "@hackbg/ubik": "workspace:^1.3.5",
     "@types/node": "latest",
     "concurrently": "7.2.2",
 
