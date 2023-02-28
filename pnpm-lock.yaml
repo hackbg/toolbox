@@ -37,13 +37,13 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/ubik': link:ubik
-      '@types/node': 18.14.1
+      '@types/node': 18.14.2
       concurrently: 7.2.2
       husky: 8.0.3
       lint-staged: 13.1.2
       typedoc: 0.23.25_typescript@4.9.5
       typescript: 4.9.5
-      vitepress: 1.0.0-alpha.10_@types+node@18.14.1
+      vitepress: 1.0.0-alpha.10_@types+node@18.14.2
 
   4mat:
     specifiers:
@@ -92,11 +92,13 @@ importers:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
       '@hackbg/logs': workspace:^1
+      '@hackbg/oops': workspace:^1.0.1
       '@types/dockerode': ^3.3.14
       colors: 1.4.0
       dockerode: ^3.3.4
     dependencies:
       '@hackbg/logs': link:../logs
+      '@hackbg/oops': link:../oops
       colors: 1.4.0
       dockerode: 3.3.4
     devDependencies:
@@ -596,8 +598,8 @@ packages:
     resolution: {integrity: sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==}
     dev: true
 
-  /@types/node/18.14.1:
-    resolution: {integrity: sha512-QH+37Qds3E0eDlReeboBxfHbX9omAcBCXEzswCu6jySP642jiM3cYSIkU/REqwhCUqXdonHFuBfJDiAJxMNhaQ==}
+  /@types/node/18.14.2:
+    resolution: {integrity: sha512-1uEQxww3DaghA0RxqHx0O0ppVlo43pJhepY51OxuQIKHpjbnYLA7vcdwioNPzIqmC2u3I/dmylcqjlh0e7AyUA==}
     dev: true
 
   /@types/rimraf/3.0.2:
@@ -645,7 +647,7 @@ packages:
       vite: ^3.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 3.2.5_@types+node@18.14.1
+      vite: 3.2.5_@types+node@18.14.2
       vue: 3.2.37
     dev: true
 
@@ -2565,7 +2567,7 @@ packages:
       convert-source-map: 1.8.0
     dev: true
 
-  /vite/3.2.5_@types+node@18.14.1:
+  /vite/3.2.5_@types+node@18.14.2:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2590,7 +2592,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.14.1
+      '@types/node': 18.14.2
       esbuild: 0.15.18
       postcss: 8.4.21
       resolve: 1.22.1
@@ -2599,7 +2601,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.10_@types+node@18.14.1:
+  /vitepress/1.0.0-alpha.10_@types+node@18.14.2:
     resolution: {integrity: sha512-RGPU+YApj2jaYplAIJUe+2qlDks9FzPX1QGK+7NdGByeCCVZg6z9eYWjjvfvA/sgCtG3yeJE/4/jCwlv4Y8bVw==}
     hasBin: true
     dependencies:
@@ -2610,7 +2612,7 @@ packages:
       '@vueuse/core': 9.12.0_vue@3.2.37
       body-scroll-lock: 4.0.0-beta.0
       shiki: 0.11.1
-      vite: 3.2.5_@types+node@18.14.1
+      vite: 3.2.5_@types+node@18.14.2
       vue: 3.2.37
     transitivePeerDependencies:
       - '@algolia/client-search'

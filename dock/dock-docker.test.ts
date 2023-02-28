@@ -1,4 +1,4 @@
-import { Engine, Image, Container } from '.'
+import { Engine, Image, Container } from './dock-docker'
 import * as assert from 'node:assert'
 
 const engine = new Engine('socket')
