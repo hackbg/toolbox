@@ -17,12 +17,13 @@
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.14",
-    "@hackbg/ganesha":  "^2.2.5"
+    "@hackbg/ensuite":  "^1.1.1"
   },
   "scripts": {
-    "ubik":  "npm run check && ubik",
+    "ubik":  "npm run check && npm test && ubik",
     "check": "tsc --noEmit",
-    "test":  "ganesha-node dock.test.ts",
+    "test":  "ensuite dock.test.ts",
+    "cov":   "ensuite-cov dock.test.ts",
     "clean": "rm -rf dist packages/*/dist packages/*/types"
   }
 }

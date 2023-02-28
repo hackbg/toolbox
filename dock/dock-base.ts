@@ -4,6 +4,10 @@ import type { Writable } from 'node:stream'
 
 export abstract class Engine {
 
+  constructor (readonly name: string) {
+    this.log = new Console(`@hackbg/dock: ${this.name}`)
+  }
+
   log:
     Console
 
@@ -26,11 +30,17 @@ export abstract class Engine {
 
 export abstract class Image {
 
+  constructor (
+    readonly engine:     Engine|null,
+    readonly name:       string|null,
+    readonly dockerfile: string|null = null,
+    readonly extraFiles: string[]    = []
+  ) {
+    this.log = new Console(`@hackbg/dock: ${this.name}`)
+  }
+
   log:
     Console
-
-  readonly name:
-    string
 
   abstract ensure ():
     Promise<string|null>
@@ -67,9 +77,6 @@ export abstract class Image {
 /** Interface to a Docker container. */
 export abstract class Container {
 
-  log:
-    Console
-
   constructor (
     readonly image:       Image,
     readonly name?:       string,
@@ -79,6 +86,9 @@ export abstract class Container {
   ) {
     this.log = new Console(name ? `@hackbg/dock: ${name}` : `@hackbg/dock: container`)
   }
+
+  log:
+    Console
 
   abstract get id ():
     string

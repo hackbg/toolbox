@@ -9,7 +9,7 @@ const log = new Console('@hackbg/dock: podman')
 class PodmanEngine extends Engine {
 
   constructor (...podmanCommand: string[]) {
-    super()
+    super('podman')
     this.podmanCommand = (podmanCommand.length > 0) ? podmanCommand : ['/usr/bin/env', 'podman']
   }
 
@@ -32,14 +32,8 @@ class PodmanEngine extends Engine {
 
 class PodmanImage extends Image {
 
-  constructor (
-    readonly dock:       PodmanEngine|null,
-    readonly name:       string|null,
-    readonly dockerfile: string|null = null,
-    readonly extraFiles: string[]    = []
-  ) {
-    super()
-  }
+  declare engine:
+    PodmanEngine
 
   async run (
     name?:         string,

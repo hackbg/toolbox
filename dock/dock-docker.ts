@@ -39,18 +39,17 @@ class DockerEngine extends Engine {
     * connected to env `DOCKER_HOST`. You can also pass
     * your own Dockerode instance or socket path. */
   constructor (dockerode?: DockerHandle|string) {
-    super()
     if (!dockerode) {
-      this.dockerode = new Docker({ socketPath })
+      dockerode = new Docker({ socketPath })
     } else if (typeof dockerode === 'object') {
-      this.dockerode = dockerode
+      dockerode = dockerode
     } else if (typeof dockerode === 'string') {
-      this.dockerode = new Docker({ socketPath: dockerode })
+      dockerode = new Docker({ socketPath: dockerode })
     } else {
       throw new Error('@hackbg/dock: invalid init')
     }
-    const api = this.dockerode.modem.host??this.dockerode.modem.socketPath
-    this.log = new Console(`@hackbg/dock: ${api}`)
+    const api = dockerode.modem.host ?? dockerode.modem.socketPath
+    super(api)
   }
 
   image (
@@ -78,20 +77,22 @@ class DockerEngine extends Engine {
 class DockerImage extends Image {
 
   constructor (
-    readonly dock:       DockerEngine|null,
-    readonly name:       string|null,
-    readonly dockerfile: string|null = null,
-    readonly extraFiles: string[]    = []
+    engine:     DockerEngine|null,
+    name:       string|null,
+    dockerfile: string|null = null,
+    extraFiles: string[]    = []
   ) {
-    super()
-    if (dock && !(dock instanceof DockerEngine)) throw new Error.NotDockerode()
+    if (engine && !(engine instanceof DockerEngine)) throw new Error.NotDockerode()
     if (!name && !dockerfile) throw new Error.NoNameNorDockerfile()
-    this.log = new Console(`@hackbg/dock: ${this.name}`)
+    super(engine, name, dockerfile, extraFiles)
   }
 
+  declare engine:
+    DockerEngine
+
   get dockerode (): Docker {
-    if (!this.dock || !this.dock.dockerode) throw new Error.NoDockerode()
-    return this.dock.dockerode as unknown as Docker
+    if (!this.engine || !this.engine.dockerode) throw new Error.NoDockerode()
+    return this.engine.dockerode as unknown as Docker
   }
 
   protected _available:
@@ -180,8 +181,8 @@ class DockerImage extends Image {
   /* Throws if the build fails, and then you have to fix stuff. */
   async build () {
     if (!this.dockerfile) throw new Error.NoDockerfile()
-    if (!this.dock?.dockerode) throw new Error.NoDockerode()
-    const { name, dock: { dockerode } } = this
+    if (!this.engine?.dockerode) throw new Error.NoDockerode()
+    const { name, engine: { dockerode } } = this
     const dockerfile = basename(this.dockerfile)
     const context = dirname(this.dockerfile)
     const src = [dockerfile, ...this.extraFiles]

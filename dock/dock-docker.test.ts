@@ -7,7 +7,7 @@ assert.equal(engine.log.label, `@hackbg/dock: socket`)
 const image = engine.image('tag')
 assert.ok(image instanceof Image)
 assert.equal(image.log.label, `@hackbg/dock: tag`)
-assert.equal(image.dock, engine)
+assert.equal(image.engine, engine)
 
 const container = image.container('name')
 assert.ok(container instanceof Container)
