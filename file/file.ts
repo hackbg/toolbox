@@ -214,6 +214,9 @@ export interface PathCtor <T> {
 export abstract class BaseFile<T> extends Path {
   make () {
     this.makeParent()
+    return this.touch()
+  }
+  touch () {
     touch(this.path)
     return this
   }
