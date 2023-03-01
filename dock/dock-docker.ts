@@ -96,63 +96,6 @@ class DockerImage extends Image {
     return this.engine.dockerode as unknown as Docker
   }
 
-  protected _available:
-    Promise<string|null>|null = null
-
-  async ensure () {
-
-    this._available ??= new Promise(async(resolve, reject)=>{
-
-      this.log.ensuring()
-
-      try {
-
-        await this.check()
-        this.log.imageExists()
-
-      } catch (e1) {
-
-        if (e1.statusCode === 404) {
-          // if image doesn't exist locally, try pulling it
-          try {
-
-            this.log.notCachedPulling()
-            await this.pull()
-
-          } catch (e2) {
-
-            this.log.error(e2)
-
-            if (!this.dockerfile) {
-
-              const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
-              reject(`${NO_FILE} (${e2.message})`)
-
-            } else {
-
-              this.log.notFoundBuilding(e2.message)
-              this.log.buildingFromDockerfile(this.dockerfile)
-              await this.build()
-
-            }
-
-          }
-        } else {
-
-          throw e1
-
-        }
-
-      }
-
-      return resolve(this.name)
-
-    })
-
-    return await this._available
-
-  }
-
   async check () {
     if (!this.name) throw new Error.NoName('inspect')
     await this.dockerode.getImage(this.name).inspect()

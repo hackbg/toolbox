@@ -42,9 +42,6 @@ export abstract class Image {
   log:
     Console
 
-  abstract ensure ():
-    Promise<string|null>
-
   /** Throws if inspected image does not exist locally. */
   abstract check ():
     Promise<void>
@@ -71,6 +68,43 @@ export abstract class Image {
   ): Container
 
   get [Symbol.toStringTag](): string { return this.name }
+
+  protected _available:
+    Promise<string|null>|null = null
+
+  async ensure () {
+    this._available ??= new Promise(async(resolve, reject)=>{
+      this.log.ensuring()
+      try {
+        await this.check()
+        this.log.imageExists()
+      } catch (e1) {
+        if (e1.statusCode === 404) {
+          // if image doesn't exist locally, try pulling it
+          try {
+            this.log.notCachedPulling()
+            await this.pull()
+          } catch (e2) {
+            this.log.error(e2)
+            if (!this.dockerfile) {
+              const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
+              reject(`${NO_FILE} (${e2.message})`)
+            } else {
+              this.log.notFoundBuilding(e2.message)
+              this.log.buildingFromDockerfile(this.dockerfile)
+              await this.build()
+            }
+          }
+        } else {
+          throw e1
+        }
+      }
+      return resolve(this.name)
+    })
+
+    return await this._available
+
+  }
 
 }
 
