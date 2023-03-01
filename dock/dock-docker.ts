@@ -25,7 +25,7 @@ export interface DockerHandle {
 }
 
 /** Defaults to the `DOCKER_HOST` environment variable. */
-export const socketPath = process.env.DOCKER_HOST || '/var/run/docker.sock'
+export const defaultSocketPath = process.env.DOCKER_HOST || '/var/run/docker.sock'
 
 class DockerEngine extends Engine {
 
@@ -40,7 +40,7 @@ class DockerEngine extends Engine {
     * your own Dockerode instance or socket path. */
   constructor (dockerode?: DockerHandle|string) {
     if (!dockerode) {
-      dockerode = new Docker({ socketPath })
+      dockerode = new Docker({ socketPath: defaultSocketPath })
     } else if (typeof dockerode === 'object') {
       dockerode = dockerode
     } else if (typeof dockerode === 'string') {
@@ -50,6 +50,7 @@ class DockerEngine extends Engine {
     }
     const api = dockerode.modem.host ?? dockerode.modem.socketPath
     super(api)
+    this.dockerode = dockerode
   }
 
   image (
@@ -314,6 +315,21 @@ class DockerContainer extends Container {
     return this.container.id.slice(0, 8)
   }
 
+  get warnings (): string[] {
+    if (!this.container) throw new Error.NoContainer()
+    return (this.container as any).Warnings
+  }
+
+  get isRunning (): Promise<boolean> {
+    return this.inspect()
+      .then(({ State: { Running } })=>Running)
+  }
+
+  get ip (): Promise<string> {
+    return this.inspect()
+      .then(({ NetworkSettings: { IPAddress } })=>IPAddress)
+  }
+
   async create (): Promise<this> {
     if (this.container) throw new Error.ContainerAlreadyCreated()
 
@@ -350,11 +366,6 @@ class DockerContainer extends Container {
     return this
   }
 
-  get warnings (): string[] {
-    if (!this.container) throw new Error.NoContainer()
-    return (this.container as any).Warnings
-  }
-
   async start (): Promise<this> {
     if (!this.container) await this.create()
     await this.container!.start()
@@ -364,16 +375,6 @@ class DockerContainer extends Container {
   inspect () {
     if (!this.container) throw new Error.NoContainer()
     return this.container.inspect()
-  }
-
-  get isRunning (): Promise<boolean> {
-    return this.inspect()
-      .then(({ State: { Running } })=>Running)
-  }
-
-  get ip (): Promise<string> {
-    return this.inspect()
-      .then(({ NetworkSettings: { IPAddress } })=>IPAddress)
   }
 
   async kill (): Promise<this> {
@@ -503,7 +504,9 @@ export function mockDockerode (callback: Function = () => {}): DockerHandle {
     getContainer (options: any) {
       return mockDockerodeContainer(callback)
     },
-    async pull () {},
+    async pull (name, callback) {
+      callback(null, null)
+    },
     buildImage () {},
     async createContainer (options: any) {
       return mockDockerodeContainer(callback)
@@ -527,7 +530,16 @@ export function mockDockerodeContainer (callback: Function = () => {}) {
     async start   () {},
     async attach  () { return {setEncoding(){},pipe(){}} },
     async wait    () { return {Error:null,StatusCode:0}  },
-    async inspect () { return {Image:' ',Name:null,Args:null,Path:null,State:{Running:null}}}
+    async inspect () {
+      return {
+        Image:' ',
+        Name:null,
+        Args:null,
+        Path:null,
+        State:{Running:null},
+        NetworkSettings:{IPAddress:null}
+      }
+    }
   }
 }
 
