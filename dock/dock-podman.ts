@@ -4,6 +4,9 @@ import { DockError as Error, DockConsole as Console, bold } from './dock-events'
 
 import { Readable, Writable, Transform } from 'node:stream'
 import { spawn } from 'node:child_process'
+import { homedir } from 'node:os'
+
+import $, { JSONFile } from '@hackbg/file'
 
 const log = new Console('@hackbg/dock: podman')
 
@@ -33,6 +36,27 @@ class PodmanEngine extends Engine {
         }
       })
     })
+  }
+
+  ensurePolicy (transport: string, scope: string, policies: any[]) {
+    const policyPath = $(homedir(), '.config', 'containers', 'policy.json')
+    const policyFile = policyPath.as(JSONFile).touch()
+    let policy
+    try {
+      policy = policyFile.load()
+    } catch (e) {
+      if (e.message === 'Unexpected end of JSON input') {
+        policy = {}
+      } else {
+        throw e
+      }
+    }
+    policy.default ??= [{"type": "reject"}]
+    policy.transports ??= {}
+    policy.transports[transport] ??= {}
+    policy.transports[transport][scope] ??= policies
+    this.log.info(`Updating container policy at`, policyPath.path)
+    policyFile.save(policy)
   }
 
   image (
