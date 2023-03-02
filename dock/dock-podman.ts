@@ -19,15 +19,16 @@ class PodmanEngine extends Engine {
 
   podmanCommand: string[]
 
-  podman (...command: string[]): Promise<void> {
+  podman (...command: string[]): Promise<string> {
     command = [...this.podmanCommand, ...command]
+    let stdout = ''
     return new Promise((resolve, reject)=>{
       const run = spawn(command[0], command.slice(1))
-      run.stdout.on("data", (x) => process.stdout.write(x.toString()))
-      run.stderr.on("data", (x) => process.stderr.write(x.toString()))
+      run.stdout.on("data", chunk => stdout = stdout + chunk.toString())
+      run.stderr.on("data", chunk => process.stderr.write(chunk.toString()))
       run.on("exit", (code) => {
         if (code === 0) {
-          resolve()
+          resolve(stdout)
         } else {
           reject(Object.assign(
             new Error(`Process ${run.pid} (${command.join(' ')}) exited with code ${code}`),
@@ -41,7 +42,7 @@ class PodmanEngine extends Engine {
   ensurePolicy (transport: string, scope: string, policies: any[]) {
     const policyPath = $(homedir(), '.config', 'containers', 'policy.json')
     const policyFile = policyPath.as(JSONFile).touch()
-    let policy
+    let policy: any
     try {
       policy = policyFile.load()
     } catch (e) {
@@ -51,7 +52,7 @@ class PodmanEngine extends Engine {
         throw e
       }
     }
-    policy.default ??= [{"type": "reject"}]
+    policy['default'] ??= [{"type": "reject"}]
     policy.transports ??= {}
     policy.transports[transport] ??= {}
     policy.transports[transport][scope] ??= policies
@@ -103,12 +104,12 @@ class PodmanImage extends Image {
   async pull () {
     const { name } = this
     if (!name) throw new Error.NoName('pull')
-    return this.engine.podman('pull', name)
+    await this.engine.podman('pull', name)
   }
 
   async build () {
     if (!this.dockerfile) throw new Error.NoDockerfile()
-    return this.engine.podman('build')
+    await this.engine.podman('build')
   }
 
   container (
@@ -143,14 +144,55 @@ class PodmanContainer extends Container {
 
   get ip () { return Promise.resolve('') }
 
-  async create () { return this }
+  async create () {
+    if (!this.image || !this.image.name) throw new Error.NoImage()
+    let options: string[] = []
+
+    if (this.name) {
+      options = [...options, '--name', this.name]
+    }
+
+    if (this.entrypoint) {
+      options = [...options, '--entrypoint', ...this.entrypoint]
+    }
+
+    if (this.options.env) {
+      const env = Object.entries(this.options.env).map(([key, val])=>`${key}=${val}`).join(',')
+      options = [...options, '--env', env]
+    }
+
+    if (this.options.cwd) {
+      options = [...options, '--workdir', this.options.cwd]
+    }
+
+    //this.options.exposed
+      //?.forEach(containerPort=>
+        //config.ExposedPorts[containerPort] = {})
+
+    //Object.entries(this.options.mapped)
+      //?.forEach(([containerPort, hostPort])=>
+        //config.HostConfig.PortBindings[containerPort] = [{ HostPort: hostPort }])
+
+    //Object.entries(this.options.readonly)
+      //?.forEach(([hostPath, containerPath])=>
+        //config.HostConfig.Binds.push(`${hostPath}:${containerPath}:ro`))
+
+    //Object.entries(this.options.writable)
+      //?.forEach(([hostPath, containerPath])=>
+        //config.HostConfig.Binds.push(`${hostPath}:${containerPath}:rw`))
+
+    await this.image.engine.podman('create', ...options, this.image.name, ...this.command??[])
+    return this
+  }
 
   async start () {
+    if (!this.id) throw new Error.NoContainer()
     await this.image.engine.podman('start', this.id)
     return this
   }
 
   async wait () {
+    if (!this.id) throw new Error.NoContainer()
     await this.image.engine.podman('wait', this.id)
   }
 
@@ -158,16 +200,25 @@ class PodmanContainer extends Container {
   }
 
   async kill () {
+    if (!this.id) throw new Error.NoContainer()
     await this.image.engine.podman('kill', this.id)
     return this
   }
 
   async inspect () {
-    await this.image.engine.podman('inspect', this.id)
+    if (!this.id) throw new Error.NoContainer()
+    const data = JSON.parse(await this.image.engine.podman('inspect', this.id))
+    return data
   }
 
   async exec (...command: string[]): Promise<[string, string]> {
+    throw new Error('not implemented')
     return ['', '']
+  }
+
+  async export (repository?: string, tag?: string) {
+    throw new Error('not implemented')
+    return ''
   }
 
 }

@@ -138,7 +138,7 @@ class DockerImage extends Image {
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)
-        throw new Error.BuildFailed(name, dockerfile, context)
+        throw new Error.BuildFailed(name??'(no name)', dockerfile, context)
       }
       const data = event.progress || event.status || event.stream || JSON.stringify(event) || ''
       log.log(data.trim())
@@ -220,10 +220,10 @@ class DockerContainer extends Container {
       Cmd: this.command,
       Env: Object.entries(env).map(([key, val])=>`${key}=${val}`),
       WorkingDir: cwd,
-      ExposedPorts: {},
+      ExposedPorts: {} as Record<string, {}>,
       HostConfig: {
-        Binds: [],
-        PortBindings: [],
+        Binds: [] as Array<string>,
+        PortBindings: {} as Record<string, Array<{ HostPort: string }>>,
         AutoRemove: remove
       }
     }
@@ -264,13 +264,11 @@ class DockerContainer extends Container {
   }
 
   get isRunning (): Promise<boolean> {
-    return this.inspect()
-      .then(({ State: { Running } })=>Running)
+    return this.inspect().then(state=>state.State.Running)
   }
 
   get ip (): Promise<string> {
-    return this.inspect()
-      .then(({ NetworkSettings: { IPAddress } })=>IPAddress)
+    return this.inspect().then(state=>state.NetworkSettings.IPAddress)
   }
 
   async create (): Promise<this> {
@@ -395,6 +393,13 @@ class DockerContainer extends Container {
 
   }
 
+  async export (repository?: string, tag?: string) {
+    if (!this.container) throw new Error.NoContainer()
+    const { Id } = await this.container.commit({ repository, tag })
+    this.log.info(`Exported snapshot:`, bold(Id))
+    return Id
+  }
+
 }
 
 /** (to the tune of "What does the fox say?") The caveman solution
@@ -447,7 +452,7 @@ export function mockDockerode (callback: Function = () => {}): DockerHandle {
     getContainer (options: any) {
       return mockDockerodeContainer(callback)
     },
-    async pull (name, callback) {
+    async pull (name: any, callback: any) {
       callback(null, null)
     },
     buildImage () {},

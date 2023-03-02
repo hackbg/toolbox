@@ -4,7 +4,7 @@ import type { Writable } from 'node:stream'
 
 export abstract class Engine {
 
-  constructor (readonly name: string) {
+  constructor (readonly name?: string) {
     this.log = new Console(`@hackbg/dock: ${this.name}`)
   }
 
@@ -67,8 +67,6 @@ export abstract class Image {
     entrypoint?: ContainerCommand,
   ): Container
 
-  get [Symbol.toStringTag](): string { return this.name }
-
   protected _available:
     Promise<string|null>|null = null
 
@@ -106,6 +104,8 @@ export abstract class Image {
 
   }
 
+  get [Symbol.toStringTag](): string { return this.name||'' }
+
 }
 
 /** Interface to a Docker container. */
@@ -113,7 +113,7 @@ export abstract class Container {
 
   constructor (
     readonly image:       Image,
-    readonly name?:       string,
+    readonly name:        string|null = null,
     readonly options:     Partial<ContainerOpts> = {},
     readonly command?:    ContainerCommand,
     readonly entrypoint?: ContainerCommand
@@ -145,7 +145,8 @@ export abstract class Container {
   abstract start ():
     Promise<this>
 
-  abstract inspect ()
+  abstract inspect ():
+    Promise<ContainerState>
 
   abstract kill ():
     Promise<this>
@@ -162,6 +163,9 @@ export abstract class Container {
 
   abstract exec (...command: string[]):
     Promise<[string, string]>
+
+  abstract export (repository?: string, tag?: string):
+    Promise<string>
 
   static async create (
     image:       Image,
@@ -195,7 +199,7 @@ export abstract class Container {
     return self
   }
 
-  get [Symbol.toStringTag](): string { return this.name }
+  get [Symbol.toStringTag](): string { return this.name||'' }
 
 }
 
@@ -211,3 +215,13 @@ export interface ContainerOpts {
 }
 
 export type ContainerCommand = string|string[]
+
+export interface ContainerState {
+  Image: string,
+  State: {
+    Running: boolean
+  },
+  NetworkSettings: {
+    IPAddress: string
+  }
+}

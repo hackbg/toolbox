@@ -25,6 +25,11 @@ export class DockError extends Error {
     ()=>'No dockerfile specified'
   )
 
+  static NoImage = this.define(
+    'NoImage',
+    ()=>'No image specified'
+  )
+
   static NoContainer = this.define(
     'NoContainer',
     ()=>'No container'
