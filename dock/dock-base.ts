@@ -139,21 +139,27 @@ export abstract class Container {
   abstract get ip ():
     Promise<string>
 
+  /** Create a container. */
   abstract create ():
     Promise<this>
 
+  /** Start a container. */
   abstract start ():
     Promise<this>
 
+  /** Get info about a container. */
   abstract inspect ():
     Promise<ContainerState>
 
+  /** Immediately terminate a running container. */
   abstract kill ():
     Promise<this>
 
+  /** Wait for the container to exit. */
   abstract wait ():
     Promise<{ error?: any, code: number }>
 
+  /** Wait for the container logs to emit an expected string. */
   abstract waitLog (
     expected:     string,
     thenDetach?:  boolean,
@@ -161,9 +167,11 @@ export abstract class Container {
     logFilter?:   (data: string) => boolean
   ): Promise<void>
 
+  /** Execute a command in an existing container. */
   abstract exec (...command: string[]):
     Promise<[string, string]>
 
+  /** Save a container as an image. */
   abstract export (repository?: string, tag?: string):
     Promise<string>
 
@@ -218,10 +226,6 @@ export type ContainerCommand = string|string[]
 
 export interface ContainerState {
   Image: string,
-  State: {
-    Running: boolean
-  },
-  NetworkSettings: {
-    IPAddress: string
-  }
+  State: { Running: boolean },
+  NetworkSettings: { IPAddress: string }
 }
