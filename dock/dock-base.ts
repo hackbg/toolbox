@@ -152,7 +152,7 @@ export abstract class Container {
     Promise<this>
 
   abstract wait ():
-    Promise<void>
+    Promise<{ error?: any, code: number }>
 
   abstract waitLog (
     expected:     string,

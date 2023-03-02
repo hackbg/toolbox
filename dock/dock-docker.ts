@@ -334,7 +334,8 @@ class DockerContainer extends Container {
 
   async wait () {
     if (!this.container) throw new Error.NoContainer()
-    return await this.container.wait()
+    const {Error: error, StatusCode: code} = await this.container.wait()
+    return { error, code }
   }
 
   async waitLog (

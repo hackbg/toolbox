@@ -194,6 +194,7 @@ class PodmanContainer extends Container {
   async wait () {
     if (!this.id) throw new Error.NoContainer()
     await this.image.engine.podman('wait', this.id)
+    return { code: 1 } // FIXME
   }
 
   async waitLog () {
