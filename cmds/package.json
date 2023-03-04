@@ -1,18 +1,22 @@
 {
   "name": "@hackbg/cmds",
   "version": "1.1.4",
-  "main": "cmds.ts",
+  "main": "index.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "cmds"},
   "license": "MIT",
   "description": "Minimal command line parser.",
-  "files": [ "README.md", "cmds.ts" ],
-  "bin": { "cmds": "./cmds.cli.cjs" },
+  "files": [ "README.md", "*.ts", "*.cli.cjs" ],
+  "bin": {
+    "cmds": "./cmds.cli.cjs",
+    "cmds-ts": "./cmds-ts.cli.cjs"
+  },
   "exports": {
-    ".": "./cmds.ts",
-    "./cmds.cli.cjs": "./cmds.cli.cjs"
+    ".": "./index.ts",
+    "./cmds.cli.cjs": "./cmds.cli.cjs",
+    "./cmds-ts.cli.cjs": "./cmds-ts.cli.cjs"
   },
   "dependencies": {
     "@hackbg/logs": "workspace:^1",
