@@ -22,11 +22,8 @@ export default class CommandContext {
     this.log = new CommandsConsole(label)
     hideProperties(this, 'cwd', 'env')
     if (repl) {
-      this.addCommand(
-        'repl',
-        'run an interactive shell in this context',
-        this.startREPL.bind(this)
-      )
+      this.addCommand('repl', 'run an interactive JavaScript REPL in this context', () =>
+        this.startREPL())
     }
   }
 
@@ -192,7 +189,10 @@ export function entrypoint (url: string, callback: Function) {
   if (isEntrypoint(url)) callback()
 }
 
-export function startRepl (context: any, log: Console = new CommandsConsole()) {
+export function startRepl (
+  context: object,
+  log:     Console = new CommandsConsole()
+) {
   return Promise.all([
     //@ts-ignore
     import('node:repl'),
@@ -200,11 +200,11 @@ export function startRepl (context: any, log: Console = new CommandsConsole()) {
     import('node:vm')
   ]).then(([repl, { createContext }])=>{
     let prompt = '\nFadroma> '
-    let context = createContext(this)
+    context = createContext(context)
     setTimeout(()=>Object.assign(repl.start({ prompt }), { context }))
   }).catch((e: Error)=>{
-    this.log.warn(e)
-    this.log.info('REPL is only available in Node.')
+    log.warn(e)
+    log.info('REPL is only available in Node.')
   })
 }
 

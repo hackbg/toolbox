@@ -31,10 +31,6 @@ $.tmpDir = function getTmpDir (prefix = 'file-'): Path {
 /** Represents a path to a filesystem entity, i.e. a file or directory. */
 export class Path {
 
-  static separator = sep
-
-  log: Console
-
   constructor (base: string|URL|Path = cwd(), ...fragments: string[]) {
     if (base instanceof URL || (typeof base === 'string' && base.startsWith('file://'))) {
       base = fileURLToPath(base)
@@ -45,9 +41,12 @@ export class Path {
     this.log = new Console(`@hackbg/file: ${this.shortPath}`)
   }
 
-  /** The represented path. */
+  log: Console
+
+  /** The filesystem path represented by this object. */
   path: string
 
+  /** @returns this path represented as a file:/// URL */
   get url (): URL {
     return pathToFileURL(this.path)
   }
@@ -69,24 +68,30 @@ export class Path {
     }
   }
 
+  /** @returns name of this file or directory. */
   get name (): string {
     return basename(this.path)
   }
 
+  /** @returns absolute path to parent directory. */
   get parent (): string {
     return dirname(this.path)
   }
 
+  /** Create the parent directory of this path. */
   makeParent (): this {
     mkdirp.sync(dirname(this.path))
     return this
   }
 
+  /** @returns a dotless relative path if this path is under the current working directory,
+    * otherwise returns an absolute path. */
   get shortPath (): string {
-    return relative(cwd(), this.path) || '.'
+    const rel = relative(cwd(), this.path) || '.'
+    return (rel.startsWith('..')) ? this.path : rel
   }
 
-  /** Return a Path pointing of a subdirectory of the current one. */
+  /** @returns Path to directory relative to this. */
   at (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isDirectory()) {
@@ -95,7 +100,7 @@ export class Path {
     return sub
   }
 
-  /** Return a Path pointing of a file in the current directory. */
+  /** @returns Path to file relative to this. */
   in (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isFile()) {
@@ -104,8 +109,8 @@ export class Path {
     return sub
   }
 
-  /** Convert this Path into a class that knows what to do with
-    * the data at the represented path. */
+  /** @returns an instance of the passed class, pointing to this path,
+    * and (hopefully) knowing what to do with the data at this path. */
   as <T, U extends BaseFile<T>|BaseDirectory<T, BaseFile<T>>> (Ctor: PathCtor<U>): U {
     return new Ctor(this.path)
   }
@@ -146,6 +151,7 @@ export class Path {
     return !!(this.exists()?.isFile() && nameMatches)
   }
 
+  /** @returns true if this path is a symlink. */
   get isLink (): boolean {
     return !!(this.exists() && lstatSync(this.path).isSymbolicLink())
   }
@@ -204,6 +210,8 @@ export class Path {
   relLink (path: string): this {
     return this.pointTo(path)
   }
+
+  static separator = sep
 
 }
 
@@ -359,12 +367,17 @@ export function rimraf (path = "") {
   )
 }
 
-export function withTmpDir <T> (fn: (path: string)=>T): T {
+export function withTmpDir <T> (
+  fn: (path: string)=>T,
+  remove = true
+): T {
   const name = mkdtempSync(resolve(tmpdir(), 'temp-'))
-  process.on('exit', () => {
-    new Console(`@hackbg/file: ${name}`).log('Removing temporary directory')
-    rimrafSync(name)
-  })
+  if (remove) {
+    process.on('exit', () => {
+      new Console(`@hackbg/file: ${name}`).log('Removing temporary directory', name)
+      rimrafSync(name)
+    })
+  }
   return fn(name)
 }
 
