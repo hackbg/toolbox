@@ -3,7 +3,7 @@
 // If TS loading is already enabled
 if (process.env.CMDS_TS) {
   // Instantiate the default export of the commands module
-  console.info('TypeScript support enabled.')
+  console.info('TypeScript support enabled.\n')
   const entrypoint = require('path').resolve(process.cwd(), process.argv[2])
   import(entrypoint).then(module=>{
     const commands = new (module.default)()
