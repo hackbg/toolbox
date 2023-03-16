@@ -1,5 +1,5 @@
 ```typescript
-import $, { getDirName, TOMLFile } from '.'
+import $, { getDirName, TOMLFile } from '@hackbg/file'
 
 const Spec = {}
 export default { Spec }

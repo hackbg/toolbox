@@ -33,7 +33,7 @@ assert.equal(something.property, 5)
 Now, let's use `defineCallable` to define a callable version of it as a subclass:
 
 ```typescript
-import { defineCallable } from '.'
+import { defineCallable } from '@hackbg/allo'
 
 class CallableSomething extends defineCallable(Something, function (parameter) {
   return this
