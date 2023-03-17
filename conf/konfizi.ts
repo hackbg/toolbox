@@ -1,3 +1,97 @@
+export class Environment {
+
+  /** Snapshot of the earliest known process environment
+    * (at the moment this module is evaluated) */
+  static initial = new Environment(process.cwd(), process.env)
+
+  static FALSE = [ '', 'false', 'no', '0' ]
+
+  constructor (
+    readonly cwd:  string             = '',
+    readonly vars: typeof process.env = {}
+  ) {
+    Object.defineProperty(this, 'vars', { enumerable: false })
+  }
+
+  getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
+    if (name in this.vars) {
+      const value = (this.vars[name]??'').trim()
+      return !Environment.FALSE.includes(value)
+    } else if (fallback) {
+      return fallback()
+    } else {
+      throw new EnvConfigError.Required(name, 'boolean')
+      throw new Error(`The environment variable ${name} (boolean) is required.`)
+    }
+  }
+
+  getString <T> (name: string, fallback?: ()=>T): string|T {
+    if (name in this.vars) {
+      return String(this.vars[name] as string)
+    } else if (fallback) {
+      return fallback()
+    } else {
+      throw new EnvConfigError.Required(name, 'string')
+    }
+  }
+
+  getNumber <T> (name: string, fallback?: ()=>T): number|T {
+    if (name in this.vars) {
+      const value = (this.vars[name]??'').trim()
+      if (value === '') {
+        if (fallback) {
+          return fallback()
+        } else {
+          throw new EnvConfigError.Required(name, 'number')
+        }
+      }
+      const number = Number(value)
+      if (isNaN(number)) throw new EnvConfigError.Required(name, 'number')
+      return number
+    } else if (fallback) {
+      return fallback()
+    } else {
+      throw new EnvConfigError.Required(name, 'number')
+    }
+  }
+
+}
+
+export class Config {
+
+  constructor (
+    options: Partial<Config> = {},
+    readonly environment: Environment = Environment.initial
+  ) {
+    override(false, this, options)
+  }
+
+  getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
+    return this.environment.getFlag(name, fallback)
+  }
+
+  getString <T> (name: string, fallback?: ()=>T): string|T {
+    return this.environment.getString(name, fallback)
+  }
+
+  getNumber <T> (name: string, fallback?: ()=>T): number|T {
+    return this.environment.getNumber(name, fallback)
+  }
+
+}
+
+class EnvConfigError extends Error {
+
+  static Required = class EnvConfigRequiredError extends EnvConfigError {
+    constructor (name: string, type: string) {
+      super(`The environment variable ${name} must be a ${type}`)
+    }
+  }
+
+}
+
+export { EnvConfigError as Error }
+
 /** A ***value object*** that allows its meaningful properties to be overridden.
   * For the override to work, empty properties must be defined as:
   *
@@ -57,75 +151,4 @@ export function override (
     }
   }
   return filtered
-}
-
-export type Env = Record<string, string|undefined>
-
-export class EnvConfig extends Overridable {
-
-  constructor (
-    readonly env: Env    = {},
-    readonly cwd: string = '',
-    defaults: Partial<EnvConfig> = {}
-  ) {
-    super()
-    Object.defineProperty(this, 'env', { writable: true, enumerable: false })
-    Object.defineProperty(this, 'cwd', { writable: true, enumerable: false })
-    this.override(defaults)
-  }
-
-  getNumber <T> (name: string, fallback?: ()=>T): number|T {
-    if (name in this.env) {
-      const value = (this.env[name]??'').trim()
-      if (value === '') {
-        if (fallback) {
-          return fallback()
-        } else {
-          throw new EnvConfigError.Required(name, 'number')
-        }
-      }
-      const number = Number(value)
-      if (isNaN(number)) throw new EnvConfigError.Required(name, 'number')
-      return number
-    } else if (fallback) {
-      return fallback()
-    } else {
-      throw new EnvConfigError.Required(name, 'number')
-    }
-  }
-
-  getString <T> (name: string, fallback?: ()=>T): string|T {
-    if (name in this.env) {
-      return String(this.env[name] as string)
-    } else if (fallback) {
-      return fallback()
-    } else {
-      throw new EnvConfigError.Required(name, 'string')
-    }
-  }
-
-  getBoolean <T> (name: string, fallback?: ()=>T): boolean|T {
-    if (name in this.env) {
-      const value = (this.env[name]??'').trim()
-      return !EnvConfig.FALSE.includes(value)
-    } else if (fallback) {
-      return fallback()
-    } else {
-      throw new EnvConfigError.Required(name, 'boolean')
-      throw new Error(`The environment variable ${name} (boolean) is required.`)
-    }
-  }
-
-  static FALSE = [ '', 'false', 'no', '0' ]
-
-}
-
-export class EnvConfigError extends Error {
-
-  static Required = class EnvConfigRequiredError extends EnvConfigError {
-    constructor (name: string, type: string) {
-      super(`The environment variable ${name} must be a ${type}`)
-    }
-  }
-
 }

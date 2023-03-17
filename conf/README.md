@@ -32,9 +32,9 @@ export class MyConfig extends EnvConfig {
 
   /* To provide a default value pass a function that returns the default */
   myBooleanField
-    = this.getBoolean('MY_BOOLEAN_FIELD', () =>
-      this.getBoolean('MY_FLAG',          () =>
-      this.getBoolean('MY_OTHER_FLAG',    () => {
+    = this.getFlag('MY_BOOLEAN_FIELD', () =>
+      this.getFlag('MY_FLAG',          () =>
+      this.getFlag('MY_OTHER_FLAG',    () => {
         if (Math.random() > 0.5) {
           return true
         } else {
