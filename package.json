@@ -30,7 +30,7 @@
     "@types/node": "latest",
     "concurrently": "7.2.2",
 
-    "typescript":  "^4.9",
+    "typescript":  "^5",
     "typedoc":     "^0.23.25",
     "vitepress":   "1.0.0-alpha.10",
     "husky":       "^8.0.3",

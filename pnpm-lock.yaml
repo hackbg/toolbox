@@ -21,7 +21,7 @@ importers:
       rimraf: ^3.0.2
       signal-exit: ^3.0.7
       typedoc: ^0.23.25
-      typescript: ^4.9
+      typescript: ^5
       vitepress: 1.0.0-alpha.10
     dependencies:
       '@hackbg/4mat': link:4mat
@@ -37,13 +37,13 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/ubik': link:ubik
-      '@types/node': 18.14.2
+      '@types/node': 18.15.3
       concurrently: 7.2.2
       husky: 8.0.3
       lint-staged: 13.1.2
-      typedoc: 0.23.25_typescript@4.9.5
-      typescript: 4.9.5
-      vitepress: 1.0.0-alpha.10_@types+node@18.14.2
+      typedoc: 0.23.25_typescript@5.0.2
+      typescript: 5.0.2
+      vitepress: 1.0.0-alpha.10_@types+node@18.15.3
 
   4mat:
     specifiers:
@@ -615,8 +615,8 @@ packages:
     resolution: {integrity: sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==}
     dev: true
 
-  /@types/node/18.14.2:
-    resolution: {integrity: sha512-1uEQxww3DaghA0RxqHx0O0ppVlo43pJhepY51OxuQIKHpjbnYLA7vcdwioNPzIqmC2u3I/dmylcqjlh0e7AyUA==}
+  /@types/node/18.15.3:
+    resolution: {integrity: sha512-p6ua9zBxz5otCmbpb5D3U4B5Nanw6Pk3PPyX05xnxbB/fRv71N7CPmORg7uAD5P70T0xmx1pzAx/FUfa5X+3cw==}
     dev: true
 
   /@types/rimraf/3.0.2:
@@ -664,7 +664,7 @@ packages:
       vite: ^3.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 3.2.5_@types+node@18.14.2
+      vite: 3.2.5_@types+node@18.15.3
       vue: 3.2.37
     dev: true
 
@@ -2554,7 +2554,7 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /typedoc/0.23.25_typescript@4.9.5:
+  /typedoc/0.23.25_typescript@5.0.2:
     resolution: {integrity: sha512-O1he153qVyoCgJYSvIyY3bPP1wAJTegZfa6tL3APinSZhJOf8CSd8F/21M6ex8pUY/fuY6n0jAsT4fIuMGA6sA==}
     engines: {node: '>= 14.14'}
     hasBin: true
@@ -2565,7 +2565,7 @@ packages:
       marked: 4.2.12
       minimatch: 6.2.0
       shiki: 0.14.1
-      typescript: 4.9.5
+      typescript: 5.0.2
     dev: true
 
   /typescript/4.7.4:
@@ -2574,9 +2574,9 @@ packages:
     hasBin: true
     dev: true
 
-  /typescript/4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
+  /typescript/5.0.2:
+    resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
+    engines: {node: '>=12.20'}
     hasBin: true
     dev: true
 
@@ -2603,7 +2603,7 @@ packages:
       convert-source-map: 1.8.0
     dev: true
 
-  /vite/3.2.5_@types+node@18.14.2:
+  /vite/3.2.5_@types+node@18.15.3:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2628,7 +2628,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 18.14.2
+      '@types/node': 18.15.3
       esbuild: 0.15.18
       postcss: 8.4.21
       resolve: 1.22.1
@@ -2637,7 +2637,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.10_@types+node@18.14.2:
+  /vitepress/1.0.0-alpha.10_@types+node@18.15.3:
     resolution: {integrity: sha512-RGPU+YApj2jaYplAIJUe+2qlDks9FzPX1QGK+7NdGByeCCVZg6z9eYWjjvfvA/sgCtG3yeJE/4/jCwlv4Y8bVw==}
     hasBin: true
     dependencies:
@@ -2648,7 +2648,7 @@ packages:
       '@vueuse/core': 9.12.0_vue@3.2.37
       body-scroll-lock: 4.0.0-beta.0
       shiki: 0.11.1
-      vite: 3.2.5_@types+node@18.14.2
+      vite: 3.2.5_@types+node@18.15.3
       vue: 3.2.37
     transitivePeerDependencies:
       - '@algolia/client-search'
