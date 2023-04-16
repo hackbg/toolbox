@@ -431,12 +431,12 @@ export function waitStream (
   trail:      (data: string) => unknown = ()=>{}
 ): Promise<void> {
   return new Promise((resolve, reject)=>{
-    stream.on('error', error => {
+    stream.on('error', (error: any) => {
       reject(error)
       stream.off('data', waitStream_onData)
     })
     stream.on('data', waitStream_onData)
-    function waitStream_onData (data) {
+    function waitStream_onData (data: any) {
       const dataStr = String(data).trim()
       if (trail) trail(dataStr)
       if (dataStr.indexOf(expected)>-1) {
