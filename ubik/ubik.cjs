@@ -190,8 +190,8 @@ async function ubik (cwd, command, ...publishArgs) {
     const original    = readFileSync($('package.json'), 'utf8')
     const packageJson = JSON.parse(original)
     if (packageJson.ubik) throw new Error(
-      `This is already the modified, temporary package.json. Restore the original and try again ` +
-      `(e.g. "git checkout package.json")`
+      `This is already the modified, temporary package.json. Restore the original ` +
+      `(e.g. "mv package.json.real package.json" or "git checkout package.json") and try again`
     )
     return { packageJson }
   }
