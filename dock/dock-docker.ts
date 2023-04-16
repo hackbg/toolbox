@@ -179,17 +179,6 @@ class DockerImage extends Image {
 
 }
 
-/** Follow the output stream from a Dockerode container until it closes. */
-export async function follow (dockerode: DockerHandle, stream: any, callback: (data: any)=>void) {
-  await new Promise<void>((ok, fail)=>{
-    dockerode.modem.followProgress(stream, complete, callback)
-    function complete (err: any, _output: any) {
-      if (err) return fail(err)
-      ok()
-    }
-  })
-}
-
 class DockerContainer extends Container {
 
   container: Docker.Container|null = null
@@ -340,17 +329,15 @@ class DockerContainer extends Container {
 
   async waitLog (
     expected:     string,
+    logFilter?:   (data: string) => boolean,
     thenDetach?:  boolean,
-    waitSeconds?: number,
-    logFilter?:   (data: string) => boolean
   ): Promise<void> {
     if (!this.container) throw new Error.NoContainer()
     return waitUntilLogsSay(
       this.container,
       expected,
+      logFilter,
       thenDetach,
-      waitSeconds,
-      logFilter
     )
   }
 
@@ -403,44 +390,71 @@ class DockerContainer extends Container {
 
 }
 
+/** Follow the output stream from a Dockerode container until it closes. */
+export async function follow (
+  dockerode: DockerHandle,
+  stream:    any,
+  callback:  (data: any)=>void
+) {
+  await new Promise<void>((ok, fail)=>{
+    dockerode.modem.followProgress(stream, complete, callback)
+    function complete (err: any, _output: any) {
+      if (err) return fail(err)
+      ok()
+    }
+  })
+}
+
 /** (to the tune of "What does the fox say?") The caveman solution
   * to detecting when a service is ready to start receiving requests:
   * trail node logs until a certain string is encountered  */
-export function waitUntilLogsSay (
+export async function waitUntilLogsSay (
   container: Docker.Container,
   expected:  string,
-  thenDetach  = true,
-  waitSeconds = 7,
-  logFilter   = (data: string) => true
+  logFilter  = (data: string) => true,
+  thenDetach = true,
 ): Promise<void> {
   const id = container.id.slice(0,8)
   const log = new Console(`@hackbg/dock: ${id}`)
   log.info('Trailing logs, waiting for:', expected)
-  return new Promise(async (ok, fail)=>{
+  const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
+  if (!stream) throw new Error('no stream returned from container')
+  const trail = (data:string)=>{if (logFilter(data)) log.info(data)}
+  return await waitStream(stream as any, expected, thenDetach, trail)
+}
 
-    const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
-    if (!stream) return fail(new Error('no stream returned from container'))
-    stream.on('error', error => fail(error))
-    stream.on('data', function ondata (data) {
-
+/* Is this equivalent to follow() and, if so, which implementation to keep? */
+export function waitStream (
+  stream:     { on: Function, off: Function, destroy: Function },
+  expected:   string,
+  thenDetach: boolean = true,
+  trail:      (data: string) => unknown = ()=>{}
+): Promise<void> {
+  return new Promise((resolve, reject)=>{
+    stream.on('error', error => {
+      reject(error)
+      stream.off('data', waitStream_onData)
+    })
+    stream.on('data', waitStream_onData)
+    function waitStream_onData (data) {
       const dataStr = String(data).trim()
-      if (logFilter(dataStr)) {
-        log.info(dataStr)
-      }
-
+      if (trail) trail(dataStr)
       if (dataStr.indexOf(expected)>-1) {
         log.info(bold(`Found expected message:`), expected)
-        stream.off('data', ondata)
-        //@ts-ignore
+        stream.off('data', waitStream_onData)
         if (thenDetach) stream.destroy()
-        if (waitSeconds > 0) {
-          log.info(bold(`Waiting ${waitSeconds} seconds`), `for good measure...`)
-          return setTimeout(ok, waitSeconds * 1000)
-        }
+        resolve()
       }
+    }
+  })
+}
 
-    })
-
+export function waitSeconds (seconds = 0): Promise<void> {
+  return new Promise(resolve=>{
+    if (seconds > 0) {
+      log.info(bold(`Waiting ${seconds} seconds`), `for good measure...`)
+      return setTimeout(resolve, seconds * 1000)
+    }
   })
 }
 

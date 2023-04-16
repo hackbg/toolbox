@@ -161,10 +161,9 @@ export abstract class Container {
 
   /** Wait for the container logs to emit an expected string. */
   abstract waitLog (
-    expected:     string,
-    thenDetach?:  boolean,
-    waitSeconds?: number,
-    logFilter?:   (data: string) => boolean
+    expected:    string,
+    logFilter?:  (data: string) => boolean,
+    thenDetach?: boolean,
   ): Promise<void>
 
   /** Execute a command in an existing container. */
