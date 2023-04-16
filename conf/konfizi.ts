@@ -60,9 +60,10 @@ export class Environment {
 export class Config {
 
   constructor (
-    options: Partial<Config> = {},
     readonly environment: Environment = Environment.initial
-  ) {
+  ) {}
+
+  override (options: object) {
     override(false, this, options)
   }
 
