@@ -64,7 +64,7 @@ export class Config {
   ) {}
 
   override (options: object) {
-    override(false, this, options)
+    overrideFiltered(false, this, options)
   }
 
   getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
@@ -115,7 +115,7 @@ export { EnvConfigError as Error }
   **/
 export class Overridable {
   override (options: object = {}) {
-    override(false, this, options)
+    overrideFiltered(false, this, options)
   }
   /** Return copy of self with overridden properties. */
   where (options: Partial<this> = {}) {
@@ -126,7 +126,7 @@ export class Overridable {
 type valof<T> = T[keyof T]
 
 /** Override only allowed properties. */
-export function override (
+export function overrideFiltered (
   /** Whether to fail on unexpected properties. */
   strict:    boolean,
   /** The object being overridden. */
