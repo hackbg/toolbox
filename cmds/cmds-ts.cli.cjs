@@ -10,12 +10,21 @@ if (process.env.CMDS_TS) {
     commands.run(process.argv.slice(3))
   })
 } else {
-  // Restart with Ganesha TypeScript loader
   console.info('Enabling TypeScript support...')
   if (process.env.CMDS_DEBUG) enableDebugMode()
-  process.env.CMDS_TS = 1
-  const argv = [process.argv[0], require.resolve('@hackbg/ganesha'), ...process.argv.slice(1)]
-  require('@hackbg/ganesha').main(argv)
+  // Check if ganesha is available
+  let ganesha
+  try {
+    ganesha = require.resolve('@hackbg/ganesha')
+  } catch (e) {
+    console.warn('@hackbg/ganesha not installed - scripting in TypeScript not available.')
+  }
+  // If ganesha is available restart through ganesha
+  if (ganesha) {
+    process.env.CMDS_TS = 1
+    const argv = [process.argv[0], ganesha, ...process.argv.slice(1)]
+    require('@hackbg/ganesha').main(argv)
+  }
 }
 
 function enableDebugMode () {
