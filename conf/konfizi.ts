@@ -20,8 +20,7 @@ export class Environment {
     } else if (fallback) {
       return fallback()
     } else {
-      throw new EnvConfigError.Required(name, 'boolean')
-      throw new Error(`The environment variable ${name} (boolean) is required.`)
+      throw new ConfigError.Required(name, 'boolean')
     }
   }
 
@@ -31,7 +30,7 @@ export class Environment {
     } else if (fallback) {
       return fallback()
     } else {
-      throw new EnvConfigError.Required(name, 'string')
+      throw new ConfigError.Required(name, 'string')
     }
   }
 
@@ -42,16 +41,16 @@ export class Environment {
         if (fallback) {
           return fallback()
         } else {
-          throw new EnvConfigError.Required(name, 'number')
+          throw new ConfigError.Required(name, 'number')
         }
       }
       const number = Number(value)
-      if (isNaN(number)) throw new EnvConfigError.Required(name, 'number')
+      if (isNaN(number)) throw new ConfigError.Required(name, 'number')
       return number
     } else if (fallback) {
       return fallback()
     } else {
-      throw new EnvConfigError.Required(name, 'number')
+      throw new ConfigError.Required(name, 'number')
     }
   }
 
@@ -81,17 +80,15 @@ export class Config {
 
 }
 
-class EnvConfigError extends Error {
+export class ConfigError extends Error {
 
-  static Required = class EnvConfigRequiredError extends EnvConfigError {
+  static Required = class EnvConfigRequiredError extends ConfigError {
     constructor (name: string, type: string) {
       super(`The environment variable ${name} must be a ${type}`)
     }
   }
 
 }
-
-export { EnvConfigError as Error }
 
 /** A ***value object*** that allows its meaningful properties to be overridden.
   * For the override to work, empty properties must be defined as:

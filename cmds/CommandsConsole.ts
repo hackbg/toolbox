@@ -8,7 +8,7 @@ export function CommandsConsoleMixin <T extends new (...args: any[]) => Console>
   Console: T
 ) {
   return class extends Console {
-    label = '@hackbg/cmds'
+    label = this.constructor.name
 
     // Usage of Command API
     usage ({ constructor: { name }, commandTree }: CommandContext) {
