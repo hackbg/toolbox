@@ -25,7 +25,6 @@ export interface Console {
 
 export interface ConsoleOptions {
   label:  string
-  indent: number
   parent: Console | typeof console
 }
 
@@ -38,9 +37,7 @@ export class Console extends defineCallable(
   constructor (label?: string, options: Partial<ConsoleOptions> = {}) {
     super()
     this.label  = options.label  ?? label ?? ''
-    this.indent = options.indent ?? 0
     this.parent = options.parent ?? console
-    this.updateIndent(this.label)
     hideProperties(this, 'prefixes', 'parent')
   }
 
@@ -50,32 +47,20 @@ export class Console extends defineCallable(
 
   label:  ConsoleOptions["label"]
 
-  indent: ConsoleOptions["indent"]
-
   parent: Console | typeof console
 
   prefixes = {
-    log:   this.definePrefix('   LOG │', x => chalk.bold(chalk.green(x))),
-    info:  this.definePrefix('  INFO │', x => chalk.bold(chalk.blue(x))),
-    warn:  this.definePrefix('  WARN │', x => chalk.bold(chalk.yellow(x))),
-    error: this.definePrefix(' ERROR │', x => chalk.bold(chalk.red(x))),
-    debug: this.definePrefix(' DEBUG │', x => chalk.bold(chalk.gray(x))),
-    trace: this.definePrefix(' TRACE │', x => chalk.bold(chalk.magenta(x))),
-    table: this.definePrefix(' TABLE │', x => chalk.bold(chalk.cyan(x))),
+    log:   this.definePrefix('  LOG ', x => chalk.inverse(chalk.green(x.slice(0, 6)))   + chalk.green(x.slice(6))),
+    info:  this.definePrefix(' INFO ', x => chalk.inverse(chalk.blue(x.slice(0, 6)))    + chalk.blue(x.slice(6))),
+    warn:  this.definePrefix(' WARN ', x => chalk.inverse(chalk.yellow(x.slice(0, 6)))  + chalk.yellow(x.slice(6))),
+    error: this.definePrefix('ERROR ', x => chalk.inverse(chalk.red(x.slice(0, 6)))     + chalk.red(x.slice(6))),
+    debug: this.definePrefix('DEBUG ', x => chalk.inverse(chalk.gray(x.slice(0, 6)))    + chalk.gray(x.slice(6))),
+    trace: this.definePrefix('TRACE ', x => chalk.inverse(chalk.magenta(x.slice(0, 6))) + chalk.magenta(x.slice(6))),
+    table: this.definePrefix('TABLE ', x => chalk.inverse(chalk.cyan(x.slice(0, 6)))    + chalk.cyan(x.slice(6))),
   }
 
   definePrefix (prefix: string, format: (text: string) => string): () => string {
-    return () => {
-      const indent = this.updateIndent(prefix)
-      return format(`${prefix} ${this.label.padEnd(indent)} │`)
-    }
-  }
-
-  updateIndent (str: string = ''): number {
-    if (this.parent instanceof Console) {
-      this.parent.updateIndent(this.label)
-    }
-    return this.indent = Math.max(this.indent, str.length)
+    return () => format(`${prefix} ${this.label}`)
   }
 
   child (label: string, options: Partial<ConsoleOptions> = {}) {
