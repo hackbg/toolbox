@@ -19,11 +19,15 @@ import * as acorn from 'acorn'
 import * as acornWalk from 'acorn-walk'
 import * as astring from 'astring'
 
+// To match files en masse
+import fastGlob from 'fast-glob'
+
 import { Console, bold } from '@hackbg/logs'
 
 const ubikPackageJson = resolve(dirname(fileURLToPath(import.meta.url)), 'package.json')
 const ubikVersion     = JSON.parse(readFileSync(ubikPackageJson, 'utf8')).version
 const console         = new Console(`Ubik ${ubikVersion}`)
+console.warn(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
@@ -46,7 +50,7 @@ const distJsExt  = '.dist.js'
 const distExts   = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
 
 // Changes x.a to x.b:
-const replaceExtension = (x, a, b) => `${basename(x, a)}${b}`
+const replaceExtension = (x, a, b) => join(dirname(x), `${basename(x, a)}${b}`)
 
 // Determine which package manager to use:
 let packageManager = 'npm'
@@ -57,8 +61,6 @@ console.info(`Using package manager:`, bold(packageManager), `(set`, bold('UBIK_
 
 // Main function:
 export default async function ubik (cwd, command, ...publishArgs) {
-
-  console.log(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 
   // Dispatch command.
   switch (command) {
@@ -90,7 +92,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     /** First deduplication: Make sure the Git tag doesn't exist. */
     const tag = ensureFreshTag(name, version)
     /** Second deduplication: Make sure the library is not already published. */
-    if (await isPublished(name, version)) return
+    if (await isPublished(name, version, wet)) return
     /** Print the contents of package.json if we'll be publishing. */
     console.log('Original package.json:', JSON.stringify(packageJson))
     /** In wet mode, try a dry run first. */
@@ -132,14 +134,18 @@ export default async function ubik (cwd, command, ...publishArgs) {
         unlinkSync($('package.json'))
         copyFileSync($('package.json.bak'), $('package.json'))
         unlinkSync($('package.json.bak'))
-        collectedFiles.forEach(file=>{ console.info(`Deleting ${file}`); unlinkSync(file) })
+        const console2 = console.sub('(deleting generated files)')
+        collectedFiles.forEach(file=>{
+          console2.log(file);
+          unlinkSync(file)
+        })
       } else {
         console.warn("Keeping modified package.json and dist files")
       }
     }
 
     function prepareJavaScript () {
-      console.info('No TypeScript detected, publishing as-is')
+      console.log('No TypeScript detected, publishing as-is')
       // Publish the package, unmodified, to NPM
       console.log(`${packageManager} publish`, ...publishArgs)
       runPackageManager('publish', ...publishArgs)
@@ -205,17 +211,20 @@ export default async function ubik (cwd, command, ...publishArgs) {
         `Increment version in package.json or delete tag to proceed.`
       throw new Error(msg)
     } catch (e) {
-      console.info(`\nGit tag "${tag}" not found, proceeding...`)
+      console.log(`Git tag "${tag}" not found`)
       return tag
     }
   }
 
-  async function isPublished (name, version) {
+  async function isPublished (name, version, wet) {
     const url = `https://registry.npmjs.org/${name}/${version}`
     const response = await fetch(url)
     if (response.status === 200) {
-      console.log(`\n${name} ${version} already exists, not publishing:`, url)
-      return true
+      console.log(`NPM package ${name} ${version} already exists.`)
+      if (wet) {
+        console.log(`OK, not publishing:`, url)
+        return true
+      }
     } else if (response.status !== 404) {
       throw new Error(`ubik: NPM returned ${response.statusCode}`)
     }
@@ -245,7 +254,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
   // Compile TS -> JS
   async function compileTypeScript () {
-    console.info('Compiling TypeScript:\n')
+    console.log('Compiling TypeScript...')
     const result = await concurrently([
       // TS -> ESM
       `${TSC} --outDir ${esmOut} --target es2016 --module es6 --declaration --declarationDir ${dtsOut}`,
@@ -271,33 +280,34 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const collectedFiles = new Set()
 
     // Collect output in package root and add it to "files" in package.json:
-    console.log('\nFlattening package...')
+    console.log('Flattening package...')
     const files = [
-      ...collect(esmOut, '.js',   usedEsmExt),
-      ...collect(cjsOut, '.js',   usedCjsExt),
-      ...collect(dtsOut, '.d.ts', distDtsExt),
+      ...await collectFiles('ESM', esmOut, '.js',   usedEsmExt),
+      ...await collectFiles('CJS', cjsOut, '.js',   usedCjsExt),
+      ...await collectFiles('DTS', dtsOut, '.d.ts', distDtsExt),
     ]
+
     packageJson.files = [...new Set([...packageJson.files||[], ...files])].sort()
 
-    console.log('\nRemoving dist directories...')
+    console.log('Removing dist directories...')
     await cleanDirs()
 
     return collectedFiles
 
-    function collect (dir, ext1, ext2) {
-      console.info(`  Collecting from "${dir}/*${ext1}" into "./*${ext2}"`)
-      const inputs  = readdirSync($(dir))
+    async function collectFiles (name, dir, ext1, ext2) {
+      const { log } = console.sub(`(collecting ${name})`)
+      log(`Collecting from "${dir}/**/*${ext1}" into "./**/*${ext2}"`)
+      const inputs = await fastGlob([`${dir}/*${ext1}`, `${dir}/**/*${ext1}`])
       const outputs = []
       for (const file of inputs) {
-        if (file.endsWith(ext1)) {
-          const srcFile = $(dir, file)
-          const newFile = replaceExtension(file, ext1, ext2)
-          console.log(`    Moving ${toRel(srcFile)} -> ${newFile}`)
-          copyFileSync(srcFile, newFile)
-          unlinkSync(srcFile)
-          outputs.push(newFile)
-          collectedFiles.add(newFile)
-        }
+        if (!file.endsWith(ext1)) continue
+        const srcFile = $(file)
+        const newFile = replaceExtension(relative(dir, file), ext1, ext2)
+        log(`${toRel(srcFile)} -> ${toRel(newFile)}`)
+        copyFileSync(srcFile, newFile)
+        unlinkSync(srcFile)
+        outputs.push(newFile)
+        collectedFiles.add(newFile)
       }
       return outputs
     }
@@ -332,7 +342,8 @@ export default async function ubik (cwd, command, ...publishArgs) {
   }
 
   async function patchESMImports (packageJson) {
-    console.info('\nPatching ESM imports...')
+    const console2 = console.sub('(patching ESM)')
+    console.log('Patching ESM imports...')
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt } = getExtensions(isESModule)
     const declarationsToPatch = [
@@ -342,18 +353,14 @@ export default async function ubik (cwd, command, ...publishArgs) {
       'ExportAllDeclaration',
       'ExportNamedDeclaration'
     ]
-
     for (const file of packageJson.files.filter(x=>x.endsWith(usedEsmExt))) {
-
-      console.info('  Patching', file)
-
+      const console3 = console2.sub(file)
+      console3.log('Patching...')
       const ast = acorn.parse(readFileSync(file, 'utf8'), {
         ecmaVersion: process.env.UBIK_ECMA||'latest',
         sourceType: 'module'
       })
-
       let modified = false
-
       for (const declaration of ast.body) {
         if (!declarationsToPatch.includes(declaration.type) || !declaration.source?.value) continue
         const oldValue     = declaration.source.value
@@ -361,24 +368,20 @@ export default async function ubik (cwd, command, ...publishArgs) {
         const isNotPatched = !oldValue.endsWith(usedEsmExt)
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}${usedEsmExt}`
-          console.info('    ', oldValue, '->', newValue)
+          console3.log(oldValue, '->', newValue)
           declaration.source.value = newValue
           modified = true
-        } else {
-          console.info('    ', oldValue, '->', oldValue)
         }
       }
-
       if (modified) {
         writeFileSync(file, astring.generate(ast), 'utf8')
       }
-
     }
-
   }
 
   async function patchDTSImports (packageJson) {
-    console.info('\nPatching DTS imports...')
+    const console2 = console.sub('(patching DTS)')
+    console2.log('Patching DTS imports...')
     const declarationsToPatch = [
       'ImportDeclaration',
       'ExportDeclaration',
@@ -387,7 +390,8 @@ export default async function ubik (cwd, command, ...publishArgs) {
       'ExportNamedDeclaration'
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(distDtsExt))) {
-      console.info('  Patching', file)
+      const console3 = console2.sub(file)
+      console3.log('Patching...')
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source, { parser: recastTS })
       let modified = false
@@ -398,11 +402,9 @@ export default async function ubik (cwd, command, ...publishArgs) {
         const isNotPatched = !oldValue.endsWith(distDtsExt)
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}.dist`
-          console.info('    ', oldValue, '->', newValue)
+          console3.log(oldValue, '->', newValue)
           declaration.source.value = newValue
           modified = true
-        } else {
-          console.info('    ', oldValue, 'left as is')
         }
       }
       if (modified) {
@@ -412,50 +414,42 @@ export default async function ubik (cwd, command, ...publishArgs) {
   }
 
   async function patchCJSRequires (packageJson) {
-    console.info('Patching CJS requires...')
+    const console2 = console.sub('(patching CJS)')
+    console2.log('Patching CJS requires...')
     const isESModule = (packageJson.type === 'module')
     const { usedCjsExt } = getExtensions(isESModule)
     for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
-
-      console.info('  Patching', file)
-
+      const console3 = console2.sub(file)
+      console3.log('Patching...')
       const ast = acorn.parse(readFileSync(file, 'utf8'), {
         ecmaVersion: process.env.UBIK_ECMA||'latest',
         sourceType: 'module',
         locations:  true
       })
-
       let modified = false
-
       acornWalk.simple(ast, {
-
         CallExpression (node) {
-
           const { callee: { type, name }, loc: { start: { line, column } } } = node
           const args = node['arguments']
-
           if (
             type === 'Identifier' &&
             name === 'require' // GOTCHA: if "require" is renamed to something else, idk
           ) {
-
             if (args.length === 1 && args[0].type === 'Literal') {
               const value = args[0].value
               if (value.startsWith('./') || value.startsWith('../')) {
                 const target = `${resolve(dirname(file), value)}.ts`
                 if (existsSync(target)) {
                   const newValue = `${value}${usedCjsExt}`
-                  console.info(`    require("${value}") -> require("${newValue}")`)
+                  console3.log(`require("${value}") -> require("${newValue}")`)
                   args[0].value = newValue
                   modified = true
                 } else {
-                  console.info(`    require("${value}"): ${relative(cwd, target)} not found, ignoring`)
+                  console3.log(`require("${value}"): ${relative(cwd, target)} not found, ignoring`)
                 }
-              } else {
-                console.info(`    require("${value}") -> require("${value}")`)
               }
             } else {
-              console.warn(
+              console3.warn(
                 `Non-standard require() call encountered at ${file}:${line}:${column}. `+
                 `This library only patches calls of the format "require('./my-module')".'\n` +
                 `File an issue at https://github.com/hackbg/toolbox if you need ` +

@@ -17,7 +17,7 @@
     "@hackbg/4mat": "workspace:1",
     "@hackbg/file": "workspace:1",
     "@hackbg/cmds": "workspace:1.2.2",
-    "@hackbg/logs": "workspace:1",
+    "@hackbg/logs": "workspace:2",
     "@hackbg/port": "workspace:1",
     "@hackbg/spec": "workspace:1",
     "bech32":      "^2.0.0",

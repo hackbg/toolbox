@@ -11,7 +11,7 @@
   "files":        [ "README.md", "file.ts" ],
   "dependencies": {
     "@hackbg/4mat":   "workspace:^1",
-    "@hackbg/logs":   "workspace:^1",
+    "@hackbg/logs":   "workspace:^2",
     "js-yaml":        "^4.1.0",
     "mkdirp":         "^1.0.4",
     "recursive-copy": "^2.0.13",

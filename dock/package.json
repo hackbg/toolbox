@@ -12,7 +12,7 @@
   "dependencies": {
     "colors":       "1.4.0",
     "dockerode":    "^3.3.4",
-    "@hackbg/logs": "workspace:^1",
+    "@hackbg/logs": "workspace:^2",
     "@hackbg/oops": "workspace:^1.0.1",
     "@hackbg/file": "workspace:^1"
   },

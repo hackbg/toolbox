@@ -12,7 +12,7 @@
   ],
   "dependencies": {
     "exponential-backoff": "^3.1.0",
-    "@hackbg/logs": "workspace:*"
+    "@hackbg/logs": "workspace:^2"
   },
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",

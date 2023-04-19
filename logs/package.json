@@ -2,7 +2,7 @@
   "name": "@hackbg/logs",
   "main": "logs.mjs",
   "type": "module",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "types": "logs.d.ts",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
@@ -13,8 +13,7 @@
   "dependencies": {
     "@hackbg/allo": "workspace:^1",
     "@hackbg/hide": "workspace:^1",
-    "chalk": "^4",
-    "@types/chalk": "^2.2.0"
+    "chalk": "^4"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

@@ -19,7 +19,7 @@
     "./cmds-ts.cli.cjs": "./cmds-ts.cli.cjs"
   },
   "dependencies": {
-    "@hackbg/logs": "workspace:^1",
+    "@hackbg/logs": "workspace:^2",
     "@hackbg/task": "workspace:^1",
     "@hackbg/time": "workspace:^1",
     "@hackbg/hide": "workspace:^1"
