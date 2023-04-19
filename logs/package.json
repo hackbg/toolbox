@@ -1,18 +1,20 @@
 {
   "name": "@hackbg/logs",
-  "version": "1.1.1",
-  "main": "logs.ts",
+  "main": "logs.mjs",
   "type": "module",
+  "version": "1.2.0",
+  "types": "logs.d.ts",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "logs"},
   "license": "MIT",
   "description": "Define custom console loggers.",
-  "files": [ "README.md", "logs.ts" ],
+  "files": [ "README.md", "logs.mjs", "logs.d.ts" ],
   "dependencies": {
     "@hackbg/allo": "workspace:^1",
     "@hackbg/hide": "workspace:^1",
-    "chalk": "^4"
+    "chalk": "^4",
+    "@types/chalk": "^2.2.0"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

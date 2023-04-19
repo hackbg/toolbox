@@ -1,25 +1,29 @@
-#!/usr/bin/env node
-
 // Node natives
-const {extname, resolve, basename, dirname, relative, join, isAbsolute} = require('path')
-const {existsSync, readFileSync, writeFileSync, readdirSync, copyFileSync, unlinkSync} = require('fs')
-const {execSync, execFileSync} = require('child_process')
-const {request} = require('https')
-const {fileURLToPath} = require('url')
-const process = require('process')
+import {extname, resolve, basename, dirname, relative, join, isAbsolute} from 'node:path'
+import {existsSync, readFileSync, writeFileSync, readdirSync, copyFileSync, unlinkSync} from 'node:fs'
+import {execSync, execFileSync} from 'node:child_process'
+import {request} from 'node:https'
+import {fileURLToPath} from 'node:url'
+import process from 'node:process'
 
 // To bail early if the package is already uploaded
-const fetch = require('node-fetch')
+import fetch from 'node-fetch'
 
 // To speed things up - runs ESM and CJS compilations in paralle
-const concurrently = require('concurrently')
+import concurrently from 'concurrently'
 
 // To fix import statements after compiling to ESM
-const recast    = require('recast')
-const recastTS  = require('recast/parsers/typescript')
-const acorn     = require('acorn')
-const acornWalk = require('acorn-walk')
-const astring   = require('astring')
+import recast from 'recast'
+import recastTS from './ubik.shim.cjs'
+import * as acorn from 'acorn'
+import * as acornWalk from 'acorn-walk'
+import * as astring from 'astring'
+
+import { Console, bold } from '@hackbg/logs'
+
+const ubikPackageJson = resolve(dirname(fileURLToPath(import.meta.url)), 'package.json')
+const ubikVersion     = JSON.parse(readFileSync(ubikPackageJson, 'utf8')).version
+const console         = new Console(`Ubik ${ubikVersion}`)
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
@@ -29,17 +33,17 @@ const boxen = import('boxen')
 const TSC = process.env.TSC || 'tsc'
 
 // Temporary output directories
-const dtsOut = 'dist/dts'
-const esmOut = 'dist/esm'
-const cjsOut = 'dist/cjs'
+const dtsOut   = 'dist/dts'
+const esmOut   = 'dist/esm'
+const cjsOut   = 'dist/cjs'
 const distDirs = [dtsOut, esmOut, cjsOut]
 
 // Output extensions
 const distDtsExt = '.dist.d.ts'
 const distEsmExt = '.dist.mjs'
 const distCjsExt = '.dist.cjs'
-const distJsExt = '.dist.js'
-const distExts = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
+const distJsExt  = '.dist.js'
+const distExts   = [distDtsExt, distEsmExt, distCjsExt, distJsExt]
 
 // Changes x.a to x.b:
 const replaceExtension = (x, a, b) => `${basename(x, a)}${b}`
@@ -49,15 +53,12 @@ let packageManager = 'npm'
 if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_MANAGER
 try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
 try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
-console.info('\nUsing package manager:', packageManager)
-
-// Export for programmatical reuse:
-module.exports = module.exports.default = ubik
+console.info(`Using package manager:`, bold(packageManager), `(set`, bold('UBIK_PACKAGE_MANAGER'), 'to change)')
 
 // Main function:
-async function ubik (cwd, command, ...publishArgs) {
+export default async function ubik (cwd, command, ...publishArgs) {
 
-  console.log(`Ubik v${require(resolve(__dirname, 'package.json')).version}`)
+  console.log(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 
   // Dispatch command.
   switch (command) {
@@ -69,12 +70,11 @@ async function ubik (cwd, command, ...publishArgs) {
   }
 
   function usage () {
-    console.log(`
-    Usage:
-      ubik fix   - apply compatibility fix without publishing
-      ubik dry   - test publishing of package with compatibility fix
-      ubik wet   - publish package with compatibility fix
-      ubik clean - delete compiled files`)
+    console.info(`Usage:\n
+                  ${bold('ubik fix')}   - apply compatibility fix without publishing
+                  ${bold('ubik dry')}   - test publishing of package with compatibility fix
+                  ${bold('ubik wet')}   - publish package with compatibility fix
+                  ${bold('ubik clean')} - delete compiled files`)
   }
 
   /** Perform a release. */
@@ -92,14 +92,14 @@ async function ubik (cwd, command, ...publishArgs) {
     /** Second deduplication: Make sure the library is not already published. */
     if (await isPublished(name, version)) return
     /** Print the contents of package.json if we'll be publishing. */
-    console.log('\nOriginal package.json:', packageJson, '\n')
+    console.log('Original package.json:', JSON.stringify(packageJson))
     /** In wet mode, try a dry run first. */
     if (wet) preliminaryDryRun(); else makeSureRunIsDry(publishArgs)
     const isTypeScript = (packageJson.main||'').endsWith('.ts')
     try {
       /** Do the TypeScript magic if it's necessary. */
       if (isTypeScript) await prepareTypeScript(); else prepareJavaScript()
-      if (wet) performRelease(); else console.log('\nDry run successful:', tag)
+      if (wet) performRelease(); else console.log('Dry run successful:', tag)
     } finally {
       /** Restore everything to a (near-)pristine state. */
       await cleanup()
@@ -116,37 +116,37 @@ async function ubik (cwd, command, ...publishArgs) {
       await patchDTSImports(packageJson)
       await patchCJSRequires(packageJson)
       // Print the modified package.json and the contents of the package
-      console.warn("\nBacking up package.json to package.json.real")
-      copyFileSync($('package.json'), $('package.json.real'))
-      console.warn("\nTemporarily making package.json look like this:", packageJson)
-      copyFileSync($('package.json'), $('package.json.real'))
+      console.warn("Backing up package.json to package.json.bak")
+      copyFileSync($('package.json'), $('package.json.bak'))
+      console.warn("Temporarily making package.json look like this:", JSON.stringify(packageJson))
+      copyFileSync($('package.json'), $('package.json.bak'))
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
       console.log()
       execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
       // Publish the package, thus modified, to NPM
-      console.log(`\n${packageManager} publish --no-git-checks`, ...publishArgs)
+      console.log(`${packageManager} publish --no-git-checks`, ...publishArgs)
       runPackageManager('publish', '--no-git-checks',  ...publishArgs)
       // Restore the original package.json and remove the dist files
       if (!keep) {
-        console.warn("\nRestoring original package.json...")
+        console.warn("Restoring original package.json...")
         unlinkSync($('package.json'))
-        copyFileSync($('package.json.real'), $('package.json'))
-        unlinkSync($('package.json.real'))
+        copyFileSync($('package.json.bak'), $('package.json'))
+        unlinkSync($('package.json.bak'))
         collectedFiles.forEach(file=>{ console.info(`Deleting ${file}`); unlinkSync(file) })
       } else {
-        console.warn("\nKeeping modified package.json and dist files")
+        console.warn("Keeping modified package.json and dist files")
       }
     }
 
     function prepareJavaScript () {
       console.info('No TypeScript detected, publishing as-is')
       // Publish the package, unmodified, to NPM
-      console.log(`\n${packageManager} publish`, ...publishArgs)
+      console.log(`${packageManager} publish`, ...publishArgs)
       runPackageManager('publish', ...publishArgs)
     }
 
     function performRelease () {
-      console.log('\nPublished:', tag)
+      console.log('Published:', tag)
       // Add Git tag
       if (!process.env.IZOMORF_NO_TAG) {
         execSync(`git tag -f "${tag}"`, { cwd, stdio: 'inherit' })
@@ -161,7 +161,7 @@ async function ubik (cwd, command, ...publishArgs) {
         console.info((await boxen).default([
           "WARNING: Not restoring original package.json; keeping built artifacts.",
           "Make sure you don't commit compilation results!",
-          'On-demand compilation of TS might not work until you restore package.json.real',
+          'On-demand compilation of TS might not work until you restore package.json.bak',
         ].join('\n'), { padding: 1, margin: 1 }))
       } else {
         if (isTypeScript) {
@@ -191,7 +191,7 @@ async function ubik (cwd, command, ...publishArgs) {
     const packageJson = JSON.parse(original)
     if (packageJson.ubik) throw new Error(
       `This is already the modified, temporary package.json. Restore the original ` +
-      `(e.g. "mv package.json.real package.json" or "git checkout package.json") and try again`
+      `(e.g. "mv package.json.bak package.json" or "git checkout package.json") and try again`
     )
     return { packageJson }
   }
@@ -412,7 +412,7 @@ async function ubik (cwd, command, ...publishArgs) {
   }
 
   async function patchCJSRequires (packageJson) {
-    console.info('\nPatching CJS requires...')
+    console.info('Patching CJS requires...')
     const isESModule = (packageJson.type === 'module')
     const { usedCjsExt } = getExtensions(isESModule)
     for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
@@ -476,17 +476,3 @@ async function ubik (cwd, command, ...publishArgs) {
   }
 
 }
-
-// Entry point:
-if (require.main === module) ubik(process.cwd(), ...process.argv.slice(2))
-  .then(()=>process.exit(0))
-  .catch(async ({name, message, stack})=>{
-    // Format errors:
-    const RE_FRAME = new RegExp("(file:///.+)(:\\d+:\\d+\\\))")
-    const cwd   = process.cwd()
-    const trim  = x => x.slice(3).replace(RE_FRAME, (y, a, b) => relative(cwd, fileURLToPath(a))+b)
-    const frame = x => '  │' + trim(x)
-    const error = `${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`
-    console.error(error)
-    process.exit(1)
-  })

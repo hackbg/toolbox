@@ -1,14 +1,15 @@
 {
   "name": "@hackbg/allo",
-  "version": "1.0.1",
-  "main": "allo.ts",
+  "main": "allo.js",
   "type": "module",
+  "version": "1.0.1",
+  "types": "allo.d.ts",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "allo"},
   "license": "MIT",
   "description": "Make objects callable.",
-  "files": [ "README.md", "allo.ts" ],
+  "files": [ "README.md", "allo.js", "allo.d.ts" ],
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"
   },
