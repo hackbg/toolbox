@@ -4,14 +4,14 @@ importers:
 
   .:
     specifiers:
-      '@hackbg/4mat': workspace:1
-      '@hackbg/cmds': workspace:1.2.2
-      '@hackbg/dock': workspace:1.3
-      '@hackbg/file': workspace:1
-      '@hackbg/logs': workspace:2
-      '@hackbg/port': workspace:1
-      '@hackbg/spec': workspace:1
-      '@hackbg/ubik': workspace:^1.3.8
+      '@hackbg/4mat': workspace:*
+      '@hackbg/cmds': workspace:*
+      '@hackbg/dock': workspace:*
+      '@hackbg/file': workspace:*
+      '@hackbg/logs': workspace:*
+      '@hackbg/port': workspace:*
+      '@hackbg/spec': workspace:*
+      '@hackbg/ubik': workspace:*
       '@types/node': latest
       bech32: ^2.0.0
       concurrently: 7.2.2
