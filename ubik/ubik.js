@@ -35,7 +35,7 @@ console.warn(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 const boxen = import('boxen')
 
 // TypeScript compiler
-const TSC = process.env.TSC || 'node_modules/.bin/tsc'
+const TSC = process.env.TSC || 'tsc'
 
 // Temporary output directories
 const dtsOut   = 'dist/dts'
