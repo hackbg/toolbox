@@ -6,7 +6,7 @@
   "bin": { "ubik": "./ubik.cli.js" },
   "description": "Publish TypeScript packages as both CJS and ESM, fixing ESM extensions for Node 16+.",
   "files": [ "README.md", "ubik.js" ],
-  "scripts": { "ubik": "./ubik.js" },
+  "scripts": { "ubik": "./ubik.js", "test": "./ubik.test.js" },
   "dependencies": {
     "@types/estree": "^1.0.0",
     "acorn": "^8.8.2",

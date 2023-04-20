@@ -19,4 +19,3 @@ ubik(
   console.error(`${name}: ${message}\n${(stack||'').split('\n').slice(1).map(frame).join('\n')}`)
   process.exit(1)
 })
-

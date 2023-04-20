@@ -261,8 +261,10 @@ importers:
   ubik/example:
     specifiers:
       '@hackbg/ubik': workspace:..
+      typescript: '*'
     devDependencies:
       '@hackbg/ubik': link:..
+      typescript: 5.0.2
 
 packages:
 

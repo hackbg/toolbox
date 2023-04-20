@@ -1,0 +1,13 @@
+{
+  "name": "@hackbg/ubik-example",
+  "version": "0.0.0",
+  "main": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@hackbg/ubik": "workspace:..",
+    "typescript": "*"
+  },
+  "scripts": {
+    "ubik": "ubik"
+  }
+}

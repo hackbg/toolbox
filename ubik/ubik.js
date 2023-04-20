@@ -9,8 +9,9 @@ import process from 'node:process'
 // To bail early if the package is already uploaded
 import fetch from 'node-fetch'
 
-// To speed things up - runs ESM and CJS compilations in paralle
+// To speed things up - runs ESM and CJS compilations in parallel
 import concurrently from 'concurrently'
+import rimraf from 'rimraf'
 
 // To fix import statements after compiling to ESM
 import recast from 'recast'
@@ -34,7 +35,7 @@ console.warn(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 const boxen = import('boxen')
 
 // TypeScript compiler
-const TSC = process.env.TSC || 'tsc'
+const TSC = process.env.TSC || 'node_modules/.bin/tsc'
 
 // Temporary output directories
 const dtsOut   = 'dist/dts'
@@ -62,6 +63,8 @@ console.info(`Using package manager:`, bold(packageManager), `(set`, bold('UBIK_
 // Main function:
 export default async function ubik (cwd, command, ...publishArgs) {
 
+  process.chdir(cwd)
+
   // Dispatch command.
   switch (command) {
     case 'fix':   return await release(false, true)
@@ -77,6 +80,13 @@ export default async function ubik (cwd, command, ...publishArgs) {
                   ${bold('ubik dry')}   - test publishing of package with compatibility fix
                   ${bold('ubik wet')}   - publish package with compatibility fix
                   ${bold('ubik clean')} - delete compiled files`)
+  }
+
+  function runConcurrently (commands) {
+    commands ||= []
+    console.log(`Running ${commands.length} commands in`, cwd)
+    commands.forEach(command=>console.log(' -', command))
+    return concurrently(commands, { cwd })
   }
 
   /** Perform a release. */
@@ -96,12 +106,26 @@ export default async function ubik (cwd, command, ...publishArgs) {
     /** Print the contents of package.json if we'll be publishing. */
     console.log('Original package.json:', JSON.stringify(packageJson))
     /** In wet mode, try a dry run first. */
-    if (wet) preliminaryDryRun(); else makeSureRunIsDry(publishArgs)
+    if (wet) {
+      preliminaryDryRun()
+    } else {
+      makeSureRunIsDry(publishArgs)
+    }
+    /** Determine if this is a TypeScript package that needs to be compiled and patched. */
     const isTypeScript = (packageJson.main||'').endsWith('.ts')
     try {
       /** Do the TypeScript magic if it's necessary. */
-      if (isTypeScript) await prepareTypeScript(); else prepareJavaScript()
-      if (wet) performRelease(); else console.log('Dry run successful:', tag)
+      if (isTypeScript) {
+        await prepareTypeScript()
+      } else {
+        prepareJavaScript()
+      }
+      /** If this is not a dry run, publish to NPM */
+      if (wet) {
+        performRelease()
+      } else {
+        console.log('Dry run successful:', tag)
+      }
     } finally {
       /** Restore everything to a (near-)pristine state. */
       await cleanup()
@@ -120,7 +144,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
       // Print the modified package.json and the contents of the package
       console.warn("Backing up package.json to package.json.bak")
       copyFileSync($('package.json'), $('package.json.bak'))
-      console.warn("Temporarily making package.json look like this:", JSON.stringify(packageJson))
+      console.warn("Applying temporary package.json patch:", JSON.stringify(packageJson))
       copyFileSync($('package.json'), $('package.json.bak'))
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
       console.log()
@@ -128,9 +152,10 @@ export default async function ubik (cwd, command, ...publishArgs) {
       // Publish the package, thus modified, to NPM
       console.log(`${packageManager} publish --no-git-checks`, ...publishArgs)
       runPackageManager('publish', '--no-git-checks',  ...publishArgs)
+      console.log(`Published ${packageJson.name}`)
       // Restore the original package.json and remove the dist files
       if (!keep) {
-        console.warn("Restoring original package.json...")
+        console.log("Restoring original package.json")
         unlinkSync($('package.json'))
         copyFileSync($('package.json.bak'), $('package.json'))
         unlinkSync($('package.json.bak'))
@@ -149,6 +174,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
       // Publish the package, unmodified, to NPM
       console.log(`${packageManager} publish`, ...publishArgs)
       runPackageManager('publish', ...publishArgs)
+      console.log('Published.')
     }
 
     function performRelease () {
@@ -164,37 +190,41 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
     async function cleanup () {
       if (keep) {
-        console.info((await boxen).default([
-          "WARNING: Not restoring original package.json; keeping built artifacts.",
-          "Make sure you don't commit compilation results!",
-          'On-demand compilation of TS might not work until you restore package.json.bak',
-        ].join('\n'), { padding: 1, margin: 1 }))
+        console
+          .warn("Not restoring original package.json; and keeping built artifacts.")
+          .warn("Make sure you don't commit compilation results!")
+          .warn('On-demand compilation of TS might not work until you restore package.json.bak')
       } else {
         if (isTypeScript) {
-          console.info((await boxen).default([
-            "Restored the original package.json and deleting build artifacts.",
-            "Use `ubik fix` if you want to keep them (e.g. if you want to publish a tarball).",
-          ].join('\n'), { padding: 1, margin: 1 }))
+          console
+            .log("Restored original package.json and deleted the generated files")
+            .info("Build with `ubik fix` instead if you want to keep the generated files (e.g. if publishing a tarball)")
         }
       }
     }
   }
 
-  /** Remove output directories and output files */
+  /** Remove output directories */
+  function cleanDirs () {
+    distDirs.map(out=>rimraf.sync(out))
+  }
+
+  /** Remove output files */
+  function cleanFiles () {
+    return Promise.all(distExts.map(ext=>
+        fastGlob([`*${ext}`, `**/*${ext}`]).then(names=>
+          names.map(name=>unlinkSync(name)))))
+  }
+
+  /** Remove output */
   async function cleanAll () {
-    await Promise.all([
-      await cleanDirs(),
-      concurrently(distExts.map(ext=>`rimraf *${ext}`))
-    ])
+    cleanDirs()
+    await cleanFiles()
   }
 
-  async function cleanDirs () {
-    return await concurrently(distDirs.map(out=>`rimraf ${out}`))
-  }
-
+  /** Load package.json. Bail if already modified. */
   function readPackageJson () {
-    const original    = readFileSync($('package.json'), 'utf8')
-    const packageJson = JSON.parse(original)
+    const packageJson = JSON.parse(readFileSync($('package.json'), 'utf8'))
     if (packageJson.ubik) throw new Error(
       `This is already the modified, temporary package.json. Restore the original ` +
       `(e.g. "mv package.json.bak package.json" or "git checkout package.json") and try again`
@@ -255,12 +285,12 @@ export default async function ubik (cwd, command, ...publishArgs) {
   // Compile TS -> JS
   async function compileTypeScript () {
     console.log('Compiling TypeScript...')
-    const result = await concurrently([
+    const result = await runConcurrently([
       // TS -> ESM
       `${TSC} --outDir ${esmOut} --target es2016 --module es6 --declaration --declarationDir ${dtsOut}`,
       // TS -> CJS
       `${TSC} --outDir ${cjsOut} --target es6 --module commonjs`
-    ]).result
+    ], { cwd }).result
   }
 
   // If "type" === "module", .dist.js is used for the ESM files, otherwise for the CJS ones.
@@ -290,7 +320,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     packageJson.files = [...new Set([...packageJson.files||[], ...files])].sort()
 
     console.log('Removing dist directories...')
-    await cleanDirs()
+    cleanDirs()
 
     return collectedFiles
 
@@ -374,6 +404,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         }
       }
       if (modified) {
+        console3.log('Writing patched file')
         writeFileSync(file, astring.generate(ast), 'utf8')
       }
     }
@@ -391,7 +422,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     ]
     for (const file of packageJson.files.filter(x=>x.endsWith(distDtsExt))) {
       const console3 = console2.sub(file)
-      console3.log('Patching...')
+      console3.log('Patching')
       const source = readFileSync(file, 'utf8')
       const parsed = recast.parse(source, { parser: recastTS })
       let modified = false
@@ -408,6 +439,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         }
       }
       if (modified) {
+        console3.log('Writing patched file')
         writeFileSync(file, recast.print(parsed).code, 'utf8')
       }
     }
@@ -420,7 +452,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const { usedCjsExt } = getExtensions(isESModule)
     for (const file of packageJson.files.filter(x=>x.endsWith(usedCjsExt))) {
       const console3 = console2.sub(file)
-      console3.log('Patching...')
+      console3.log('Patching')
       const ast = acorn.parse(readFileSync(file, 'utf8'), {
         ecmaVersion: process.env.UBIK_ECMA||'latest',
         sourceType: 'module',
@@ -463,6 +495,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
       })
 
       if (modified) {
+        console3.log('Writing patched file')
         writeFileSync(file, astring.generate(ast), 'utf8')
       }
 
