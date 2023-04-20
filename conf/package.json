@@ -1,14 +1,14 @@
 {
   "name":        "@hackbg/conf",
-  "version":     "1.0.0",
-  "main":        "konfizi.ts",
+  "version":     "2.0.0",
+  "main":        "conf.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
   "bugs":        "https://github.com/hackbg/toolbox/issues",
-  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "komandi"},
+  "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "conf"},
   "license":     "MIT",
   "description": "Command runner.",
-  "files":       [ "README.md", "konfizi.ts" ],
+  "files":       [ "README.md", "*.ts" ],
   "scripts": {
     "ubik":  "npm run check && ubik",
     "check": "tsc --noEmit",
