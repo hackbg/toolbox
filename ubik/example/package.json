@@ -1,7 +1,7 @@
 {
   "name": "@hackbg/ubik-example",
   "version": "0.0.0",
-  "main": "./index.dist.js",
+  "main": "index.ts",
   "type": "module",
   "devDependencies": {
     "@hackbg/ubik": "workspace:..",
@@ -9,22 +9,5 @@
   },
   "scripts": {
     "ubik": "ubik"
-  },
-  "ubik": true,
-  "files": [
-    "index.dist.cjs",
-    "index.dist.d.ts",
-    "index.dist.js",
-    "other.dist.cjs",
-    "other.dist.d.ts",
-    "other.dist.js"
-  ],
-  "types": "./index.dist.d.ts",
-  "exports": {
-    ".": {
-      "source": "./index.ts",
-      "require": "./index.dist.cjs",
-      "default": "./index.dist.js"
-    }
   }
 }

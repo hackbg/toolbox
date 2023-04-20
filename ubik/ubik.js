@@ -147,8 +147,6 @@ export default async function ubik (cwd, command, ...publishArgs) {
       console.warn("Applying temporary package.json patch:", JSON.stringify(packageJson))
       copyFileSync($('package.json'), $('package.json.bak'))
       writeFileSync($('package.json'), JSON.stringify(packageJson, null, 2), 'utf8')
-      console.log()
-      execFileSync('ls', ['-al'], { cwd, stdio: 'inherit', env: process.env })
       // Publish the package, thus modified, to NPM
       console.log(`${packageManager} publish --no-git-checks`, ...publishArgs)
       runPackageManager('publish', '--no-git-checks',  ...publishArgs)
@@ -211,15 +209,25 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
   /** Remove output files */
   function cleanFiles () {
+    const { log, warn } = console.sub('(cleanup)')
     return Promise.all(distExts.map(ext=>
-        fastGlob([`*${ext}`, `**/*${ext}`]).then(names=>
-          names.map(name=>unlinkSync(name)))))
+      fastGlob(['!node_modules', '!**/node_modules', `${cwd}/*${ext}`, `${cwd}/**/*${ext}`]).then(names=>
+        Promise.all(names.map(name=>
+          new Promise(resolve=>rimraf(name, resolve))
+            .then(()=>log('Deleted', name))
+            .catch(()=>warn(`Failed to delete`, name)))))))
   }
 
   /** Remove output */
   async function cleanAll () {
     cleanDirs()
     await cleanFiles()
+    if (existsSync($('package.json.bak'))) {
+      console.log('Restoring package.json from package.json.bak')
+      unlinkSync($('package.json'))
+      copyFileSync($('package.json.bak'), $('package.json'))
+      unlinkSync($('package.json.bak'))
+    }
   }
 
   /** Load package.json. Bail if already modified. */
@@ -327,7 +335,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     async function collectFiles (name, dir, ext1, ext2) {
       const { log } = console.sub(`(collecting ${name})`)
       log(`Collecting from "${dir}/**/*${ext1}" into "./**/*${ext2}"`)
-      const inputs = await fastGlob([`${dir}/*${ext1}`, `${dir}/**/*${ext1}`])
+      const inputs = await fastGlob(['!node_modules', '!**/node_modules', `${dir}/*${ext1}`, `${dir}/**/*${ext1}`])
       const outputs = []
       for (const file of inputs) {
         if (!file.endsWith(ext1)) continue
@@ -373,7 +381,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
   async function patchESMImports (packageJson) {
     const console2 = console.sub('(patching ESM)')
-    console.log('Patching ESM imports...')
+    console2.log('Patching ESM imports...')
     const isESModule = (packageJson.type === 'module')
     const { usedEsmExt } = getExtensions(isESModule)
     const declarationsToPatch = [
@@ -400,12 +408,14 @@ export default async function ubik (cwd, command, ...publishArgs) {
           const newValue = `${oldValue}${usedEsmExt}`
           console3.log(oldValue, '->', newValue)
           declaration.source.value = newValue
+          declaration.source.raw = JSON.stringify(newValue)
           modified = true
         }
       }
       if (modified) {
         console3.log('Writing patched file')
-        writeFileSync(file, astring.generate(ast), 'utf8')
+        const patchedSource = astring.generate(ast)
+        writeFileSync(file, patchedSource, 'utf8')
       }
     }
   }
@@ -435,6 +445,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
           const newValue = `${oldValue}.dist`
           console3.log(oldValue, '->', newValue)
           declaration.source.value = newValue
+          declaration.source.raw = JSON.stringify(newValue)
           modified = true
         }
       }
@@ -475,6 +486,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
                   const newValue = `${value}${usedCjsExt}`
                   console3.log(`require("${value}") -> require("${newValue}")`)
                   args[0].value = newValue
+                  args[0].raw = JSON.stringify(newValue)
                   modified = true
                 } else {
                   console3.log(`require("${value}"): ${relative(cwd, target)} not found, ignoring`)
