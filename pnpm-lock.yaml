@@ -110,8 +110,10 @@ importers:
   dump:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
+      '@hackbg/ubik': workspace:*
     devDependencies:
       '@hackbg/ganesha': 2.3.0
+      '@hackbg/ubik': link:../ubik
 
   file:
     specifiers:
