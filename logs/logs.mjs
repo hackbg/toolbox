@@ -35,8 +35,11 @@ export class Console extends defineCallable(function log(...args){
   warn  = (...args) => this._print('warn',  this._tag(chalk.yellow,  ' WARN '), ...args)
   error = (...args) => this._print('error', this._tag(chalk.red,     'ERROR '), ...args)
   debug = (...args) => this._print('debug', this._tag(chalk.magenta, 'DEBUG '), ...args)
-  trace = (...args) => this._print('trace', this._tag(chalk.magenta, 'TRACE '), ...args)
-  table = (...args) => this._print('table', this._tag(chalk.white,   'TABLE '), ...args)
+  trace = (...args) => this._print('log',   this._tag(chalk.magenta, 'TRACE '), ...args, '\n'+new Error().stack.split('\n').slice(2).join('\n'))
+  table = (...args) => {
+    this._print('log', this._tag(chalk.white,   'TABLE '));
+    this._print('table', ...args)
+  }
 
   _print = (method, tag, ...args) => {
     this.parent[method](tag, ...args);
