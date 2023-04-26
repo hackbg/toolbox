@@ -260,14 +260,6 @@ importers:
       recast: 0.22.0
       rimraf: 3.0.2
 
-  ubik/example:
-    specifiers:
-      '@hackbg/ubik': workspace:..
-      typescript: '*'
-    devDependencies:
-      '@hackbg/ubik': link:..
-      typescript: 5.0.2
-
 packages:
 
   /@algolia/autocomplete-core/1.7.4:

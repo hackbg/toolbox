@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "main": "index.ts",
   "type": "module",
+  "private": true,
   "devDependencies": {
     "@hackbg/ubik": "workspace:..",
     "typescript": "*"
