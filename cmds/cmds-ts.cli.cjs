@@ -1,11 +1,5 @@
 #!/usr/bin/env node
 
-let dotenv
-try {
-  dotenv = require('dotenv')
-} catch (e) {}
-if (dotenv) dotenv.config()
-
 // Check if ganesha (ts loader) is available
 let ganesha
 try {

@@ -1,11 +1,5 @@
 #!/usr/bin/env node
 
-let dotenv
-try {
-  dotenv = require('dotenv')
-} catch (e) {}
-if (dotenv) dotenv.config()
-
 let ganesha
 try {
   ganesha = require.resolve('@hackbg/ganesha')
