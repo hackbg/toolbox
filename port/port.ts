@@ -5,6 +5,23 @@ import { Console } from '@hackbg/logs'
 
 export { backOff }
 
+export function isPortTaken (port: number): Promise<boolean> {
+  return new Promise(resolve=>{
+    const server = net.createServer()
+    server.once('error', (e: any) => {
+      if (e.code === 'EADDRINUSE') {
+        resolve(true)
+      }
+      try { server.close() } catch (e) {}
+    })
+    server.once('listening', () => {
+      resolve(false)
+      server.close()
+    })
+    server.listen(port)
+  })
+}
+
 /** Get a random free port number by briefly running a server on a random unused port,
   * then stopping the server and returning the port number. */
 export function freePort (): Promise<number> {
