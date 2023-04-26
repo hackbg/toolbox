@@ -1,1 +1,0 @@
-import{_ as t,c as o,o as e,d as r}from"./app.649a9f10.js";const m=JSON.parse('{"title":"2022-07-17","description":"","frontmatter":{},"headers":[],"relativePath":"CHANGELOG.md"}'),s={name:"CHANGELOG.md"},n=r("",2),i=[n];function a(l,_,c,d,g,p){return e(),o("div",null,i)}const f=t(s,[["render",a]]);export{m as __pageData,f as default};

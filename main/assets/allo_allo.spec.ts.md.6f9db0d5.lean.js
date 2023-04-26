@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,d as l}from"./app.e0ada97c.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"allo/allo.spec.ts.md"}'),p={name:"allo/allo.spec.ts.md"},o=l("",9),e=[o];function t(c,r,y,D,C,A){return n(),a("div",null,e)}const h=s(p,[["render",t]]);export{i as __pageData,h as default};
