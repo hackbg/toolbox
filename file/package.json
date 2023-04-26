@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/file",
-  "version":      "1.0.0",
+  "version":      "1.1.0",
   "main":         "file.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",
@@ -11,7 +11,7 @@
   "files":        [ "README.md", "file.ts" ],
   "dependencies": {
     "@hackbg/4mat":   "workspace:^1",
-    "@hackbg/logs":   "workspace:^2",
+    "@hackbg/logs":   "workspace:^2.0.1",
     "js-yaml":        "^4.1.0",
     "mkdirp":         "^1.0.4",
     "recursive-copy": "^2.0.13",

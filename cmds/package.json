@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/cmds",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "main": "index.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
@@ -19,7 +19,7 @@
     "./cmds-ts.cli.cjs": "./cmds-ts.cli.cjs"
   },
   "dependencies": {
-    "@hackbg/logs": "workspace:^2",
+    "@hackbg/logs": "workspace:^2.0.1",
     "@hackbg/task": "workspace:^1",
     "@hackbg/time": "workspace:^1",
     "@hackbg/hide": "workspace:^1"

@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/task",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "task.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
@@ -10,7 +10,7 @@
   "description": "Lazily evaluated Promise.",
   "files": [ "README.md", "task.ts" ],
   "dependencies": {
-    "@hackbg/logs": "workspace:^2"
+    "@hackbg/logs": "workspace:^2.0.1"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^2.2.5"

@@ -220,26 +220,17 @@ export interface PathCtor <T> {
 }
 
 export abstract class BaseFile<T> extends Path {
-  make () {
-    this.makeParent()
-    return this.touch()
-  }
-  touch () {
-    touch(this.path)
-    return this
-  }
-  abstract load (): T
+  make () { this.makeParent(); return this.touch() }
+  touch () { touch(this.path); return this }
+  edit (fn: (data: T)=>T): this { return this.save(fn(this.load())) }
   abstract save (data: T): this
+  abstract load (): T
 }
 
 export class OpaqueFile extends BaseFile<never> {
   static extension = ''
-  load (): never {
-    throw new Error("OpaqueFile: not meant to be loaded")
-  }
-  save (data: never): never {
-    throw new Error("OpaqueFile: not meant to be saved")
-  }
+  load (): never { throw new Error("OpaqueFile: not meant to be loaded") }
+  save (data: never): never { throw new Error("OpaqueFile: not meant to be saved") }
 }
 
 export class BinaryFile extends BaseFile<Buffer> {
