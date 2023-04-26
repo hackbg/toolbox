@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+let dotenv
+try {
+  dotenv = require('dotenv')
+} catch (e) {}
+if (dotenv) dotenv.config()
+
 // Check if ganesha (ts loader) is available
 let ganesha
 try {
@@ -39,7 +45,7 @@ function enableDebugMode () {
   console.info('  Arguments:  ', argv)
   console.info()
   // Modification to process.env persists in child process
-  process.env.NODE_OPTIONS = "--inspect"
+  process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS} --inspect`
   console.info('  Debug mode. Will run Node with --inspect.')
   if (ganesha) {
     process.env.Ganesha_NoSourceMap = "1"
