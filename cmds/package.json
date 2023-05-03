@@ -1,7 +1,7 @@
 {
   "name": "@hackbg/cmds",
-  "version": "2.0.0",
-  "main": "index.ts",
+  "version": "3.0.0",
+  "main": "cmds.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
@@ -14,7 +14,7 @@
     "cmds-ts": "./cmds-ts.cli.cjs"
   },
   "exports": {
-    ".": "./index.ts",
+    ".": "./cmds.ts",
     "./cmds.cli.cjs": "./cmds.cli.cjs",
     "./cmds-ts.cli.cjs": "./cmds-ts.cli.cjs"
   },
@@ -25,11 +25,12 @@
     "@hackbg/hide": "workspace:^1"
   },
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ensuite": "^1.4.4"
   },
   "scripts": {
-    "ubik": "npm test && npm run check && ubik",
-    "test": "true || ganesha-node README.md",
+    "ubik": "npm run check && npm run cov && ubik",
+    "test": "ensuite README.md",
+    "cov":  "ensuite-cov README.md",
     "check": "tsc --noEmit",
     "clean": "ubik clean && rm -rf dist types *.dist.*"
   }
