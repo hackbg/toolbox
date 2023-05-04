@@ -363,6 +363,9 @@ export function withTmpDir <T> (
   remove = true
 ): T {
   const name = mkdtempSync(resolve(tmpdir(), 'temp-'))
+  log.sub(name).info('Created temporary directory.', remove
+    ? 'Will remove it on process exit.'
+    : 'Will keep it after process exits.')
   if (remove) {
     process.on('exit', () => {
       new Console(`@hackbg/file: ${name}`).log('Removing temporary directory', name)
