@@ -1,22 +1,31 @@
-const _Error = Error
+const BaseError = Error
 
-const __Error = class Error extends _Error {
+export const BaseOopsError = class Error extends BaseError {
 
   /** Define an error subclass. */
   static define <T extends unknown[]> (
+    /** Name of error class. Prepended to parent. */
     name: string,
-    getMessage = (...args: T) => ''
+    /** How to generate the error message from the arguments passed to the constructor. */
+    getMessage: (string|((...args: T)=>string)) = (...args: T) => args.join(' '),
+    /** Whether there are any further construction steps such as assigning properties. */
+    construct?: (self: Error, ...args: T) => any
   ) {
+
     const fullName = `${this.name}_${name}`
-    return Object.defineProperty(class CustomError extends this {
-      constructor (...args: T) {
-        const message = getMessage(...args)
-        super(message)
-      }
+
+    class OopsError extends this {
       name = fullName
-    }, 'name', { value: fullName })
+      constructor (...args: T) {
+        super((typeof getMessage === 'string') ? getMessage : getMessage(...args))
+        if (construct) construct(this, ...args)
+      }
+    }
+
+    return Object.defineProperty(OopsError, 'name', { value: fullName })
+
   }
 
 }
 
-export { __Error as Error }
+export { BaseOopsError as Error }
