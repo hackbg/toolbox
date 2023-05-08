@@ -1,17 +1,40 @@
-export class Environment {
+import { overrideFiltered } from '@hackbg/over'
 
-  /** Snapshot of the earliest known process environment
-    * (at the moment this module is evaluated) */
-  static initial = new Environment(process.cwd(), process.env)
-
-  static FALSE = [ '', 'false', 'no', '0' ]
-
-  constructor (
-    readonly cwd:  string             = '',
-    readonly vars: typeof process.env = {}
-  ) {
-    Object.defineProperty(this, 'vars', { enumerable: false })
+export class ConfigError extends Error {
+  static Required = class EnvConfigRequiredError extends ConfigError {
+    constructor (name: string, type: string) {
+      super(`The environment variable ${name} must be a ${type}`)
+    }
   }
+}
+
+export class Config {
+  constructor (
+    readonly environment: Environment = Environment.initial
+  ) {}
+  override = (options: object) =>
+    (overrideFiltered(false, this, options), this)
+  getFlag = <T> (name: string, fallback?: ()=>T): boolean|T =>
+    this.environment.getFlag(name, fallback)
+  getString = <T> (name: string, fallback?: ()=>T): string|T =>
+    this.environment.getString(name, fallback)
+  getNumber = <T> (name: string, fallback?: ()=>T): number|T =>
+    this.environment.getNumber(name, fallback)
+}
+
+export class Environment {
+  constructor (
+    /** Current working directory. */
+    readonly cwd:  string             = '',
+    /** Environment variables */
+    readonly vars: typeof process.env = {},
+    /** Tag to identify the environment (e.g. timestamp) */
+    readonly tag:  string|undefined = String(+new Date())
+  ) {
+    Object.defineProperty(this, 'vars', { configurable: true, enumerable: false })
+  }
+
+  get [Symbol.toStringTag]() { return this.tag }
 
   getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
     if (name in this.vars) {
@@ -54,99 +77,10 @@ export class Environment {
     }
   }
 
-}
+  /** Snapshot of the earliest known process environment
+    * (at the moment this module is evaluated) */
+  static initial = new Environment(process.cwd(), process.env)
 
-export class Config {
-
-  constructor (
-    readonly environment: Environment = Environment.initial
-  ) {}
-
-  override (options: object) {
-    overrideFiltered(false, this, options)
-  }
-
-  getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
-    return this.environment.getFlag(name, fallback)
-  }
-
-  getString <T> (name: string, fallback?: ()=>T): string|T {
-    return this.environment.getString(name, fallback)
-  }
-
-  getNumber <T> (name: string, fallback?: ()=>T): number|T {
-    return this.environment.getNumber(name, fallback)
-  }
-
-}
-
-export class ConfigError extends Error {
-
-  static Required = class EnvConfigRequiredError extends ConfigError {
-    constructor (name: string, type: string) {
-      super(`The environment variable ${name} must be a ${type}`)
-    }
-  }
-
-}
-
-/** A ***value object*** that allows its meaningful properties to be overridden.
-  * For the override to work, empty properties must be defined as:
-  *
-  *     class Named extends Overridable {
-  *         name?: Type = undefined
-  *     }
-  *
-  * (Otherwise Object.getOwnPropertyNames wouldn't see the property slots,
-  * and `new Named.where({ name: 'something' })` wouldn't update `name`.
-  * This is because of how TypeScript handles class properties;
-  * in raw JS, they seem to be defined as undefined by default?)
-  *
-  * Even in when not inheriting from `Overridable`, try to follow the pattern of
-  * ***immutable value objects*** which represent a piece of state in context
-  * and which, instead of mutating themselves, emit changed copies of themselves
-  * using the idioms:
-  *     this.where({ name: 'value' }) // internally
-  * or:
-  *     new Named(oldNamed, { name: 'value' }) // externally.
-  **/
-export class Overridable {
-  override (options: object = {}) {
-    overrideFiltered(false, this, options)
-  }
-  /** Return copy of self with overridden properties. */
-  where (options: Partial<this> = {}) {
-    return new (this.constructor as any)(this, options)
-  }
-}
-
-type valof<T> = T[keyof T]
-
-/** Override only allowed properties. */
-export function overrideFiltered (
-  /** Whether to fail on unexpected properties. */
-  strict:    boolean,
-  /** The object being overridden. */
-  self:      object,
-  /** The object containing the overrides. */
-  overrides: object,
-  /** List of allowed properties (defaults to the defined properties on the object;
-    * that's why many fields explicitly default to `undefined` - otherwise TypeScript
-    * does not generate them, somewhat contrarily to native JS class behavior) */
-  allowed:   string[] = Object.getOwnPropertyNames(self),
-): Record<string, valof<typeof overrides>> {
-  const filtered: Record<string, valof<typeof overrides>> = {}
-  for (const [key, val] of Object.entries(overrides)) {
-    if (val === undefined) continue
-    if (allowed.includes(key)) {
-      const current: typeof val = (self as any)[key]
-      if (strict && current && current !== val) {
-        throw new Error(`Tried to override pre-defined ${key}`)
-      }
-      ;(self as any)[key] = val
-    } else {
-      (filtered as any)[key] = val
-    }
-  }
-  return filtered
+  /** Which string values are counted as falsy by getFlag */
+  static FALSE = [ '', 'false', 'no', '0' ]
 }

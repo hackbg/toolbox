@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/conf",
-  "version":     "2.0.0",
+  "version":     "3.0.0",
   "main":        "conf.ts",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
@@ -13,5 +13,8 @@
     "ubik":  "npm run check && ubik",
     "check": "tsc --noEmit",
     "clean": "ubik clean && rm -rf dist types *.dist.*"
+  },
+  "dependencies": {
+    "@hackbg/over": "workspace:^1.1"
   }
 }
