@@ -1,1 +1,0 @@
-import{_ as s,c as a,o as n,d as o}from"./app.d52f45e7.js";const i=JSON.parse('{"title":"@hackbg/file","description":"","frontmatter":{},"headers":[],"relativePath":"file/README.md"}'),l={name:"file/README.md"},p=o("",8),e=[p];function t(c,r,D,F,y,A){return n(),a("div",null,e)}const d=s(l,[["render",t]]);export{i as __pageData,d as default};

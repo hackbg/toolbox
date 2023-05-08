@@ -1,0 +1,1 @@
+import{_ as s,c as n,o as a,d as l}from"./app.f9e8cd3c.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"file/file.spec.ts.md"}'),p={name:"file/file.spec.ts.md"},o=l("",1),e=[o];function t(c,F,r,y,D,A){return a(),n("div",null,e)}const _=s(p,[["render",t]]);export{i as __pageData,_ as default};
