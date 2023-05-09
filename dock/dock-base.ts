@@ -143,6 +143,10 @@ export abstract class Container {
   abstract create ():
     Promise<this>
 
+  /** Remove a stopped container. */
+  abstract remove ():
+    Promise<this>
+
   /** Start a container. */
   abstract start ():
     Promise<this>

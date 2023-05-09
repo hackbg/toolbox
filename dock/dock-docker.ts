@@ -296,6 +296,11 @@ class DockerContainer extends Container {
     return this
   }
 
+  async remove (): Promise<this> {
+    if (this.container) await this.container.remove()
+    return this
+  }
+
   async start (): Promise<this> {
     if (!this.container) await this.create()
     await this.container!.start()

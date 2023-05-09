@@ -185,6 +185,12 @@ class PodmanContainer extends Container {
     return this
   }
 
+  async remove () {
+    if (!this.id) throw new Error.NoContainer()
+    await this.image.engine.podman('remove', this.id)
+    return this
+  }
+
   async start () {
     if (!this.id) throw new Error.NoContainer()
     await this.image.engine.podman('start', this.id)
