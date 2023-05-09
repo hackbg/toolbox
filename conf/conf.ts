@@ -9,17 +9,20 @@ export class ConfigError extends Error {
 }
 
 export class Config {
-  constructor (
-    readonly environment: Environment = Environment.initial
-  ) {}
-  override = (options: object) =>
-    (overrideFiltered(false, this, options), this)
-  getFlag = <T> (name: string, fallback?: ()=>T): boolean|T =>
-    this.environment.getFlag(name, fallback)
-  getString = <T> (name: string, fallback?: ()=>T): string|T =>
-    this.environment.getString(name, fallback)
-  getNumber = <T> (name: string, fallback?: ()=>T): number|T =>
-    this.environment.getNumber(name, fallback)
+  constructor (readonly environment: Environment = Environment.initial) {}
+  override (options: object) {
+    overrideFiltered(false, this, options)
+    return this
+  }
+  getFlag <T extends boolean, U> (name: string, fallback?: ()=>T|U): T|U {
+    return this.environment.getFlag<T, U>(name, fallback)
+  }
+  getString <T extends string, U> (name: string, fallback?: ()=>T|U): T|U {
+    return this.environment.getString<T, U>(name, fallback)
+  }
+  getNumber <T extends number, U> (name: string, fallback?: ()=>T|U): T|U {
+    return this.environment.getNumber<T, U>(name, fallback)
+  }
 }
 
 export class Environment {
@@ -36,40 +39,31 @@ export class Environment {
 
   get [Symbol.toStringTag]() { return this.tag }
 
-  getFlag <T> (name: string, fallback?: ()=>T): boolean|T {
+  getFlag <T extends boolean, U> (name: string, fallback?: ()=>T|U): T|U {
     if (name in this.vars) {
       const value = (this.vars[name]??'').trim()
-      return !Environment.FALSE.includes(value)
-    } else if (fallback) {
-      return fallback()
-    } else {
-      throw new ConfigError.Required(name, 'boolean')
+      return !Environment.FALSE.includes(value) as T
     }
+    if (fallback) return fallback()
+    throw new ConfigError.Required(name, 'boolean')
   }
 
-  getString <T> (name: string, fallback?: ()=>T): string|T {
-    if (name in this.vars) {
-      return String(this.vars[name] as string)
-    } else if (fallback) {
-      return fallback()
-    } else {
-      throw new ConfigError.Required(name, 'string')
-    }
+  getString <T extends string, U> (name: string, fallback?: ()=>T|U): T|U {
+    if (name in this.vars) return String(this.vars[name] as string) as T
+    if (fallback) return fallback()
+    throw new ConfigError.Required(name, 'string')
   }
 
-  getNumber <T> (name: string, fallback?: ()=>T): number|T {
+  getNumber <T extends number, U> (name: string, fallback?: ()=>T|U): T|U {
     if (name in this.vars) {
       const value = (this.vars[name]??'').trim()
       if (value === '') {
-        if (fallback) {
-          return fallback()
-        } else {
-          throw new ConfigError.Required(name, 'number')
-        }
+        if (fallback) return fallback()
+        throw new ConfigError.Required(name, 'number')
       }
       const number = Number(value)
       if (isNaN(number)) throw new ConfigError.Required(name, 'number')
-      return number
+      return number as T
     } else if (fallback) {
       return fallback()
     } else {
