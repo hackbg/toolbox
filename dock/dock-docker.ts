@@ -203,8 +203,8 @@ class DockerContainer extends Container {
     } = this.options
 
     const config = {
+      name: this.name,
       Image: this.image.name,
-      Name: this.name,
       Entrypoint: this.entrypoint,
       Cmd: this.command,
       Env: Object.entries(env).map(([key, val])=>`${key}=${val}`),
