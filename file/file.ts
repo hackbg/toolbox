@@ -38,7 +38,7 @@ export class Path {
       base = base.path
     }
     this.path = resolve(base, ...fragments)
-    this.log = new Console(`@hackbg/file: ${this.shortPath}`)
+    this.log = new Console(`${this.shortPath}`)
   }
 
   log: Console
@@ -95,7 +95,7 @@ export class Path {
   at (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isDirectory()) {
-      throw new Error(`@hackbg/file: Path#at: use .in() to descend into directory: ${sub.path}`)
+      throw new Error(`Path#at: use .in() to descend into directory: ${sub.path}`)
     }
     return sub
   }
@@ -104,7 +104,7 @@ export class Path {
   in (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
     if (sub.isFile()) {
-      throw new Error(`@hackbg/file: use .at() to point to file: ${sub.path}`)
+      throw new Error(`use .at() to point to file: ${sub.path}`)
     }
     return sub
   }
@@ -136,7 +136,7 @@ export class Path {
   }
 
   make (): this {
-    throw new Error("@hackbg/file: file or directory? use subclass")
+    throw new Error("file or directory? use subclass")
   }
 
   /** @returns true if a directory exists at this.path */
@@ -347,7 +347,7 @@ export function mkdir (...fragments: string[]) {
   const path = $(resolve(...fragments))
   if (!existsSync(path.path)) {
     mkdirp.sync(path.path, {mode: 0o770})
-    new Console(`@hackbg/file: ${path.shortPath}`).log('Created (directory)')
+    new Console(`${path.shortPath}`).log('Created (directory)')
   }
   return path
 }
@@ -363,12 +363,12 @@ export function withTmpDir <T> (
   remove = true
 ): T {
   const name = mkdtempSync(resolve(tmpdir(), 'temp-'))
-  log.sub(name).info('Created temporary directory.', remove
+  log.sub(name).log('Created temporary directory.', remove
     ? 'Will remove it on process exit.'
     : 'Will keep it after process exits.')
   if (remove) {
     process.on('exit', () => {
-      new Console(`@hackbg/file: ${name}`).log('Removing temporary directory', name)
+      new Console(`${name}`).log('Removing temporary directory', name)
       rimrafSync(name)
     })
   }
@@ -383,7 +383,7 @@ export function withTmpFile <T> (fn: (path: string)=>T): T {
 export function touch (...fragments: string[]) {
   const path = $(resolve(...fragments))
   if (!existsSync(path.path)) {
-    new Console(`@hackbg/file: ${path.shortPath}`).log('Creating (file)')
+    new Console(`${path.shortPath}`).log('Creating (file)')
     writeFileSync(path.path, '')
   }
   return path

@@ -106,7 +106,7 @@ class DockerImage extends Image {
     const { name, dockerode } = this
     if (!name) throw new Error.NoName('pull')
     await new Promise<void>((ok, fail)=>{
-      const log = new Console(`@hackbg/dock: ${this.name} (pull)`)
+      const log = new Console(`pulling docker image ${this.name}`)
       dockerode.pull(name, async (err: any, stream: any) => {
         if (err) return fail(err)
         await follow(dockerode, stream, (event) => {
@@ -134,7 +134,7 @@ class DockerImage extends Image {
       { context, src },
       { t: this.name, dockerfile }
     )
-    const log = new Console(`@hackbg/dock: ${this.name} (build)`)
+    const log = new Console(`building docker image ${this.name}`)
     await follow(dockerode, build, (event) => {
       if (event.error) {
         log.error(event.error)
@@ -270,7 +270,7 @@ class DockerContainer extends Container {
 
     // Log mounted volumes
     for (const bind of opts?.HostConfig?.Binds ?? []) {
-      this.log.info('Bind:', bind)
+      this.log.info('bind:', bind)
     }
 
     // Log exposed ports
@@ -285,8 +285,8 @@ class DockerContainer extends Container {
 
     // Update the logger tag with the container id
     this.log.label = this.name
-      ? `@hackbg/dock: ${this.name} (${this.container.id})`
-      : `@hackbg/dock: ${this.container.id}`
+      ? `docker container ${this.name} (${this.container.id})`
+      : `docker container ${this.container.id}`
 
     // Display any warnings emitted during container creation
     if (this.warnings) {
@@ -389,7 +389,7 @@ class DockerContainer extends Container {
   async export (repository?: string, tag?: string) {
     if (!this.container) throw new Error.NoContainer()
     const { Id } = await this.container.commit({ repository, tag })
-    this.log.info(`Exported snapshot:`, bold(Id))
+    this.log.info(`exported snapshot:`, bold(Id))
     return Id
   }
 
@@ -420,7 +420,7 @@ export async function waitUntilLogsSay (
   thenDetach = true,
 ): Promise<void> {
   const id = container.id.slice(0,8)
-  const log = new Console(`@hackbg/dock: ${id}`)
+  const log = new Console(`docker container ${id}`)
   log.info('Trailing logs, waiting for:', expected)
   const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
   if (!stream) throw new Error('no stream returned from container')

@@ -1,8 +1,6 @@
 import { Engine, Image, Container, defaultSocketPath } from './dock-docker'
 import * as assert from 'node:assert'
 
-assert.equal(new Engine().log.label, `@hackbg/dock: ${defaultSocketPath}`)
-assert.equal(new Engine('socket').log.label, `@hackbg/dock: socket`)
 assert.throws(()=>new Engine(123 as any))
 
 {
@@ -10,10 +8,8 @@ assert.throws(()=>new Engine(123 as any))
   const image = engine.image('tag')
   const container = image.container('name')
   assert.ok(image instanceof Image)
-  assert.equal(image.log.label, `@hackbg/dock: tag`)
   assert.equal(image.engine, engine)
   assert.ok(container instanceof Container)
-  assert.equal(container.log.label, `@hackbg/dock: name`)
   assert.equal(container.image, image)
 }
 
