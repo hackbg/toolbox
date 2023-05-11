@@ -263,10 +263,10 @@ class DockerContainer extends Container {
   async create (): Promise<this> {
     if (this.container) throw new Error.ContainerAlreadyCreated()
 
-    this.image.log.creatingContainer()
-
     // Specify the container
     const opts = this.dockerodeOpts
+
+    this.image.log.creatingContainer(opts.name)
 
     // Log mounted volumes
     for (const bind of opts?.HostConfig?.Binds ?? []) {

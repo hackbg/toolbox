@@ -71,7 +71,7 @@ export class DockConsole extends Console {
 
   buildingFromDockerfile = (file: string) => this.info(`Using dockerfile`, bold(file))
 
-  creatingContainer = () => this.info(`Creating container`)
+  creatingContainer = (name?: string) => this.info(`Creating container`, name)
 
   boundPort = (containerPort: any, hostPort: any) => {
     this.info(`Container port ${containerPort} bound to host port ${hostPort}`)
