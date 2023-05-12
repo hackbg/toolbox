@@ -1,3 +1,4 @@
+import { hideProperties as hide } from '@hackbg/hide'
 import { DockError as Error, DockConsole as Console, bold } from './dock-events'
 import type { LineTransformStream } from './dock-logs'
 import type { Writable } from 'node:stream'
@@ -6,6 +7,7 @@ export abstract class Engine {
 
   constructor (readonly name?: string) {
     this.log = new Console(`@hackbg/dock: ${this.name}`)
+    hide(this, 'log')
   }
 
   log:
@@ -37,6 +39,7 @@ export abstract class Image {
     readonly extraFiles: string[]    = []
   ) {
     this.log = new Console(`@hackbg/dock: ${this.name}`)
+    hide(this, 'log')
   }
 
   log:
@@ -68,40 +71,35 @@ export abstract class Image {
   ): Container
 
   protected _available:
-    Promise<string|null>|null = null
+    Promise<this>|null = null
 
-  async ensure () {
+  async ensure (): Promise<this> {
     this._available ??= new Promise(async(resolve, reject)=>{
       this.log.ensuring()
       try {
         await this.check()
         this.log.imageExists()
       } catch (e1) {
-        if (e1.statusCode === 404) {
-          // if image doesn't exist locally, try pulling it
-          try {
-            this.log.notCachedPulling()
-            await this.pull()
-          } catch (e2) {
-            this.log.error(e2)
-            if (!this.dockerfile) {
-              const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
-              reject(`${NO_FILE} (${e2.message})`)
-            } else {
-              this.log.notFoundBuilding(e2.message)
-              this.log.buildingFromDockerfile(this.dockerfile)
-              await this.build()
-            }
+        if (e1.statusCode !== 404) return reject(e1)
+        // if image doesn't exist locally, try pulling it
+        try {
+          this.log.notCachedPulling()
+          await this.pull()
+        } catch (e2) {
+          this.log.error(e2)
+          if (!this.dockerfile) {
+            const NO_FILE  = `Unavailable and no Dockerfile provided; can't proceed.`
+            reject(`${NO_FILE} (${e2.message})`)
+          } else {
+            this.log.notFoundBuilding(e2.message)
+            this.log.buildingFromDockerfile(this.dockerfile)
+            await this.build()
           }
-        } else {
-          throw e1
         }
       }
-      return resolve(this.name)
+      resolve(this)
     })
-
-    return await this._available
-
+    return await Promise.resolve(this._available)
   }
 
   get [Symbol.toStringTag](): string { return this.name||'' }
@@ -119,6 +117,7 @@ export abstract class Container {
     readonly entrypoint?: ContainerCommand
   ) {
     this.log = new Console(name ? `@hackbg/dock: ${name}` : `@hackbg/dock: container`)
+    hide(this, 'log')
   }
 
   log:
