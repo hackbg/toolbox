@@ -282,7 +282,7 @@ export class YAMLFile<T> extends BaseFile<T> {
   }
   save (data: unknown) {
     this.makeParent()
-    writeFileSync(this.path, YAML.dump(data), 'utf8')
+    writeFileSync(this.path, YAML.dump(data, { skipInvalid: true }), 'utf8')
     return this
   }
 }
