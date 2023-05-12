@@ -8,7 +8,7 @@ import { homedir } from 'node:os'
 
 import $, { JSONFile } from '@hackbg/file'
 
-const log = new Console('@hackbg/dock: podman')
+const log = new Console('podman')
 
 class PodmanEngine extends Engine {
 

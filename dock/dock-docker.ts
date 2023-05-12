@@ -8,7 +8,7 @@ import { basename, dirname } from 'node:path'
 import Docker from 'dockerode'
 export { Docker }
 
-const log = new Console('@hackbg/dock: docker')
+const log = new Console('docker')
 
 export interface DockerHandle {
   getImage:         Function
@@ -46,7 +46,7 @@ class DockerEngine extends Engine {
     } else if (typeof dockerode === 'string') {
       dockerode = new Docker({ socketPath: dockerode })
     } else {
-      throw new Error('@hackbg/dock: invalid init')
+      throw new Error('invalid docker engine configuration')
     }
     const api = dockerode.modem.host ?? dockerode.modem.socketPath
     super(api)
