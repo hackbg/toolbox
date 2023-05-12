@@ -1,3 +1,7 @@
+import { Console, bold } from '@hackbg/logs'
+import { base16, sha256 } from '@hackbg/4mat'
+import { hideProperties as hide } from '@hackbg/hide'
+
 import copy from 'recursive-copy'
 import mkdirp from 'mkdirp'
 import rimrafCb from 'rimraf'
@@ -11,10 +15,9 @@ import {
 } from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve, dirname, basename, relative, sep } from 'path'
+
 import TOML from 'toml'
 import YAML from 'js-yaml'
-import { Console, bold } from '@hackbg/logs'
-import { base16, sha256 } from '@hackbg/4mat'
 
 const log = new Console('@hackbg/file')
 
@@ -39,6 +42,7 @@ export class Path {
     }
     this.path = resolve(base, ...fragments)
     this.log = new Console(`${this.shortPath}`)
+    hide(this, 'log')
   }
 
   log: Console
