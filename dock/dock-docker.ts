@@ -270,7 +270,7 @@ class DockerContainer extends Container {
 
     // Log mounted volumes
     for (const bind of opts?.HostConfig?.Binds ?? []) {
-      this.log.info('bind:', bind)
+      this.log.log('bind:', bind)
     }
 
     // Log exposed ports
@@ -317,11 +317,11 @@ class DockerContainer extends Container {
     const id = this.shortId
     const prettyId = bold(id.slice(0,8))
     if (await this.isRunning) {
-      log.info(`Stopping ${prettyId}...`)
+      log.log(`stopping ${prettyId}...`)
       await this.dockerode.getContainer(id).kill()
-      log.info(`Stopped ${prettyId}`)
+      log.log(`stopped ${prettyId}`)
     } else {
-      log.warn(`Container already stopped: ${prettyId}`)
+      log.warn(`container already stopped: ${prettyId}`)
     }
     return this
   }
@@ -389,7 +389,7 @@ class DockerContainer extends Container {
   async export (repository?: string, tag?: string) {
     if (!this.container) throw new Error.NoContainer()
     const { Id } = await this.container.commit({ repository, tag })
-    this.log.info(`exported snapshot:`, bold(Id))
+    this.log.log(`exported snapshot:`, bold(Id))
     return Id
   }
 
@@ -421,10 +421,10 @@ export async function waitUntilLogsSay (
 ): Promise<void> {
   const id = container.id.slice(0,8)
   const log = new Console(`docker container ${id}`)
-  log.info('Trailing logs, waiting for:', expected)
+  log.log('trailing logs, waiting for:', expected)
   const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
   if (!stream) throw new Error('no stream returned from container')
-  const trail = (data:string)=>{if (logFilter(data)) log.info(data)}
+  const trail = (data:string)=>{if (logFilter(data)) log.log(data)}
   return await waitStream(stream as any, expected, thenDetach, trail)
 }
 
@@ -445,7 +445,7 @@ export function waitStream (
       const dataStr = String(data).trim()
       if (trail) trail(dataStr)
       if (dataStr.indexOf(expected)>-1) {
-        log.info(bold(`Found expected message:`), expected)
+        log.log(bold(`found expected message:`), expected)
         stream.off('data', waitStream_onData)
         if (thenDetach) stream.destroy()
         resolve()
@@ -457,7 +457,7 @@ export function waitStream (
 export function waitSeconds (seconds = 0): Promise<void> {
   return new Promise(resolve=>{
     if (seconds > 0) {
-      log.info(bold(`Waiting ${seconds} seconds`), `for good measure...`)
+      log.log(bold(`throwing ${seconds} seconds`), `away...`)
       return setTimeout(resolve, seconds * 1000)
     }
   })

@@ -61,25 +61,34 @@ export class DockError extends Error {
 
 export class DockConsole extends Console {
 
-  ensuring = () => this.info('Ensuring that the image exists')
+  ensuring = () =>
+    this //this.info('Ensuring that the image exists')
 
-  imageExists = () => this.info('Image exists')
+  imageExists = () =>
+    this // this.info('Image exists')
 
-  notCachedPulling = () => this.info('Not cached, pulling')
+  notCachedPulling = () =>
+    this.log('not cached, pulling')
 
-  notFoundBuilding = (msg: string) => this.info(`Not found in registry, building (${msg})`)
+  notFoundBuilding = (msg: string) =>
+    this.log(`not found in registry, building (${msg})`)
 
-  buildingFromDockerfile = (file: string) => this.info(`Using dockerfile`, bold(file))
+  buildingFromDockerfile = (file: string) =>
+    this.log(`using dockerfile`, bold(file))
 
-  creatingContainer = (name?: string) => this.info(`Creating container`, name)
+  creatingContainer = (name?: string) =>
+    this.log(`creating container`, name)
 
-  boundPort = (containerPort: any, hostPort: any) => {
-    this.info(`Container port ${containerPort} bound to host port ${hostPort}`)
-  }
+  boundPort = (containerPort: any, hostPort: any) =>
+    this.log(`bind container port ${containerPort} to host port ${hostPort}`)
+
+  boundVolume = (bind: any) =>
+    this.log(`bind mount`, bind)
 
   createdWithWarnings = (id: string, warnings?: any) => {
-    this.warn(`Creating container ${id} emitted warnings:`)
-    if (warnings) this.info(warnings)
+    this.warn(`warnings when creating container ${id}:`)
+    if (warnings) this.warn(warnings)
+    return this
   }
 
 }
