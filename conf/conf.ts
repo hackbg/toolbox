@@ -73,7 +73,10 @@ export class Environment {
 
   /** Snapshot of the earliest known process environment
     * (at the moment this module is evaluated) */
-  static initial = new Environment(process.cwd(), process.env)
+  static initial = new Environment(
+    globalThis.process?.cwd(),
+    globalThis.process?.env
+  )
 
   /** Which string values are counted as falsy by getFlag */
   static FALSE = [ '', 'false', 'no', '0' ]
