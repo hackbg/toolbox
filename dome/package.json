@@ -1,0 +1,8 @@
+{
+  "name": "@hackbg/dome",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dome.mjs",
+  "types": "dome.d.ts",
+  "files": ["dome.*"]
+}

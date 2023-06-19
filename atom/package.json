@@ -1,0 +1,8 @@
+{
+  "name": "@hackbg/atom",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "atom.mjs",
+  "types": "atom.d.ts",
+  "files": ["atom.*"]
+}
