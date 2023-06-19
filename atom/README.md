@@ -1,20 +1,24 @@
 # @hackbg/atom
 
+This library defines the `atom` primitive,
+which represents an observable value that
+can have one or more display representations
+(instances).
+
 ```javascript
 import atom from '@hackbg/atom'
 ```
 
-The formatter is shared between all instances of an atom.
-It generates the canonical representation of a value.
+To create an atom, you need one argument, the **formatter**:
+a function that returns the canonical representation of the
+atom's value.
 
 ```javascript
 const fmt1 = x=>`${x||0} bottles of beer on the wall`
 ```
 
-Calling the `atom` function will create an atom:
-a "callable object" (a.k.a. "JS function with custom properties"),
-representing an observable value that can have one or more
-display representations (instances).
+Calling the `atom` function will create an atom, as a
+a "callable object" (a.k.a. "JS function with custom properties").
 
 ```javascript
 const foo = atom(fmt1)
