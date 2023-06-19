@@ -11,6 +11,8 @@
   },
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "ensuite README.md"
+    "test": "ensuite README.md",
+    "cov": "ensuite-cov README.md",
+    "ubik": "npm run check && npm run cov && ubik"
   }
 }
