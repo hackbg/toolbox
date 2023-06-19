@@ -1,7 +1,7 @@
 export class Dome extends function _Dome (root) {
 
   return function DOMFactory (type = 'div', ...args) {
-    const node = globalThis.document.createElement(type)
+    const node = (root.createElement||globalThis.document).createElement(type)
     for (const arg of args) {
       if (arg instanceof Array) {
         node.appendChild(DOMFactory(...arg))
@@ -17,12 +17,10 @@ export class Dome extends function _Dome (root) {
   }
 
 } {
-
   constructor (root) {
     super()
     this.root = root
   }
-
   /** Get an element by id or throw */
   id = id => {
     const result = this.root.getElementById(id)
@@ -46,32 +44,6 @@ export class Dome extends function _Dome (root) {
   /** Create a new DocumentFragment with the passed nodes. */
   frag = (...nodes) =>
     append(new DocumentFragment(), ...nodes)
-  events = (chain = undefined, t = new EventTarget()) => {
-    let emit = (type, data={}) => (t.dispatchEvent(Object.assign(new Event(type), data)), chain||this),
-        on   = (type, handler) => (t.addEventListener(type, handler), chain||this),
-        off  = (type, handler) => (t.removeEventListener(type, handler), chain||this),
-        once = (type, handler) => on(type, function onceHandler () { off(type, onceHandler); return handler(args) });
-    return {emit, on, off, once}
-  }
-  atom = (formatter = (value, previous) => value) => {
-    let value // private
-    const instances = new Set()
-    const get = () => value
-    const set = v => (((value!==v)&&(value=v,update())),atom)
-    const update = () => instances.forEach(instance=>instance.update())
-    const inst = (renderer = renderText) => {
-      const instSet = v => (set(v),instance)
-      const render = (value, previous) => renderer(formatter(value, previous), instance.root)
-      const update = (root = instance.render(instance.get(), instance.root)) => (
-        (instance.root ? ((instance.root!==root)&&this.replace(instance.root, root)) : root),
-        Object.assign(instance, {root}))
-      const instance = { root: null, render, update, get, set: instSet }
-      instances.add(instance)
-      return instance.update().root
-    }
-    const atom = { get, set, inst, update }
-    return atom
-  }
 }
 
 export default new Dome(globalThis.document)
