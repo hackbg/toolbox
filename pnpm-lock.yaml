@@ -39,13 +39,13 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/ubik': link:ubik
-      '@types/node': 20.1.3
+      '@types/node': 20.3.1
       concurrently: 7.2.2
       husky: 8.0.3
       lint-staged: 13.1.2
       typedoc: 0.23.25_typescript@5.0.2
       typescript: 5.0.2
-      vitepress: 1.0.0-alpha.10_@types+node@20.1.3
+      vitepress: 1.0.0-alpha.10_@types+node@20.3.1
 
   4mat:
     specifiers:
@@ -71,6 +71,12 @@ importers:
       '@hackbg/ganesha': ^2.2.5
     devDependencies:
       '@hackbg/ganesha': 2.3.0
+
+  atom:
+    specifiers:
+      '@hackbg/ensuite': ^1.4.5
+    devDependencies:
+      '@hackbg/ensuite': 1.4.5
 
   cmds:
     specifiers:
@@ -114,6 +120,9 @@ importers:
       '@hackbg/ensuite': 1.1.1
       '@types/dockerode': 3.3.14
 
+  dome:
+    specifiers: {}
+
   dump:
     specifiers:
       '@hackbg/ganesha': ^2.2.5
@@ -121,6 +130,9 @@ importers:
     devDependencies:
       '@hackbg/ganesha': 2.3.0
       '@hackbg/ubik': link:../ubik
+
+  emit:
+    specifiers: {}
 
   file:
     specifiers:
@@ -598,6 +610,33 @@ packages:
       - utf-8-validate
     dev: true
 
+  /@hackbg/ensuite/1.4.5:
+    resolution: {integrity: sha512-tXiavtyrp22jex3MsWadPJO6vfpwXm0gsXfCr2xHECl/oX9+d7QSlhkX72ZIVHgwwyemkGp7x7hjUAwuNq5eGg==}
+    hasBin: true
+    dependencies:
+      '@hackbg/file': 1.1.0
+      '@hackbg/ganesha': 4.2.0_typescript@5.0.4
+      '@hackbg/logs': 2.0.1
+      '@hackbg/spec': 1.0.0
+      '@types/js-yaml': 4.0.5
+      '@types/markdown-it': 12.2.3
+      c8: 7.13.0
+      glob: 9.3.5
+      highlight.js: 11.8.0
+      js-yaml: 4.1.0
+      markdown-it: 13.0.1
+      markdown-it-anchor: 8.6.7_ea7kj7wzjkld5jo2noyjqxi764
+      markdown-it-highlightjs: 4.0.1
+      markdown-it-table-of-contents: 0.6.0
+      pug: 3.0.2
+      typescript: 5.0.4
+      why-is-node-still-running: 1.0.0
+      ws: 8.13.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: true
+
   /@hackbg/file/1.1.0:
     resolution: {integrity: sha512-qHqFi6/KZrIB8fz5n8+7GJB8iipJmf+UzVi8vUvzMQ9GcjyzVPWQrgUJW7ZBff5smdCfAHtkV4hs47EGNAxOyg==}
     dependencies:
@@ -724,7 +763,7 @@ packages:
   /@types/docker-modem/3.0.2:
     resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
     dependencies:
-      '@types/node': 20.1.0
+      '@types/node': 20.3.1
       '@types/ssh2': 0.5.52
     dev: true
 
@@ -743,7 +782,7 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 3.0.5
-      '@types/node': 20.1.0
+      '@types/node': 20.3.1
     dev: true
 
   /@types/istanbul-lib-coverage/2.0.4:
@@ -787,12 +826,12 @@ packages:
     resolution: {integrity: sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==}
     dev: true
 
-  /@types/node/20.1.0:
-    resolution: {integrity: sha512-O+z53uwx64xY7D6roOi4+jApDGFg0qn6WHcxe5QeqjMaTezBO/mxdfFXIVAVVyNWKx84OmPB3L8kbVYOTeN34A==}
-    dev: true
-
   /@types/node/20.1.3:
     resolution: {integrity: sha512-NP2yfZpgmf2eDRPmgGq+fjGjSwFgYbihA8/gK+ey23qT9RkxsgNTZvGOEpXgzIGqesTYkElELLgtKoMQTys5vA==}
+
+  /@types/node/20.3.1:
+    resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
+    dev: true
 
   /@types/rimraf/3.0.2:
     resolution: {integrity: sha512-F3OznnSLAUxFrCEu/L5PY8+ny8DtcFRjx7fZZ9bycvXRi3KPTRS9HOitGZwvPg0juRhXFWIeKX58cnX5YqLohQ==}
@@ -809,13 +848,13 @@ packages:
   /@types/ssh2-streams/0.1.9:
     resolution: {integrity: sha512-I2J9jKqfmvXLR5GomDiCoHrEJ58hAOmFrekfFqmCFd+A6gaEStvWnPykoWUwld1PNg4G5ag1LwdA+Lz1doRJqg==}
     dependencies:
-      '@types/node': 20.1.0
+      '@types/node': 20.3.1
     dev: true
 
   /@types/ssh2/0.5.52:
     resolution: {integrity: sha512-lbLLlXxdCZOSJMCInKH2+9V/77ET2J6NPQHpFI0kda61Dd1KglJs+fPQBchizmzYSOJBgdTajhPqBO1xxLywvg==}
     dependencies:
-      '@types/node': 20.1.0
+      '@types/node': 20.3.1
       '@types/ssh2-streams': 0.1.9
     dev: true
 
@@ -838,7 +877,7 @@ packages:
       vite: ^3.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 3.2.5_@types+node@20.1.3
+      vite: 3.2.5_@types+node@20.3.1
       vue: 3.2.37
     dev: true
 
@@ -3102,7 +3141,7 @@ packages:
       convert-source-map: 1.8.0
     dev: true
 
-  /vite/3.2.5_@types+node@20.1.3:
+  /vite/3.2.5_@types+node@20.3.1:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -3127,7 +3166,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.1.3
+      '@types/node': 20.3.1
       esbuild: 0.15.18
       postcss: 8.4.21
       resolve: 1.22.1
@@ -3136,7 +3175,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.10_@types+node@20.1.3:
+  /vitepress/1.0.0-alpha.10_@types+node@20.3.1:
     resolution: {integrity: sha512-RGPU+YApj2jaYplAIJUe+2qlDks9FzPX1QGK+7NdGByeCCVZg6z9eYWjjvfvA/sgCtG3yeJE/4/jCwlv4Y8bVw==}
     hasBin: true
     dependencies:
@@ -3147,7 +3186,7 @@ packages:
       '@vueuse/core': 9.12.0_vue@3.2.37
       body-scroll-lock: 4.0.0-beta.0
       shiki: 0.11.1
-      vite: 3.2.5_@types+node@20.1.3
+      vite: 3.2.5_@types+node@20.3.1
       vue: 3.2.37
     transitivePeerDependencies:
       - '@algolia/client-search'
