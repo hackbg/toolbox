@@ -4,5 +4,6 @@
   "type": "module",
   "main": "atom.mjs",
   "types": "atom.d.ts",
-  "files": ["atom.*"]
+  "files": ["atom.*"],
+  "description": "Observable with multiple outputs. Intended for DOM state management."
 }

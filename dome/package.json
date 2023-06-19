@@ -4,5 +4,6 @@
   "type": "module",
   "main": "dome.mjs",
   "types": "dome.d.ts",
-  "files": ["dome.*"]
+  "files": ["dome.*"],
+  "description": "DOM helper library. Create, compose, and query DOM elements quickly and without syntactic hassle."
 }
