@@ -6,15 +6,15 @@ export default function createEmitter (
 
   const emitter = {
     emit: (type, data={}) => {
-      t.dispatchEvent(Object.assign(new Event(type), data))
+      target.dispatchEvent(Object.assign(new Event(type), data))
       return retval
     },
     on: (type, handler) => {
-      t.addEventListener(type, handler)
+      target.addEventListener(type, handler)
       return retval
     },
     off: (type, handler) => {
-      t.removeEventListener(type, handler)
+      target.removeEventListener(type, handler)
       return retval
     },
     once: (type, handler) => {
