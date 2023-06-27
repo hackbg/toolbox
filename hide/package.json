@@ -11,7 +11,7 @@
   "description": "Redefine object properties as non-enumerable.",
   "files": [ "README.md", "hide.ts" ],
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",

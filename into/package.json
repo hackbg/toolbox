@@ -10,7 +10,7 @@
   "description": "Resolve partially asynchronous values and collections.",
   "files": [ "README.md", "into.ts" ],
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "ubik":  "npm test && npm run check && ubik",

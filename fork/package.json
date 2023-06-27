@@ -23,7 +23,7 @@
     "zen-observable": "^0.8.15"
   },
   "devDependencies": {
-    "@hackbg/ganesha": "^2"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "release:dry": "npm run ts:check && npm run ts:clean && ubik dry",

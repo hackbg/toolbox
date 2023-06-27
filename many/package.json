@@ -10,7 +10,7 @@
   "description": "Generalized sync/async iteration over arrays/objects.",
   "files": [ "README.md", "many.ts" ],
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",

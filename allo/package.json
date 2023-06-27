@@ -11,7 +11,7 @@
   "description": "Make objects callable.",
   "files": [ "README.md", "allo.js", "allo.d.ts" ],
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "ubik":  "npm test && npm run check && ubik",

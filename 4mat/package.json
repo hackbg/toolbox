@@ -27,7 +27,7 @@
     "@scure/bip39":         "^1.1.0"
   },
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5"
+    "@hackbg/ganesha": "^4.2"
   },
   "scripts": {
     "ubik":  "npm run check && npm run test && ubik",

@@ -10,7 +10,7 @@
   "description": "Use Braille characters to print binary data.",
   "files": [ "README.md", "dump.ts" ],
   "devDependencies": {
-    "@hackbg/ganesha": "^2.2.5",
+    "@hackbg/ganesha": "^4.2",
     "@hackbg/ubik": "workspace:*"
   },
   "scripts": {
