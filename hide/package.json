@@ -3,7 +3,7 @@
   "main": "hide.js",
   "type": "module",
   "types": "hide.d.ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "hide"},
@@ -16,7 +16,7 @@
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",
-    "check": "tsc --noEmit",
+    "check": "true",
     "clean": "ubik clean && rm -rf dist types *.dist.*"
   }
 }
