@@ -21,7 +21,7 @@ importers:
       open: ^8.4.0
       rimraf: ^3.0.2
       signal-exit: ^3.0.7
-      typedoc: ^0.23.25
+      typedoc: ^0.24.8
       typescript: ^5
       vitepress: 1.0.0-alpha.10
     dependencies:
@@ -39,13 +39,13 @@ importers:
       signal-exit: 3.0.7
     devDependencies:
       '@hackbg/ubik': link:ubik
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
       concurrently: 7.2.2
       husky: 8.0.3
       lint-staged: 13.1.2
-      typedoc: 0.23.25_typescript@5.0.2
+      typedoc: 0.24.8_typescript@5.0.2
       typescript: 5.0.2
-      vitepress: 1.0.0-alpha.10_@types+node@20.3.2
+      vitepress: 1.0.0-alpha.10_@types+node@20.3.3
 
   4mat:
     specifiers:
@@ -823,7 +823,7 @@ packages:
   /@types/docker-modem/3.0.2:
     resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
     dependencies:
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
       '@types/ssh2': 0.5.52
     dev: true
 
@@ -842,7 +842,7 @@ packages:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
       '@types/minimatch': 3.0.5
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
     dev: true
 
   /@types/istanbul-lib-coverage/2.0.4:
@@ -889,8 +889,8 @@ packages:
   /@types/node/20.3.1:
     resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
 
-  /@types/node/20.3.2:
-    resolution: {integrity: sha512-vOBLVQeCQfIcF/2Y7eKFTqrMnizK5lRNQ7ykML/5RuwVXVWxYkgwS7xbt4B6fKCUPgbSL5FSsjHQpaGQP/dQmw==}
+  /@types/node/20.3.3:
+    resolution: {integrity: sha512-wheIYdr4NYML61AjC8MKj/2jrR/kDQri/CIpVoZwldwhnIrD/j9jIU5bJ8yBKuB2VhpFV7Ab6G2XkBjv9r9Zzw==}
     dev: true
 
   /@types/rimraf/3.0.2:
@@ -908,13 +908,13 @@ packages:
   /@types/ssh2-streams/0.1.9:
     resolution: {integrity: sha512-I2J9jKqfmvXLR5GomDiCoHrEJ58hAOmFrekfFqmCFd+A6gaEStvWnPykoWUwld1PNg4G5ag1LwdA+Lz1doRJqg==}
     dependencies:
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
     dev: true
 
   /@types/ssh2/0.5.52:
     resolution: {integrity: sha512-lbLLlXxdCZOSJMCInKH2+9V/77ET2J6NPQHpFI0kda61Dd1KglJs+fPQBchizmzYSOJBgdTajhPqBO1xxLywvg==}
     dependencies:
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
       '@types/ssh2-streams': 0.1.9
     dev: true
 
@@ -937,7 +937,7 @@ packages:
       vite: ^3.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 3.2.5_@types+node@20.3.2
+      vite: 3.2.5_@types+node@20.3.3
       vue: 3.2.37
     dev: true
 
@@ -2349,6 +2349,12 @@ packages:
     hasBin: true
     dev: true
 
+  /marked/4.3.0:
+    resolution: {integrity: sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==}
+    engines: {node: '>= 12'}
+    hasBin: true
+    dev: true
+
   /maximatch/0.1.0:
     resolution: {integrity: sha512-9ORVtDUFk4u/NFfo0vG/ND/z7UQCVZBL539YW0+U1I7H1BkZwizcPx5foFv7LCPcBnm2U6RjFnQOsIvN4/Vm2A==}
     engines: {node: '>=0.10.0'}
@@ -2393,15 +2399,15 @@ packages:
     dependencies:
       brace-expansion: 1.1.11
 
-  /minimatch/6.2.0:
-    resolution: {integrity: sha512-sauLxniAmvnhhRjFwPNnJKaPFYyddAgbYdeUpHULtCT/GhzdCx/MDNy+Y40lBxTQUrMzDE8e0S43Z5uqfO0REg==}
-    engines: {node: '>=10'}
+  /minimatch/8.0.4:
+    resolution: {integrity: sha512-W0Wvr9HyFXZRGIDgCicunpQ299OKXs9RgZfaukz4qAW/pJhcpUfupc9c+OObPOFueNy8VSrZgEmDtk6Kh4WzDA==}
+    engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
     dev: true
 
-  /minimatch/8.0.4:
-    resolution: {integrity: sha512-W0Wvr9HyFXZRGIDgCicunpQ299OKXs9RgZfaukz4qAW/pJhcpUfupc9c+OObPOFueNy8VSrZgEmDtk6Kh4WzDA==}
+  /minimatch/9.0.2:
+    resolution: {integrity: sha512-PZOT9g5v2ojiTL7r1xF6plNHLtOeTpSlDI007As2NlA2aYBMfVom17yqa6QzhmDP8QOhn7LjHTg7DFCVSSa6yg==}
     engines: {node: '>=16 || 14 >=14.17'}
     dependencies:
       brace-expansion: 2.0.1
@@ -3142,16 +3148,16 @@ packages:
     engines: {node: '>=12.20'}
     dev: false
 
-  /typedoc/0.23.25_typescript@5.0.2:
-    resolution: {integrity: sha512-O1he153qVyoCgJYSvIyY3bPP1wAJTegZfa6tL3APinSZhJOf8CSd8F/21M6ex8pUY/fuY6n0jAsT4fIuMGA6sA==}
+  /typedoc/0.24.8_typescript@5.0.2:
+    resolution: {integrity: sha512-ahJ6Cpcvxwaxfu4KtjA8qZNqS43wYt6JL27wYiIgl1vd38WW/KWX11YuAeZhuz9v+ttrutSsgK+XO1CjL1kA3w==}
     engines: {node: '>= 14.14'}
     hasBin: true
     peerDependencies:
-      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x
     dependencies:
       lunr: 2.3.9
-      marked: 4.2.12
-      minimatch: 6.2.0
+      marked: 4.3.0
+      minimatch: 9.0.2
       shiki: 0.14.1
       typescript: 5.0.2
     dev: true
@@ -3201,7 +3207,7 @@ packages:
       convert-source-map: 1.8.0
     dev: true
 
-  /vite/3.2.5_@types+node@20.3.2:
+  /vite/3.2.5_@types+node@20.3.3:
     resolution: {integrity: sha512-4mVEpXpSOgrssFZAOmGIr85wPHKvaDAcXqxVxVRZhljkJOMZi1ibLibzjLHzJvcok8BMguLc7g1W6W/GqZbLdQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -3226,7 +3232,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.3.2
+      '@types/node': 20.3.3
       esbuild: 0.15.18
       postcss: 8.4.21
       resolve: 1.22.1
@@ -3235,7 +3241,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitepress/1.0.0-alpha.10_@types+node@20.3.2:
+  /vitepress/1.0.0-alpha.10_@types+node@20.3.3:
     resolution: {integrity: sha512-RGPU+YApj2jaYplAIJUe+2qlDks9FzPX1QGK+7NdGByeCCVZg6z9eYWjjvfvA/sgCtG3yeJE/4/jCwlv4Y8bVw==}
     hasBin: true
     dependencies:
@@ -3246,7 +3252,7 @@ packages:
       '@vueuse/core': 9.12.0_vue@3.2.37
       body-scroll-lock: 4.0.0-beta.0
       shiki: 0.11.1
-      vite: 3.2.5_@types+node@20.3.2
+      vite: 3.2.5_@types+node@20.3.3
       vue: 3.2.37
     transitivePeerDependencies:
       - '@algolia/client-search'
