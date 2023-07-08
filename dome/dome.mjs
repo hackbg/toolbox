@@ -1,7 +1,7 @@
 export class Dome extends function _Dome (root) {
   return function DOMFactory (selector = 'div', ...args) {
     const [type, ...classes] = selector.split('.')
-    const node = globalThis.document.createElement(type)
+    const node = globalThis.document.createElement(type||'div')
     for (const arg of args) {
       if (arg instanceof Array) {
         node.appendChild(DOMFactory(...arg))
