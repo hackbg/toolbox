@@ -17,16 +17,22 @@ and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and
 These tools help with generic software development tasks,
 such as testing, package publishing, and logging.
 
+<div align="center">
+
 |Package|NPM|What it does|Source|Target|
 |---|---|---|---|---|
 |[**@hackbg/ubik**](./ubik/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/ubik?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/ubik)|**Publish TS as CJS+ESM+DTS.**  |CJS    |Backend   |
 |[**@hackbg/spec**](./spec/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/spec)|**Test runner and reporter.**   |CJS    |Isomorphic|
 |[**@hackbg/logs**](./logs/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/logs?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/logs)|**Prefixed console.**           |CJS+ESM|Isomorphic|
 
+</div>
+
 ## The "Page" suite
 
 These tools help with frontend tasks, and constitute a
 DOM microframework for conscientious objectors to React.
+
+<div align="center">
 
 |Package|NPM|What it does|Source|Target|
 |---|---|---|---|---|
@@ -34,10 +40,14 @@ DOM microframework for conscientious objectors to React.
 |[**@hackbg/emit**](./emit/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/emit?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/emit)|**EventTarget -> on/off/once.**           |MJS|Isomorphic|
 |[**@hackbg/atom**](./atom/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/atom?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/atom)|**Observable data atom.**                 |MJS|Isomorphic|
 
+</div>
+
 ## The "Unix" suite
 
 These tools help with standard scripting tasks in POSIX environments,
 dealing with files, ports, containers, command line arguments...
+
+<div align="center">
 
 |Package|NPM|What it does|Source|Target|
 |---|---|---|---|---|
@@ -47,12 +57,18 @@ dealing with files, ports, containers, command line arguments...
 |[**@hackbg/file**](./file/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/file?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/file)|**Filesystem model.**           |TS     |Backend   |
 |[**@hackbg/port**](./port/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |TS     |Backend   |
 
+</div>
+
 ## The "Data" suite
+
+<div align="center">
 
 |Package|NPM|What it does|Source|Target|
 |---|---|---|---|---|
 |[**@hackbg/4mat**](./4mat/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/4mat?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/4mat)|**Data encodings and formats.** |TS     |Isomorphic|
 |[**@hackbg/dump**](./dump/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dump?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dump)|**Brailledump implementation.** |TS     |Isomorphic|
+
+</div>
 
 ---
 
