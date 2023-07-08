@@ -10,6 +10,8 @@
 Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://foss.hack.bg),<br>
 and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and validation framework.
 
+</div>
+
 ## The "Meta" suite
 
 These tools help with generic software development tasks,
@@ -53,6 +55,8 @@ dealing with files, ports, containers, command line arguments...
 |[**@hackbg/dump**](./dump/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dump?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dump)|**Brailledump implementation.** |TS     |Isomorphic|
 
 ---
+
+<div align="center">
 
 Made with [**#%&!**](https://foss.hack.bg) @ [**Hack.bg**](https://hack.bg).
 
