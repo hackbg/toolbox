@@ -5,10 +5,7 @@
 [![NPM version](https://img.shields.io/npm/v/@hackbg/toolbox?color=9013fe&label=@hackbg/toolbox&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/toolbox)
 [![Built with PNPM](https://img.shields.io/badge/Built%20with-PNPM-%239013fe?style=for-the-badge)](https://pnpm.io)
 
-General utilities for Node.js.
-
-Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://foss.hack.bg),<br>
-and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and validation framework.
+Your ECMAScript survival kit. Tiny, four-letter magic words for for Node.js and browsers.
 
 |Package|NPM|What it does|Source|Target|
 |---|---|---|---|---|
@@ -22,6 +19,9 @@ and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and
 |[**@hackbg/port**](./port/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |TS     |Backend   |
 |[**@hackbg/spec**](./spec/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/spec?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/spec)|**Test runner and reporter.**   |CJS    |Isomorphic|
 ||| and more ... |
+
+Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://foss.hack.bg),<br>
+and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and validation framework.
 
 ---
 
