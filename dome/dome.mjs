@@ -1,7 +1,6 @@
 export class Dome extends function _Dome (root) {
-
   return function DOMFactory (type = 'div', ...args) {
-    const node = (root.createElement||globalThis.document).createElement(type)
+    const node = root.createElement(type)
     for (const arg of args) {
       if (arg instanceof Array) {
         node.appendChild(DOMFactory(...arg))
@@ -18,7 +17,7 @@ export class Dome extends function _Dome (root) {
 
 } {
   constructor (root) {
-    super()
+    super(root)
     this.root = root
   }
   /** Get an element by id or throw */
