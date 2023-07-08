@@ -1,20 +1,23 @@
 export class Dome extends function _Dome (root) {
-  return function DOMFactory (type = 'div', ...args) {
-    const node = root.createElement(type)
+  return function DOMFactory (selector = 'div', ...args) {
+    const [type, ...classes] = selector.split('.')
+    const node = globalThis.document.createElement(type)
     for (const arg of args) {
       if (arg instanceof Array) {
         node.appendChild(DOMFactory(...arg))
       } else if (arg instanceof Node) {
         node.appendChild(arg)
-      } else if (typeof arg==='object' && Object.getPrototypeOf(arg)===Object.getPrototypeOf({})) {
+      } else if (arg && typeof arg==='object' && Object.getPrototypeOf(arg)===Object.getPrototypeOf({})) {
         for (const key in arg) Object.assign(node, arg)
       } else if (arg) {
         node.appendChild(new Text(arg.toString()))
       }
     }
+    for (const className of classes) {
+      node.classList.add(className)
+    }
     return node
   }
-
 } {
   constructor (root) {
     super(root)
