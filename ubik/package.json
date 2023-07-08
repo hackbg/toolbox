@@ -3,6 +3,8 @@
   "version": "1.3.9",
   "type": "module",
   "main": "ubik.js",
+  "homepage": "https://github.com/hackbg/toolbox/tree/main/ubik",
+  "repository": "hackbg/toolbox",
   "bin": { "ubik": "./ubik.cli.js" },
   "description": "Publish TypeScript packages as both CJS and ESM, fixing ESM extensions for Node 16+.",
   "files": [ "README.md", "ubik.js" ],
