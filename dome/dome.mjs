@@ -44,8 +44,7 @@ export class Dome extends function _Dome (root) {
     return node
   }
   /** Create a new DocumentFragment with the passed nodes. */
-  frag = (...nodes) =>
-    append(new DocumentFragment(), ...nodes)
+  frag = (...nodes) => this.append(new DocumentFragment(), ...nodes)
 }
 
 export default new Dome(globalThis.document)
