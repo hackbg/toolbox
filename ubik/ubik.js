@@ -28,7 +28,7 @@ import { Console, bold } from '@hackbg/logs'
 const ubikPackageJson = resolve(dirname(fileURLToPath(import.meta.url)), 'package.json')
 const ubikVersion     = JSON.parse(readFileSync(ubikPackageJson, 'utf8')).version
 const console         = new Console(`Ubik ${ubikVersion}`)
-console.warn(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
+if (process.env.UBIK_VERBOSE) console.warn(`Remembering the Node16/TS4 ESM crisis of April 2022...`)
 
 // To draw boxes around things.
 // Use with `(await boxen)` because of ERR_REQUIRE_ESM
@@ -84,8 +84,10 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
   function runConcurrently (commands) {
     commands ||= []
-    console.log(`Running ${commands.length} commands in`, cwd)
-    commands.forEach(command=>console.log(' -', command))
+    if (process.env.UBIK_VERBOSE) {
+      console.log(`Running ${commands.length} commands in`, cwd)
+      commands.forEach(command=>console.log(' -', command))
+    }
     return concurrently(commands, { cwd })
   }
 
@@ -100,7 +102,6 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const { packageJson, skip } = readPackageJson()
     const { name, version } = packageJson
     if (skip) {
-      console.log(`Package ${bold(name)} @ ${bold(version)} already contains a "ubik" key; skipping.`)
       return
     }
     /** First deduplication: Make sure the Git tag doesn't exist. */
@@ -108,7 +109,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
     /** Second deduplication: Make sure the library is not already published. */
     if (await isPublished(name, version, wet)) return
     /** Print the contents of package.json if we'll be publishing. */
-    console.log('Original package.json:', JSON.stringify(packageJson))
+    if (process.env.UBIK_VERBOSE) console.log('Original package.json:', JSON.stringify(packageJson))
     /** In wet mode, try a dry run first. */
     if (wet) {
       preliminaryDryRun()
@@ -237,8 +238,9 @@ export default async function ubik (cwd, command, ...publishArgs) {
   /** Load package.json. Bail if already modified. */
   function readPackageJson () {
     const packageJson = JSON.parse(readFileSync($('package.json'), 'utf8'))
-    if (packageJson.ubik) {
+    if (packageJson['ubik']) {
       if (process.env.UBIK_SKIP_FIXED) {
+        console.warn(`Package ${bold(packageJson.name)} @ ${bold(packageJson.version)} already contains key "ubik"; skipping.`)
         return { packageJson, skip: true }
       } else {
         throw new Error(
@@ -246,9 +248,12 @@ export default async function ubik (cwd, command, ...publishArgs) {
           `(e.g. "mv package.json.bak package.json" or "git checkout package.json") and try again`
         )
       }
-    } else {
-      return { packageJson }
     }
+    if (packageJson['private']) {
+      console.log(`Package ${bold(packageJson.name)} is private; skipping.`)
+      return { packageJson, skip: true }
+    }
+    return { packageJson }
   }
 
   // Bail if Git tag already exists
@@ -260,7 +265,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         `Increment version in package.json or delete tag to proceed.`
       throw new Error(msg)
     } catch (e) {
-      console.log(`Git tag "${tag}" not found`)
+      if (process.env.UBIK_VERBOSE) console.log(`Git tag "${tag}" not found`)
       return tag
     }
   }
@@ -303,7 +308,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
 
   // Compile TS -> JS
   async function compileTypeScript () {
-    console.log('Compiling TypeScript...')
+    if (process.env.UBIK_VERBOSE) console.log('Compiling TypeScript...')
     const result = await runConcurrently([
       // TS -> ESM
       `${TSC} --outDir ${esmOut} --target es2016 --module es6 --declaration --declarationDir ${dtsOut}`,
@@ -373,6 +378,9 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const dtsMain = replaceExtension(main, '.ts', distDtsExt)
     packageJson.types = toRel(dtsMain)
     packageJson.exports ??= {}
+    if (process.env.UBIK_FORCE_TS && packageJSON.main.endsWith('.js')) {
+      throw new Error('UBIK_FORCE_TS is on, but "main" has "js" extension. This won\'t work')
+    }
     if (isESModule) {
       packageJson.main = toRel(esmMain)
       packageJson.exports["."] = {
@@ -418,8 +426,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}${usedEsmExt}`
           console3.log(oldValue, '->', newValue)
-          declaration.source.value = newValue
-          declaration.source.raw = JSON.stringify(newValue)
+          Object.assign(declaration.source, { value: newValue, raw: JSON.stringify(newValue) })
           modified = true
         }
       }
@@ -455,8 +462,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         if (isRelative && isNotPatched) {
           const newValue = `${oldValue}.dist`
           console3.log(oldValue, '->', newValue)
-          declaration.source.value = newValue
-          declaration.source.raw = JSON.stringify(newValue)
+          Object.assign(declaration.source, { value: newValue, raw: JSON.stringify(newValue) })
           modified = true
         }
       }
