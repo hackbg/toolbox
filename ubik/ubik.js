@@ -56,9 +56,9 @@ const replaceExtension = (x, a, b) => join(dirname(x), `${basename(x, a)}${b}`)
 // Determine which package manager to use:
 let packageManager = 'npm'
 if (process.env.UBIK_PACKAGE_MANAGER) packageManager = process.env.UBIK_PACKAGE_MANAGER
-try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { console.info('Yarn: not installed') }
-try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { console.info('PNPM: not installed') }
-console.info(`Using package manager:`, bold(packageManager), `(set`, bold('UBIK_PACKAGE_MANAGER'), 'to change)')
+try { execSync('yarn version'); packageManager = 'yarn' } catch (e) { if (process.env.UBIK_VERBOSE) console.info('Yarn: not installed') }
+try { execSync('pnpm version'); packageManager = 'pnpm' } catch (e) { if (process.env.UBIK_VERBOSE) console.info('PNPM: not installed') }
+if (process.env.UBIK_VERBOSE) console.info(`Using package manager:`, bold(packageManager), `(set`, bold('UBIK_PACKAGE_MANAGER'), 'to change)')
 
 // Main function:
 export default async function ubik (cwd, command, ...publishArgs) {
@@ -97,8 +97,12 @@ export default async function ubik (cwd, command, ...publishArgs) {
     keep = false
   ) {
     /** Need the contents of package.json and a way to restore it after modification. */
-    const { packageJson } = readPackageJson()
+    const { packageJson, skip } = readPackageJson()
     const { name, version } = packageJson
+    if (skip) {
+      console.log(`Package ${bold(name)} @ ${bold(version)} already contains a "ubik" key; skipping.`)
+      return
+    }
     /** First deduplication: Make sure the Git tag doesn't exist. */
     const tag = ensureFreshTag(name, version)
     /** Second deduplication: Make sure the library is not already published. */
@@ -233,11 +237,18 @@ export default async function ubik (cwd, command, ...publishArgs) {
   /** Load package.json. Bail if already modified. */
   function readPackageJson () {
     const packageJson = JSON.parse(readFileSync($('package.json'), 'utf8'))
-    if (packageJson.ubik) throw new Error(
-      `This is already the modified, temporary package.json. Restore the original ` +
-      `(e.g. "mv package.json.bak package.json" or "git checkout package.json") and try again`
-    )
-    return { packageJson }
+    if (packageJson.ubik) {
+      if (process.env.UBIK_SKIP_FIXED) {
+        return { packageJson, skip: true }
+      } else {
+        throw new Error(
+          `This is already the modified, temporary package.json. Restore the original ` +
+          `(e.g. "mv package.json.bak package.json" or "git checkout package.json") and try again`
+        )
+      }
+    } else {
+      return { packageJson }
+    }
   }
 
   // Bail if Git tag already exists
@@ -258,13 +269,13 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const url = `https://registry.npmjs.org/${name}/${version}`
     const response = await fetch(url)
     if (response.status === 200) {
-      console.log(`NPM package ${name} ${version} already exists.`)
+      if (process.env.UBIK_VERBOSE) console.log(`NPM package ${name} ${version} already exists.`)
       if (wet) {
         console.log(`OK, not publishing:`, url)
         return true
       }
     } else if (response.status !== 404) {
-      throw new Error(`ubik: NPM returned ${response.statusCode}`)
+      throw new Error(`ubik: NPM returned ${bold(String(response.status))} when looking for ${bold(name)} @ ${bold(version)}`)
     }
   }
 
