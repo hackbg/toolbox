@@ -2,8 +2,14 @@
 
 # @hackbg/ubik
 
+![](./ubik.svg)
+
 Opinionated shim for publishing isomorphic TypeScript libraries to NPM,
 in response to the current multilevel fragmentation of the JS packaging landscape.
+
+When used in combination with the [**Ganesha**](https://github.com/hackbg/ganesha)
+module loader, the aim is to make usage of TypeScript completely transparent
+(no build step during development, monolithic publish step).
 
 </div>
 
