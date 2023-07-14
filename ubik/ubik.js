@@ -112,7 +112,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
       makeSureRunIsDry(publishArgs)
     }
     /** Determine if this is a TypeScript package that needs to be compiled and patched. */
-    const isTypeScript = (packageJson.main||'').endsWith('.ts')
+    const isTypeScript = process.env.UBIK_FORCE_TS || (packageJson.main||'').endsWith('.ts')
     try {
       /** Do the TypeScript magic if it's necessary. */
       if (isTypeScript) {
