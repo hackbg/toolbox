@@ -11,7 +11,11 @@ import fetch from 'node-fetch'
 
 // To speed things up - runs ESM and CJS compilations in parallel
 import concurrently from 'concurrently'
+
+// File ops woefully missing from node stdlib.
+// FIXME: Use @hackbg/file (gotta separate the TS from it)
 import rimraf from 'rimraf'
+import {mkdirpSync} from 'mkdirp'
 
 // To fix import statements after compiling to ESM
 import recast from 'recast'
@@ -357,6 +361,7 @@ export default async function ubik (cwd, command, ...publishArgs) {
         if (!file.endsWith(ext1)) continue
         const srcFile = $(file)
         const newFile = replaceExtension(relative(dir, file), ext1, ext2)
+        mkdirpSync(dirname(newFile))
         log(`${toRel(srcFile)} -> ${toRel(newFile)}`)
         copyFileSync(srcFile, newFile)
         unlinkSync(srcFile)
@@ -378,8 +383,14 @@ export default async function ubik (cwd, command, ...publishArgs) {
     const dtsMain = replaceExtension(main, '.ts', distDtsExt)
     packageJson.types = toRel(dtsMain)
     packageJson.exports ??= {}
-    if (process.env.UBIK_FORCE_TS && packageJSON.main.endsWith('.js')) {
-      throw new Error('UBIK_FORCE_TS is on, but "main" has "js" extension. This won\'t work')
+    if (process.env.UBIK_FORCE_TS && packageJson.main.endsWith('.js')) {
+      console.error(
+        `${bold('UBIK_FORCE_TS')} is on, but "main" has "js" extension.`,
+        bold('Make "main" point to the TS index')
+      )
+      throw new Error(
+        'UBIK_FORCE_TS is on, but "main" has "js" extension. Make "main" point to the TS index'
+      )
     }
     if (isESModule) {
       packageJson.main = toRel(esmMain)
