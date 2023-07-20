@@ -1,5 +1,5 @@
 {
-  "exclude": [ "*.test.js" ],
+  "exclude": [ "*.test.js", "dist/**/*" ],
   "compilerOptions": {
     "outDir":                       "dist",
     "target":                       "es2020",

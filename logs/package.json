@@ -1,9 +1,13 @@
 {
   "name": "@hackbg/logs",
-  "main": "logs.mjs",
-  "type": "module",
   "version": "2.0.1",
+  "main": "logs.mjs",
   "types": "logs.d.ts",
+  "type": "module",
+  "exports": {
+    "import":  "./logs.mjs",
+    "require": "./logs.cjs"
+  },
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "logs"},

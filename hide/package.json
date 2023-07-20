@@ -1,9 +1,13 @@
 {
   "name": "@hackbg/hide",
-  "main": "hide.js",
-  "type": "module",
-  "types": "hide.d.ts",
   "version": "1.0.1",
+  "main": "hide.js",
+  "types": "hide.d.ts",
+  "type": "module",
+  "exports": {
+    "import":  "./hide.mjs",
+    "require": "./hide.cjs"
+  },
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "hide"},

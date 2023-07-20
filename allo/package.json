@@ -1,9 +1,13 @@
 {
   "name": "@hackbg/allo",
-  "main": "allo.js",
-  "type": "module",
   "version": "1.0.1",
+  "main": "allo.mjs",
   "types": "allo.d.ts",
+  "type": "module",
+  "exports": {
+    "import":  "./allo.mjs",
+    "require": "./allo.cjs"
+  },
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "allo"},
