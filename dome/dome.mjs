@@ -45,6 +45,13 @@ export class Dome extends function _Dome (root) {
   }
   /** Create a new DocumentFragment with the passed nodes. */
   frag = (...nodes) => this.append(new DocumentFragment(), ...nodes)
+  /** Bind one or more event handlers to a target; return the target. */
+  bind = (element, events = {}) => {
+    for (const [event, handler] of Object.entries(events)) {
+      element.addEventListener(event, handler)
+    }
+    return element
+  }
 }
 
 export default new Dome(globalThis.document)
