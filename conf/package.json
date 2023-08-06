@@ -1,14 +1,14 @@
 {
   "name":        "@hackbg/conf",
-  "version":     "3.1.1",
-  "main":        "conf.ts",
+  "version":     "3.1.2",
+  "main":        "conf.mjs",
   "type":        "module",
   "homepage":    "https://github.com/hackbg/toolbox",
   "bugs":        "https://github.com/hackbg/toolbox/issues",
   "repository":  {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "conf"},
   "license":     "MIT",
   "description": "Command runner.",
-  "files":       [ "README.md", "*.ts" ],
+  "files":       [ "README.md", "*.ts", "*.mjs" ],
   "scripts": {
     "ubik":  "npm run check && ubik",
     "check": "tsc --noEmit",

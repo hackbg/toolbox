@@ -2,59 +2,52 @@ import { overrideFiltered } from '@hackbg/over'
 
 export class ConfigError extends Error {
   static Required = class EnvConfigRequiredError extends ConfigError {
-    constructor (name: string, type: string) {
+    constructor (name, type) {
       super(`The environment variable ${name} must be a ${type}`)
     }
   }
 }
 
 export class Config {
-  constructor (readonly environment: Environment = Environment.initial) {}
-  override (options: object) {
+  constructor (environment = Environment.initial) {}
+  override (options) {
     overrideFiltered(false, this, options)
     return this
   }
-  getFlag <T extends boolean, U> (name: string, fallback?: ()=>T|U): T|U {
+  getFlag (name, fallback) {
     return this.environment.getFlag<T, U>(name, fallback)
   }
-  getString <T extends string, U> (name: string, fallback?: ()=>T|U): T|U {
+  getString (name, fallback) {
     return this.environment.getString<T, U>(name, fallback)
   }
-  getNumber <T extends number, U> (name: string, fallback?: ()=>T|U): T|U {
+  getNumber (name, fallback) {
     return this.environment.getNumber<T, U>(name, fallback)
   }
 }
 
 export class Environment {
-  constructor (
-    /** Current working directory. */
-    readonly cwd:  string             = '',
-    /** Environment variables */
-    readonly vars: typeof process.env = {},
-    /** Tag to identify the environment (e.g. timestamp) */
-    readonly tag:  string|undefined = String(+new Date())
-  ) {
+  constructor (cwd, vars = {}, tag = String(+new Date())) {
     Object.defineProperty(this, 'vars', { configurable: true, enumerable: false })
   }
 
   get [Symbol.toStringTag]() { return this.tag }
 
-  getFlag <T extends boolean, U> (name: string, fallback?: ()=>T|U): T|U {
+  getFlag (name, fallback) {
     if (name in this.vars) {
       const value = (this.vars[name]??'').trim()
-      return !Environment.FALSE.includes(value) as T
+      return !Environment.FALSE.includes(value)
     }
     if (fallback) return fallback()
     throw new ConfigError.Required(name, 'boolean')
   }
 
-  getString <T extends string, U> (name: string, fallback?: ()=>T|U): T|U {
-    if (name in this.vars) return String(this.vars[name] as string) as T
+  getString (name, fallback) {
+    if (name in this.vars) return String(this.vars[name])
     if (fallback) return fallback()
     throw new ConfigError.Required(name, 'string')
   }
 
-  getNumber <T extends number, U> (name: string, fallback?: ()=>T|U): T|U {
+  getNumber (name, fallback) {
     if (name in this.vars) {
       const value = (this.vars[name]??'').trim()
       if (value === '') {
@@ -63,7 +56,7 @@ export class Environment {
       }
       const number = Number(value)
       if (isNaN(number)) throw new ConfigError.Required(name, 'number')
-      return number as T
+      return number
     } else if (fallback) {
       return fallback()
     } else {
