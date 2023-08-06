@@ -1,7 +1,10 @@
 /** Create an observable value with multiple display representations. */
 export default function createAtom (format = (value, previous) => value) {
-  const instances = new Set() 
+
+  const instances = new Set()
+
   let value
+
   return Object.assign(atom, {
     format,
     get: () => value,
@@ -17,17 +20,30 @@ export default function createAtom (format = (value, previous) => value) {
       return atom
     },
   })
+
   function atom (...args) {
+
     if (args.length === 0) return atom.format(value)
+
     const [renderer = (x, previous) => x.toString()] = args
-    if (typeof renderer !== 'function') throw new Error('instance renderer must be a function')
-    const instance = {
+
+    if (typeof renderer !== 'function') {
+      throw new Error('@hackbg/atom: instance renderer must be a function')
+    }
+
+    let instance
+
+    instances.add(instance = {
+
       renderer,
+
       rendered: null,
+
       detach: () => {
         instances.remove(instance)
         return instance
       },
+
       update: () => {
         const formatted = atom.format(value)
         const rendered = instance.renderer(formatted, instance.rendered)
@@ -37,8 +53,11 @@ export default function createAtom (format = (value, previous) => value) {
         }
         return instance.rendered
       }
-    }
-    instances.add(instance)
+
+    })
+
     return instance
+
   }
+
 }
