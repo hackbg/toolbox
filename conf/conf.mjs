@@ -9,7 +9,9 @@ export class ConfigError extends Error {
 }
 
 export class Config {
-  constructor (environment = Environment.initial) {}
+  constructor (environment = Environment.initial) {
+    this.environment = environment
+  }
   override (options) {
     overrideFiltered(false, this, options)
     return this
@@ -27,6 +29,9 @@ export class Config {
 
 export class Environment {
   constructor (cwd, vars = {}, tag = String(+new Date())) {
+    this.cwd  = cwd
+    this.vars = vars
+    this.tag  = tag
     Object.defineProperty(this, 'vars', { configurable: true, enumerable: false })
   }
 
