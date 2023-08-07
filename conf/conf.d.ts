@@ -5,9 +5,9 @@ export class ConfigError extends Error {
 }
 
 export class Config {
-  constructor (environment: Environment)
-  readonly environment: Environment
-  override (options: object)
+  constructor (environment?: Environment)
+  readonly environment?: Environment
+  override (options: object): this
   getFlag <T extends boolean, U> (name: string, fallback?: ()=>T|U): T|U
   getString <T extends string, U> (name: string, fallback?: ()=>T|U): T|U
   getNumber <T extends number, U> (name: string, fallback?: ()=>T|U): T|U
