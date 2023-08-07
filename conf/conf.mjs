@@ -17,13 +17,13 @@ export class Config {
     return this
   }
   getFlag (name, fallback) {
-    return this.environment.getFlag<T, U>(name, fallback)
+    return this.environment.getFlag(name, fallback)
   }
   getString (name, fallback) {
-    return this.environment.getString<T, U>(name, fallback)
+    return this.environment.getString(name, fallback)
   }
   getNumber (name, fallback) {
-    return this.environment.getNumber<T, U>(name, fallback)
+    return this.environment.getNumber(name, fallback)
   }
 }
 

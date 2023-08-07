@@ -1,6 +1,6 @@
 {
   "name":        "@hackbg/conf",
-  "version":     "3.1.4",
+  "version":     "3.1.5",
   "main":        "conf.mjs",
   "types":       "conf.d.ts",
   "type":        "module",
