@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const { Console, bold } = require('@hackbg/logs')
+const console = new Console(`@hackbg/cmds ${require('./package.json').version}`)
+
 // Check if ganesha (ts loader) is available
 let ganesha
 try {
@@ -9,8 +12,9 @@ try {
 }
 
 if (ganesha && !process.env.CMDS_TS) {
+  const { version: ganeshaVersion } = require('@hackbg/ganesha/package.json')
   // If ganesha is available and not enabled restart through ganesha
-  console.info('Enabling TypeScript support...')
+  console.info(`TS compiled on import by`, bold(`@hackbg/ganesha ${ganeshaVersion}`))
   if (process.env.CMDS_DEBUG) enableDebugMode()
   if (ganesha) {
     process.env.CMDS_TS = 1
@@ -19,12 +23,35 @@ if (ganesha && !process.env.CMDS_TS) {
   }
 } else {
   // Run the default export of the commands module
-  if (process.env.CMDS_TS) console.info('TypeScript support enabled.\n')
+  if (process.env.CMDS_TS) console.info('TS support enabled. On-demand compilation may be slower.\n')
   const entrypoint = require('path').resolve(process.cwd(), process.argv[2])
   import(entrypoint).then(module=>{
-    const commands = new (module.default)()
-    commands.run(process.argv.slice(3))
+    let commands
+    try {
+      commands = new (module.default)()
+    } catch (e) {
+      console.error('Failed to instantiate command module:', bold(entrypoint))
+      console.error(e)
+      commandModuleUsage()
+      process.exit(1)
+    }
+    if (commands.run instanceof Function) {
+      commands.run(process.argv.slice(3))
+    } else {
+      console.error('Invalid command module:', bold(entrypoint))
+      commandModuleUsage()
+      process.exit(1)
+    }
   })
+}
+
+function commandModuleUsage (entrypoint) {
+  console.error('A valid command module:')
+  console.error('  - Must be a valid ECMAScript module;')
+  console.error('  - Must "export default" a class, which')
+  console.error('    extends CommandContext, or otherwise')
+  console.error('    has a run(...argv) method.')
+  process.exit(1)
 }
 
 function enableDebugMode () {
