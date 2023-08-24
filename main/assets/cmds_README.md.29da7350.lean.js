@@ -1,1 +1,0 @@
-import{_ as s,c as a,o as n,d as o}from"./app.5fed9173.js";const d=JSON.parse('{"title":"@hackbg/cmds","description":"","frontmatter":{},"headers":[],"relativePath":"cmds/README.md"}'),p={name:"cmds/README.md"},l=o("",3),e=[l];function c(t,r,D,y,C,F){return n(),a("div",null,e)}const m=s(p,[["render",c]]);export{d as __pageData,m as default};
