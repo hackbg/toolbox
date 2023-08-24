@@ -98,18 +98,14 @@ export class Path {
   /** @returns Path to directory relative to this. */
   at (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
-    if (sub.isDirectory()) {
-      throw new Error(`Path#at: use .in() to descend into directory: ${sub.path}`)
-    }
+    if (sub.isDirectory()) this.log.warn(`expected ${sub.shortPath} to be a directory`)
     return sub
   }
 
   /** @returns Path to file relative to this. */
   in (...fragments: string[]): Path {
     const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
-    if (sub.isFile()) {
-      throw new Error(`use .at() to point to file: ${sub.path}`)
-    }
+    if (sub.isFile()) this.log.warn(`expected ${sub.shortPath} to be a file`)
     return sub
   }
 
