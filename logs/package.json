@@ -19,7 +19,7 @@
   "files": [ "README.md", "logs.cjs", "logs.mjs", "logs.d.ts" ],
   "dependencies": {
     "@hackbg/allo": "workspace:^1",
-    "@hackbg/hide": "workspace:^1",
+    "@hackbg/hide": "workspace:^1.0.2",
     "chalk": "^4"
   },
   "devDependencies": {

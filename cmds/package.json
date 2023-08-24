@@ -22,7 +22,7 @@
     "@hackbg/logs": "workspace:^2.0.4",
     "@hackbg/task": "workspace:^1",
     "@hackbg/time": "workspace:^1",
-    "@hackbg/hide": "workspace:^1"
+    "@hackbg/hide": "workspace:^1.0.2"
   },
   "devDependencies": {
     "@hackbg/ensuite": "^1.4.4"
