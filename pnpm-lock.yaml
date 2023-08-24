@@ -109,7 +109,7 @@ importers:
         specifier: workspace:^1.0.2
         version: link:../hide
       '@hackbg/logs':
-        specifier: workspace:^2.0.4
+        specifier: workspace:^2.0.5
         version: link:../logs
       '@hackbg/task':
         specifier: workspace:^1
