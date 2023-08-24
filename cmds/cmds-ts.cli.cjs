@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { Console, bold } = require('@hackbg/logs')
+const { Console, bold } = require('@hackbg/logs/logs.cjs')
 const console = new Console(`@hackbg/cmds ${require('./package.json').version}`)
 
 // Check if ganesha (ts loader) is available
