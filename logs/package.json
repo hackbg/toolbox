@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/logs",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "main": "logs.mjs",
   "types": "logs.d.ts",
   "type": "module",
@@ -19,7 +19,7 @@
   "files": [ "README.md", "logs.cjs", "logs.mjs", "logs.d.ts" ],
   "dependencies": {
     "@hackbg/allo": "workspace:^1",
-    "@hackbg/hide": "workspace:^1.0.2",
+    "@hackbg/hide": "workspace:^1.0.3",
     "chalk": "^4"
   },
   "devDependencies": {

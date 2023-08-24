@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/hide",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "hide.js",
   "types": "hide.d.ts",
   "type": "module",
@@ -16,7 +16,7 @@
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "hide"},
   "license": "MIT",
   "description": "Redefine object properties as non-enumerable.",
-  "files": [ "README.md", "hide.ts" ],
+  "files": [ "README.md", "hide.ts", "hide.cjs", "hide.d.ts", "hide.mjs" ],
   "devDependencies": {
     "@hackbg/ganesha": "^4.2"
   },
