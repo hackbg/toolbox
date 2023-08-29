@@ -313,11 +313,15 @@ export default async function ubik (cwd, command, ...publishArgs) {
   // Compile TS -> JS
   async function compileTypeScript () {
     if (process.env.UBIK_VERBOSE) console.log('Compiling TypeScript...')
+    const esmModule = process.env.UBIK_ESM_MODULE || 'esnext'
+    const esmTarget = process.env.UBIK_ESM_TARGET || 'esnext'
+    const cjsModule = process.env.UBIK_CJS_MODULE || 'commonjs'
+    const cjsTarget = process.env.UBIK_CJS_TARGET || 'es6'
     const result = await runConcurrently([
       // TS -> ESM
-      `${TSC} --outDir ${esmOut} --target es2016 --module es6 --declaration --declarationDir ${dtsOut}`,
+      `${TSC} --outDir ${esmOut} --target ${esmTarget} --module ${esmModule} --declaration --declarationDir ${dtsOut}`,
       // TS -> CJS
-      `${TSC} --outDir ${cjsOut} --target es6 --module commonjs`
+      `${TSC} --outDir ${cjsOut} --target ${cjsTarget} --module ${cjsModule}`
     ], { cwd }).result
   }
 
