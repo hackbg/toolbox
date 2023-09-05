@@ -298,6 +298,7 @@ class DockerContainer extends Container {
 
   async remove (): Promise<this> {
     if (this.container) await this.container.remove()
+    this.container = null
     return this
   }
 
