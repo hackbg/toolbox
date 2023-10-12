@@ -68,25 +68,25 @@ export class DockConsole extends Console {
     this // this.info('Image exists')
 
   notCachedPulling = () =>
-    this.log('not cached, pulling')
+    this.log('Not cached, pulling')
 
   notFoundBuilding = (msg: string) =>
-    this.log(`not found in registry, building (${msg})`)
+    this.log(`Not found in registry, building (${msg})`)
 
   buildingFromDockerfile = (file: string) =>
-    this.log(`using dockerfile`, bold(file))
+    this.log(`Using dockerfile:`, bold(file))
 
   creatingContainer = (name?: string) =>
-    this.log(`creating container`, name)
+    this.log(`Creating container`, name)
 
   boundPort = (containerPort: any, hostPort: any) =>
-    this.log(`bind container port ${containerPort} to host port ${hostPort}`)
+    this.debug(`Bind container port ${containerPort} to host port ${hostPort}`)
 
   boundVolume = (bind: any) =>
-    this.log(`bind mount`, bind)
+    this.debug(`Bind mount`, bind)
 
   createdWithWarnings = (id: string, warnings?: any) => {
-    this.warn(`warnings when creating container ${id}:`)
+    this.warn(`Warnings when creating ${id}:`)
     if (warnings) this.warn(warnings)
     return this
   }

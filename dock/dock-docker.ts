@@ -270,7 +270,7 @@ class DockerContainer extends Container {
 
     // Log mounted volumes
     for (const bind of opts?.HostConfig?.Binds ?? []) {
-      this.log.log('bind:', bind)
+      this.log.boundVolume(bind)
     }
 
     // Log exposed ports
@@ -318,11 +318,11 @@ class DockerContainer extends Container {
     const id = this.shortId
     const prettyId = bold(id.slice(0,8))
     if (await this.isRunning) {
-      log.log(`stopping ${prettyId}...`)
+      log.log(`Stopping ${prettyId}...`)
       await this.dockerode.getContainer(id).kill()
-      log.log(`stopped ${prettyId}`)
+      log.log(`Stopped ${prettyId}`)
     } else {
-      log.warn(`container already stopped: ${prettyId}`)
+      log.warn(`Container already stopped: ${prettyId}`)
     }
     return this
   }
@@ -390,7 +390,7 @@ class DockerContainer extends Container {
   async export (repository?: string, tag?: string) {
     if (!this.container) throw new Error.NoContainer()
     const { Id } = await this.container.commit({ repository, tag })
-    this.log.log(`exported snapshot:`, bold(Id))
+    this.log.log(`Exported snapshot:`, bold(Id))
     return Id
   }
 
@@ -413,7 +413,9 @@ export async function follow (
 
 /** (to the tune of "What does the fox say?") The caveman solution
   * to detecting when a service is ready to start receiving requests:
-  * trail node logs until a certain string is encountered  */
+  * trail node logs until a certain string is encountered.
+  *
+  * FIXME: Stop on Ctrl-C or exit code from container */
 export async function waitUntilLogsSay (
   container: Docker.Container,
   expected:  string,
@@ -422,7 +424,7 @@ export async function waitUntilLogsSay (
 ): Promise<void> {
   const id = container.id.slice(0,8)
   const log = new Console(`docker container ${id}`)
-  log.log('trailing logs, waiting for:', expected)
+  log.log('Trailing logs, waiting for:', expected)
   const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
   if (!stream) throw new Error('no stream returned from container')
   const trail = (data:string)=>{if (logFilter(data)) log.log(data)}
@@ -446,7 +448,7 @@ export function waitStream (
       const dataStr = String(data).trim()
       if (trail) trail(dataStr)
       if (dataStr.indexOf(expected)>-1) {
-        log.log(bold(`found expected message:`), expected)
+        log.log(`Found expected message:`, bold(expected))
         stream.off('data', waitStream_onData)
         if (thenDetach) stream.destroy()
         resolve()
@@ -458,7 +460,7 @@ export function waitStream (
 export function waitSeconds (seconds = 0): Promise<void> {
   return new Promise(resolve=>{
     if (seconds > 0) {
-      log.log(bold(`throwing ${seconds} seconds`), `away...`)
+      log.log(`Waiting for`, bold(`${seconds} seconds`))
       return setTimeout(resolve, seconds * 1000)
     }
   })
