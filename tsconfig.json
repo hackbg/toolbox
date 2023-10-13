@@ -1,5 +1,5 @@
 {
-  "exclude": [ "*.test.js", "dist/**/*" ],
+  "exclude": [ "*.test.js", "dist/**/*", "ubik/test/**/*" ],
   "compilerOptions": {
     "outDir":                       "dist",
     "target":                       "es2020",

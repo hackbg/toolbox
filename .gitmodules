@@ -1,0 +1,3 @@
+[submodule "ubik"]
+	path = ubik
+	url = https://github.com/hackbg/ubik.git
