@@ -70,7 +70,7 @@ export function waitPort ({
       }
 
       socket = net.createConnection(port, host, () => {
-        log.info('Connected')
+        log.debug('Connected')
         clearTimerAndDestroySocket()
         if (retries > 0) resolve()
       });
