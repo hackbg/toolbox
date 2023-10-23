@@ -94,7 +94,7 @@ export class PortManager extends Set<number> {
   /** Return the preferred port number or a random free port. */
   async getRandomFreePort (preferred?: string|number, system?: boolean): Promise<number> {
     // Try random ports until one of them is free
-    let port: number = toPortNumber(preferred) || getRandomPortNumber()
+    let port: number = preferred ? toPortNumber(preferred) : getRandomPortNumber()
     while (this.isReserved(port) || await this.isInUse(port)) {
       port = getRandomPortNumber()
     }
@@ -115,7 +115,9 @@ export class PortManager extends Set<number> {
 
     // Remove ports that are not in use any more from the list of reserved ports
     for (const port of freed) {
-      this.delete(port)
+      if (port) {
+        this.delete(port)
+      }
     }
 
   }
