@@ -79,15 +79,24 @@ export class DockConsole extends Console {
   creatingContainer = (name?: string) =>
     this.log(`Creating container`, name)
 
-  boundPort = (containerPort: any, hostPort: any) =>
-    this.debug(`Bind container port ${containerPort} to host port ${hostPort}`)
+  boundPort = (containerPort: any, hostPort: any) => {
+    return this
+      .debug(`Bind host port ${bold(hostPort)}`)
+      .debug(` to mount port ${bold(containerPort)}`)
+  }
 
-  boundVolume = (bind: any) =>
-    this.debug(`Bind mount`, bind)
+  boundVolume = (bind: any) => {
+    const [ host, mount, mode ] = bind.split(':')
+    return this
+      .debug('Bind host path', bold(host))
+      .debug(' to mount path', bold(mount), mode ? `(${bold(mode)})` : undefined)
+  }
 
   createdWithWarnings = (id: string, warnings?: any) => {
-    this.warn(`Warnings when creating ${id}:`)
-    if (warnings) this.warn(warnings)
+    this.warn(`Warnings when creating ${bold(id)}`)
+    if (warnings) {
+      this.warn(warnings)
+    }
     return this
   }
 

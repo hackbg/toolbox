@@ -424,10 +424,9 @@ export async function waitUntilLogsSay (
 ): Promise<void> {
   const id = container.id.slice(0,8)
   const log = new Console(`docker container ${id}`)
-  log.log('Trailing logs, waiting for:', expected)
   const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
   if (!stream) throw new Error('no stream returned from container')
-  const trail = (data:string)=>{if (logFilter(data)) log.log(data)}
+  const trail = (data:string)=>{if (logFilter(data)) log.debug(data)}
   return await waitStream(stream as any, expected, thenDetach, trail)
 }
 
