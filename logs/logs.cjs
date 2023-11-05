@@ -36,7 +36,7 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     return this
   }
   _tag = (color, string) => {
-    return (string ? (chalk.inverse(color(string)) + ' ') : '') + color(this.label)
+    return (string ? (chalk.inverse(color(bold(string))) + ' ') : '') + color(this.label)
   }
   get [Symbol.toStringTag]() {
     return this.label

@@ -30,12 +30,12 @@ export class Console extends defineCallable(function log(...args){
 
   sub = (label, options = {}) => new SubConsole(label, { ...options, parent: this })
   br = () => this.parent.log()
-  log   = (...args) => this._print('log',   this._tag(chalk.green,   '  LOG '), ...args)
-  info  = (...args) => this._print('info',  this._tag(chalk.blue,    ' INFO '), ...args)
-  warn  = (...args) => this._print('warn',  this._tag(chalk.yellow,  ' WARN '), ...args)
-  error = (...args) => this._print('error', this._tag(chalk.red,     'ERROR '), ...args)
-  debug = (...args) => this._print('debug', this._tag(chalk.magenta, 'DEBUG '), ...args)
-  trace = (...args) => this._print('log',   this._tag(chalk.magenta, 'TRACE '), ...args, '\n'+new Error().stack.split('\n').slice(2).join('\n'))
+  log   = (...args) => this._print('log',   this._tag(chalk.green,   ' LOG   '), ...args)
+  info  = (...args) => this._print('info',  this._tag(chalk.blue,    ' INFO  '), ...args)
+  warn  = (...args) => this._print('warn',  this._tag(chalk.yellow,  ' WARN  '), ...args)
+  error = (...args) => this._print('error', this._tag(chalk.red,     ' ERROR '), ...args)
+  debug = (...args) => this._print('debug', this._tag(chalk.magenta, ' DEBUG '), ...args)
+  trace = (...args) => this._print('log',   this._tag(chalk.magenta, ' TRACE '), ...args, '\n'+new Error().stack.split('\n').slice(2).join('\n'))
   table = (...args) => {
     this._print('log', this._tag(chalk.white,   'TABLE '));
     this._print('table', ...args)
@@ -47,7 +47,7 @@ export class Console extends defineCallable(function log(...args){
   }
 
   _tag = (color, string) => {
-    return (string ? (chalk.inverse(color(string)) + ' ') : '') + color(this.label)
+    return (string ? (chalk.inverse(color(bold(string))) + ' ') : '') + color(this.label)
   }
 
   get [Symbol.toStringTag]() {
