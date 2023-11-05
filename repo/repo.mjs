@@ -1,5 +1,7 @@
-import $ from '@hackbg/file'
-import { Console } from '@hackbg/logs'
+//@ts-check
+import $, { Path, TextFile } from '@hackbg/file'
+import { Console, bold } from '@hackbg/logs'
+import { fileURLToPath } from 'node:url'
 
 export class DotGit extends Path {
   log = new Console('@hackbg/repo')
