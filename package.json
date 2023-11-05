@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/hackbg/toolbox"
   },
-  "license": "MIT",
+  "license": "BSD-3-Clause-No-Military-License",
   "description": "Baseline utilities.",
   "dependencies": {
     "@hackbg/dock": "workspace:*",

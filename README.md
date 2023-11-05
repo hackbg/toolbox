@@ -1,21 +1,18 @@
-<div align="center">
-
 # Hack.bg Toolbox
 
-[![NPM version](https://img.shields.io/npm/v/@hackbg/toolbox?color=9013fe&label=@hackbg/toolbox&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/toolbox)
 [![Built with PNPM](https://img.shields.io/badge/Built%20with-PNPM-%239013fe?style=for-the-badge)](https://pnpm.io)
 
-**Your ECMAScript survival kit.** Tiny, four-letter magic words for for Node.js and browsers.
+**`@hackbg/toolbox` is a survival kit** that includes all the four-letter words you with
+JavaScript had. Its development is informed by a decade or so of cussedly wrangling the
+ECMAScript ecosystem. This library powers:
 
-Used by [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application framework by [**Hack.bg**](https://foss.hack.bg),<br>
-and [**Ensuite**](https://github.com/hackbg/ensuite), the associated testing and validation framework.
+* [**Fadroma**](https://github.com/hackbg/fadroma), the distributed application groundwork
+  developed at [**Hack.bg**](https://foss.hack.bg)
+* [**Ensuite**](https://github.com/hackbg/ensuite), the associated documentation tools.
 
-</div>
+## Package contents
 
-## The "Meta" suite
-
-These tools help with generic software development tasks,
-such as testing, package publishing, and logging.
+### `@hackbg/metakit`
 
 <div align="center">
 
@@ -27,10 +24,7 @@ such as testing, package publishing, and logging.
 
 </div>
 
-## The "Page" suite
-
-These tools help with frontend tasks, and constitute a
-DOM microframework for conscientious objectors to React.
+### `@hackbg/pagekit`
 
 <div align="center">
 
@@ -42,10 +36,7 @@ DOM microframework for conscientious objectors to React.
 
 </div>
 
-## The "Unix" suite
-
-These tools help with standard scripting tasks in POSIX environments,
-dealing with files, ports, containers, command line arguments...
+### `@hackbg/unixkit`
 
 <div align="center">
 
@@ -59,7 +50,7 @@ dealing with files, ports, containers, command line arguments...
 
 </div>
 
-## The "Data" suite
+### `@hackbg/datakit`
 
 <div align="center">
 
@@ -72,8 +63,4 @@ dealing with files, ports, containers, command line arguments...
 
 ---
 
-<div align="center">
-
 Made with [**#%&!**](https://foss.hack.bg) @ [**Hack.bg**](https://hack.bg).
-
-</div>
