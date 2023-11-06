@@ -15,12 +15,15 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     super()
     this.label  = options.label  ?? label ?? ''
     this.parent = options.parent ?? console
-    hideProperties(this, 'tags', 'parent')
+    hideProperties(this,
+      'label', 'tags', 'parent', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table',
+      '_print', '_tag'
+    )
   }
   label
   parent
   sub = (label, options = {}) => new SubConsole(label, { ...options, parent: this })
-  br = () => this.parent.log()
+  br = () => { this.parent.log(); return this }
   log   = (...args) => this._print('log',   this._tag(chalk.green,   ' LOG   '), ...args)
   info  = (...args) => this._print('info',  this._tag(chalk.blue,    ' INFO  '), ...args)
   warn  = (...args) => this._print('warn',  this._tag(chalk.yellow,  ' WARN  '), ...args)

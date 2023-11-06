@@ -11,7 +11,7 @@ type ConsoleOptions = {
   parent: Console | typeof console
 }
 
-export class Console extends defineCallable(Function) {
+export class Console extends defineCallable((...args: any) => Console) {
   constructor (label?: string, options?: Partial<ConsoleOptions>)
 
   label: string
