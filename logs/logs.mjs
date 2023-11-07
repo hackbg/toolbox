@@ -1,3 +1,4 @@
+//@ts-check
 import chalk from 'chalk'
 import { defineCallable } from '@hackbg/allo'
 import { hideProperties } from '@hackbg/hide'
@@ -22,8 +23,9 @@ export class Console extends defineCallable(function log(...args){
     this.label  = options.label  ?? label ?? ''
     this.parent = options.parent ?? console
     hideProperties(this,
-      'label', 'tags', 'parent', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table',
-      '_print', '_tag'
+      'label', 'tags', 'tag', '_tag', 'parent', 'sub',
+      'br', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table', 
+      '_print',
     )
   }
 

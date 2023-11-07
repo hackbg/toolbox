@@ -1,6 +1,8 @@
+//@ts-check
 const chalk = module.exports.colors = require('chalk')
 const { defineCallable } = require('@hackbg/allo')
 const { hideProperties } = require('@hackbg/hide')
+//@ts-ignore
 const bold = module.exports.bold = chalk.bold
 const timestamp = module.exports.timestamp = function timestamp (d = new Date()) {
   return d.toISOString()
@@ -16,8 +18,9 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     this.label  = options.label  ?? label ?? ''
     this.parent = options.parent ?? console
     hideProperties(this,
-      'label', 'tags', 'parent', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table',
-      '_print', '_tag'
+      'label', 'tags', 'tag', '_tag', 'parent', 'sub',
+      'br', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table', 
+      '_print',
     )
   }
   label
@@ -48,7 +51,7 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     return process.stdout.columns
   }
 }
-const SubConsole = module.exports.SubConsole = class SubConsole extends Console {
+class SubConsole extends Console {
   log   = (...args) => this._print('log',   this._tag(chalk.green),   ...args)
   info  = (...args) => this._print('info',  this._tag(chalk.blue),    ...args)
   warn  = (...args) => this._print('warn',  this._tag(chalk.yellow),  ...args)
@@ -57,3 +60,4 @@ const SubConsole = module.exports.SubConsole = class SubConsole extends Console 
   trace = (...args) => this._print('trace', this._tag(chalk.magenta), ...args)
   table = (...args) => this._print('table', this._tag(chalk.white),   ...args)
 }
+module.exports.SubConsole = SubConsole
