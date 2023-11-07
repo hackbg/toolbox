@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "2.0.3",
+  "version":      "2.0.4",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
@@ -14,7 +14,7 @@
     "dockerode":    "^3.3.4",
     "@hackbg/logs": "workspace:^2.0.1",
     "@hackbg/oops": "workspace:^1.0.1",
-    "@hackbg/file": "workspace:^1.1",
+    "@hackbg/file": "workspace:^2.0.0-rc.1",
     "@hackbg/hide": "workspace:^1"
   },
   "devDependencies": {
