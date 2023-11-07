@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/file",
-  "version":      "1.2.3",
+  "version":      "2.0.0-rc.1",
   "main":         "file.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",

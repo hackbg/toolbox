@@ -19,12 +19,12 @@ what programs (e.g. smart contracts) you uploaded to an append-only public
 compute service (e.g. a programmable blockchain).
 
 ```javascript
-import $, { OpaqueDirectory, TextFile, JSONFile } from '@hackbg/file'
+import $, { Directory, TextFile, JSONFile } from '@hackbg/file'
 
 const root = $(process.cwd())
 
 // Access files through a directory
-const dir = root.in('data').as(OpaqueDirectory).make()
+const dir = root.in('data').as(Directory).make()
 dir.at('file.txt').as(TextFile).save('my data')
 dir.at('file.json').as(JSONFile).save({my:'data'})
 console.log(dir.list())

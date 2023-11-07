@@ -27,6 +27,14 @@ export default function $ (base: string|URL|Path, ...fragments: string[]): Path 
   return new Path(base, ...fragments)
 }
 
+$.file = function getFile (base: string|URL|Path, ...fragments: string[]) {
+  return $(base, ...fragments).as(File)
+}
+
+$.directory = function getFile (base: string|URL|Path, ...fragments: string[]) {
+  return $(base, ...fragments).as(Directory)
+}
+
 $.tmpDir = function getTmpDir (prefix = 'file-'): Path {
   return $(mkdtempSync($(tmpdir(), prefix).path))
 }
@@ -42,7 +50,11 @@ export class Path {
     }
     this.path = resolve(base, ...fragments)
     this.log = new Console(`${this.shortPath}`)
-    hide(this, 'log')
+    hide(this, 'log', 'path')
+  }
+
+  get [Symbol.toStringTag] () {
+    return this.path
   }
 
   log: Console
@@ -73,18 +85,23 @@ export class Path {
   }
 
   /** @returns name of this file or directory. */
-  get name (): string {
+  get basename (): string {
     return basename(this.path)
   }
 
   /** @returns absolute path to parent directory. */
-  get parent (): string {
+  get dirname (): string {
     return dirname(this.path)
+  }
+
+  /** @returns absolute path to parent directory. */
+  get parent (): Path {
+    return $.directory(this.dirname)
   }
 
   /** Create the parent directory of this path. */
   makeParent (): this {
-    mkdirp.sync(dirname(this.path))
+    this.parent.make()
     return this
   }
 
@@ -97,14 +114,14 @@ export class Path {
 
   /** @returns Path to directory relative to this. */
   at (...fragments: string[]): Path {
-    const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
+    const sub = new (this.constructor as typeof Path)(this.path, ...fragments)
     if (sub.isDirectory()) this.log.warn(`expected ${sub.shortPath} to be a directory`)
     return sub
   }
 
   /** @returns Path to file relative to this. */
   in (...fragments: string[]): Path {
-    const sub = new (this.constructor as PathCtor<typeof this>)(this.path, ...fragments)
+    const sub = new (this.constructor as typeof Path)(this.path, ...fragments)
     if (sub.isFile()) this.log.warn(`expected ${sub.shortPath} to be a file`)
     return sub
   }
@@ -141,13 +158,13 @@ export class Path {
 
   /** @returns true if a directory exists at this.path */
   isDirectory (name?: string): boolean {
-    const nameMatches = name ? (name === this.name) : true
+    const nameMatches = name ? (name === this.basename) : true
     return !!(this.exists()?.isDirectory() && nameMatches)
   }
 
   /** @returns true if a file exists at this.path */
   isFile (name?: string): boolean {
-    const nameMatches = name ? (name === this.name) : true
+    const nameMatches = name ? (name === this.basename) : true
     return !!(this.exists()?.isFile() && nameMatches)
   }
 
@@ -227,10 +244,10 @@ export abstract class BaseFile<T> extends Path {
   abstract load (): T
 }
 
-export class OpaqueFile extends BaseFile<never> {
+export class File extends BaseFile<never> {
   static extension = ''
-  load (): never { throw new Error("OpaqueFile: not meant to be loaded") }
-  save (data: never): never { throw new Error("OpaqueFile: not meant to be saved") }
+  load (): never { throw new Error("File: not meant to be loaded") }
+  save (data: never): never { throw new Error("File: not meant to be saved") }
 }
 
 export class BinaryFile extends BaseFile<Buffer> {
@@ -323,8 +340,8 @@ export abstract class BaseDirectory<T, U extends BaseFile<T>> extends Path {
   }
 }
 
-export class OpaqueDirectory extends BaseDirectory<never, OpaqueFile> {
-  get File () { return OpaqueFile }
+export class Directory extends BaseDirectory<never, File> {
+  get File () { return File }
 }
 
 export class JSONDirectory<T> extends BaseDirectory<T, JSONFile<T>> {
