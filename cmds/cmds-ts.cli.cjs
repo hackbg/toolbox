@@ -15,7 +15,9 @@ if (ganesha && !process.env.CMDS_TS) {
   const { version: ganeshaVersion } = require('@hackbg/ganesha/package.json')
   // If ganesha is available and not enabled restart through ganesha
   console.info(`TS compiled on import by`, bold(`@hackbg/ganesha ${ganeshaVersion}`))
-  if (process.env.CMDS_DEBUG) enableDebugMode()
+  if (process.env.CMDS_DEBUG) {
+    enableDebugMode()
+  }
   if (ganesha) {
     process.env.CMDS_TS = 1
     const argv = [process.argv[0], ganesha, ...process.argv.slice(1)]
@@ -61,7 +63,9 @@ function enableDebugMode () {
   const argv        = process.argv.slice(2)
   Error.stackTraceLimit = Math.max(1000, Error.stackTraceLimit) // Never hurts
   console.info('  Interpreter:', shortPathTo(interpreter))
-  if (transpiler) console.info('  Transpiler: ', shortPathTo(transpiler))
+  if (transpiler) {
+    console.info('  Transpiler: ', shortPathTo(transpiler))
+  }
   console.info('  Entrypoint: ', shortPathTo(entrypoint))
   console.info('  Arguments:  ', argv)
   console.info()

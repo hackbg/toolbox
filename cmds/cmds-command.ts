@@ -54,6 +54,7 @@ export default class Command<C extends object> extends Timed<C, Error> {
     const result = command.failed ? colors.red('failed') : colors.green('completed')
     const took   = command.took
     const method = (command.failed ? this.log.error : this.log.log).bind(this.log)
+    this.log.br()
     method(`The command "${bold(command.label)}" ${result} in ${command.took}`)
     for (const step of command.steps) {
       const name     = (step.name ?? '(nameless step)').padEnd(40)
@@ -61,6 +62,7 @@ export default class Command<C extends object> extends Timed<C, Error> {
       const timing   = (step.took ?? '').padStart(10)
       method(status, bold(name), timing, 's')
     }
+    this.log.br()
   }
 
 }
