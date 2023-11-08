@@ -4,33 +4,6 @@ importers:
 
   .:
     dependencies:
-      '@hackbg/4mat':
-        specifier: workspace:*
-        version: link:4mat
-      '@hackbg/cmds':
-        specifier: workspace:*
-        version: link:cmds
-      '@hackbg/dock':
-        specifier: workspace:*
-        version: link:dock
-      '@hackbg/dump':
-        specifier: workspace:*
-        version: link:dump
-      '@hackbg/file':
-        specifier: workspace:*
-        version: link:file
-      '@hackbg/logs':
-        specifier: workspace:*
-        version: link:logs
-      '@hackbg/port':
-        specifier: workspace:*
-        version: link:port
-      '@hackbg/spec':
-        specifier: workspace:*
-        version: link:spec
-      bech32:
-        specifier: ^2.0.0
-        version: 2.0.0
       open:
         specifier: ^8.4.0
         version: 8.4.0
@@ -950,10 +923,6 @@ packages:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==}
     dependencies:
       tweetnacl: 0.14.5
-    dev: false
-
-  /bech32@2.0.0:
-    resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
     dev: false
 
   /better-path-resolve@1.0.0:

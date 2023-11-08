@@ -13,15 +13,6 @@
   "license": "BSD-3-Clause-No-Military-License",
   "description": "Baseline utilities.",
   "dependencies": {
-    "@hackbg/dock": "workspace:*",
-    "@hackbg/dump": "workspace:*",
-    "@hackbg/4mat": "workspace:*",
-    "@hackbg/file": "workspace:*",
-    "@hackbg/cmds": "workspace:*",
-    "@hackbg/logs": "workspace:*",
-    "@hackbg/port": "workspace:*",
-    "@hackbg/spec": "workspace:*",
-    "bech32":      "^2.0.0",
     "open":        "^8.4.0",
     "rimraf":      "^3.0.2",
     "signal-exit": "^3.0.7"
@@ -29,13 +20,11 @@
   "devDependencies": {
     "@hackbg/ganesha": "^4.2",
     "@hackbg/ubik": "workspace:*",
-
     "@types/node": "latest",
     "concurrently": "7.2.2",
-
     "typescript":  "^5",
-    "typedoc":     "^0.24.8",
-    "husky":       "^8.0.3",
+    "typedoc": "^0.24.8",
+    "husky": "^8.0.3",
     "lint-staged": "^13.1.2"
   },
   "scripts": {
