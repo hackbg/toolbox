@@ -9,9 +9,6 @@
   "license": "MIT",
   "description": "Implement overrides, fallbacks, and defaults.",
   "files": [ "README.md", "over.ts" ],
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik":  "npm test && npm run check && ubik",
     "test":  "true || ganesha-node over.spec.ts.md",

@@ -17,9 +17,6 @@
   "license": "MIT",
   "description": "Redefine object properties as non-enumerable.",
   "files": [ "README.md", "hide.ts", "hide.cjs", "hide.d.ts", "hide.mjs" ],
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",

@@ -12,9 +12,6 @@
   "dependencies": {
     "@hackbg/logs": "workspace:^2.0.1"
   },
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",

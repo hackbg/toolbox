@@ -14,9 +14,6 @@
   "license": "MIT",
   "description": "Make objects callable.",
   "files": [ "README.md", "allo.mjs", "allo.cjs", "allo.ts", "allo.d.ts" ],
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik":  "npm test && npm run check && ubik",
     "test":  "true || ganesha-node allo.spec.ts.md",

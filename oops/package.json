@@ -9,9 +9,6 @@
   "license": "MIT",
   "description": "Make objects callable.",
   "files": [ "README.md", "oops.ts" ],
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",

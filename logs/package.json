@@ -22,9 +22,6 @@
     "@hackbg/hide": "workspace:^1.0.3",
     "chalk": "^4"
   },
-  "devDependencies": {
-    "@hackbg/ganesha": "^4.2"
-  },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",

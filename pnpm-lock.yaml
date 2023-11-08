@@ -41,6 +41,9 @@ importers:
         specifier: ^3.0.7
         version: 3.0.7
     devDependencies:
+      '@hackbg/ganesha':
+        specifier: ^4.2
+        version: 4.2.0(typescript@5.0.2)
       '@hackbg/ubik':
         specifier: workspace:*
         version: link:ubik
@@ -83,16 +86,8 @@ importers:
       secure-random:
         specifier: ^1.1.2
         version: 1.1.2
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
 
-  allo:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  allo: {}
 
   atom:
     devDependencies:
@@ -159,14 +154,7 @@ importers:
         specifier: ^1.4.5
         version: 1.4.5
 
-  dump:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
-      '@hackbg/ubik':
-        specifier: workspace:*
-        version: link:../ubik
+  dump: {}
 
   emit:
     devDependencies:
@@ -207,9 +195,6 @@ importers:
         specifier: ^3
         version: 3.0.0
     devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
       '@hackbg/spec':
         specifier: workspace:*
         version: link:../spec
@@ -237,22 +222,10 @@ importers:
       zen-observable:
         specifier: ^0.8.15
         version: 0.8.15
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
 
-  hide:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  hide: {}
 
-  into:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  into: {}
 
   logs:
     dependencies:
@@ -265,28 +238,12 @@ importers:
       chalk:
         specifier: ^4
         version: 4.1.2
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
 
-  many:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  many: {}
 
-  oops:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  oops: {}
 
-  over:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  over: {}
 
   port:
     dependencies:
@@ -315,16 +272,8 @@ importers:
       '@hackbg/logs':
         specifier: workspace:^2.0.1
         version: link:../logs
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
 
-  time:
-    devDependencies:
-      '@hackbg/ganesha':
-        specifier: ^4.2
-        version: 4.2.0(typescript@5.0.2)
+  time: {}
 
   ubik:
     dependencies:
@@ -408,7 +357,7 @@ packages:
     resolution: {integrity: sha512-yuLyajW63xho/Gy/F2XHYvfUQadg2CzinsVjiLYL46WDkgnx1YMvcN+WYRQBTYFZfVf83sJUKd49Z+ePLyhgpg==}
     hasBin: true
     dependencies:
-      marked: 4.2.12
+      marked: 4.3.0
     dev: true
 
   /@ganesha/node-legacy@3.0.2:
@@ -1938,12 +1887,6 @@ packages:
       linkify-it: 4.0.1
       mdurl: 1.0.1
       uc.micro: 1.0.6
-    dev: true
-
-  /marked@4.2.12:
-    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
-    engines: {node: '>= 12'}
-    hasBin: true
     dev: true
 
   /marked@4.3.0:
