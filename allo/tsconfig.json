@@ -1,1 +1,0 @@
-{ "extends": "../tsconfig.json", "include": [ "allo.ts", "allo.test.ts" ] }
