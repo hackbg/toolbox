@@ -1,1 +1,1 @@
-{ "extends": "../tsconfig.json", "include": [ "hide.ts" ] }
+{ "extends": "../tsconfig.json", "include": [ "hide.d.ts" ] }
