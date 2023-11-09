@@ -26,6 +26,7 @@
     "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",
     "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "clean": "ubik clean && rm -rf dist types *.dist.*",
+    "release": "pnpm check && pnpm test && ubik publish --access public --otp 123123"
   }
 }
