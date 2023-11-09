@@ -14,11 +14,11 @@
   "description": "Baseline utilities.",
   "dependencies": {
     "open":        "^8.4.0",
-    "rimraf":      "^3.0.2",
     "signal-exit": "^3.0.7"
   },
   "devDependencies": {
     "@hackbg/ganesha": "^4.2",
+    "@hackbg/ensuite": "^1.5.1",
     "@hackbg/ubik": "workspace:*",
     "@types/node": "latest",
     "concurrently": "7.2.2",

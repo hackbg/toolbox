@@ -7,13 +7,13 @@ importers:
       open:
         specifier: ^8.4.0
         version: 8.4.0
-      rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
       signal-exit:
         specifier: ^3.0.7
         version: 3.0.7
     devDependencies:
+      '@hackbg/ensuite':
+        specifier: ^1.5.1
+        version: 1.5.1
       '@hackbg/ganesha':
         specifier: ^4.2
         version: 4.2.0(typescript@5.0.2)
@@ -444,6 +444,10 @@ packages:
   /@hackbg/allo@1.0.1:
     resolution: {integrity: sha512-4kxNqEmongDYO3eUzATEZbicleljcJQ7eggYPZaFykAyqCKlETMVlshUWFj1IgS2pmQCRODZogbCafGVwk4JOw==}
 
+  /@hackbg/allo@1.0.2:
+    resolution: {integrity: sha512-iyuq1cnRHzDJMfNrFgoH/tBXgMTdyWS4CwMy5NMDcULi9E/yhJRqemRIttsSBv7ary2WYFU4OxbQTN1jTD3irw==}
+    dev: true
+
   /@hackbg/ensuite@1.1.1:
     resolution: {integrity: sha512-/Svcc5wrgypolr1kppSK+OER486qx9QNcdxg59p+w5BjjmokqKEfjxApZk+medDTfRQcMrYKzpHy8BuxA6/ccw==}
     hasBin: true
@@ -508,11 +512,53 @@ packages:
       - utf-8-validate
     dev: true
 
+  /@hackbg/ensuite@1.5.1:
+    resolution: {integrity: sha512-T+UFcfWP4cRiseFy3c1OuykeDefpgbpw7GrexW1VHC3OAL52OAZbhC9YxaKh22OSAqJgKXwqdxw/J00egQJyRw==}
+    hasBin: true
+    dependencies:
+      '@hackbg/file': 2.0.0
+      '@hackbg/ganesha': 4.2.0(typescript@5.0.4)
+      '@hackbg/logs': 2.0.7
+      '@hackbg/spec': 1.0.0
+      '@types/js-yaml': 4.0.5
+      '@types/markdown-it': 12.2.3
+      c8: 7.13.0
+      glob: 9.3.5
+      highlight.js: 11.8.0
+      js-yaml: 4.1.0
+      markdown-it: 13.0.1
+      markdown-it-anchor: 8.6.7(@types/markdown-it@12.2.3)(markdown-it@13.0.1)
+      markdown-it-highlightjs: 4.0.1
+      markdown-it-table-of-contents: 0.6.0
+      pug: 3.0.2
+      typescript: 5.0.4
+      why-is-node-still-running: 1.0.0
+      ws: 8.13.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: true
+
   /@hackbg/file@1.1.0:
     resolution: {integrity: sha512-qHqFi6/KZrIB8fz5n8+7GJB8iipJmf+UzVi8vUvzMQ9GcjyzVPWQrgUJW7ZBff5smdCfAHtkV4hs47EGNAxOyg==}
     dependencies:
       '@hackbg/4mat': 1.0.0
       '@hackbg/logs': 2.0.1
+      js-yaml: 4.1.0
+      mkdirp: 1.0.4
+      recursive-copy: 2.0.14
+      rimraf: 3.0.2
+      symlink-dir: 5.0.1
+      tmp: 0.2.1
+      toml: 3.0.0
+    dev: true
+
+  /@hackbg/file@2.0.0:
+    resolution: {integrity: sha512-sZ3g7PECyFyshfg/Ej0OHSR9PjIikVJssGYWopXQxDggjJ5uQVKLETyB8tZ+stPOw1XKbaVm4xFDJGIzzvtCXw==}
+    dependencies:
+      '@hackbg/4mat': 1.0.0
+      '@hackbg/hide': 1.0.3
+      '@hackbg/logs': 2.0.7
       js-yaml: 4.1.0
       mkdirp: 1.0.4
       recursive-copy: 2.0.14
@@ -571,12 +617,24 @@ packages:
   /@hackbg/hide@1.0.0:
     resolution: {integrity: sha512-xmuxl5l2ptEACoF8oXAu/cwXN/cK7Gkw+bZQJt2A+hl/g6mOJuer5fL91WYgxfUxNrZWlR15oT69LW8P7tGH5g==}
 
+  /@hackbg/hide@1.0.3:
+    resolution: {integrity: sha512-iW54b4gibkZrzwAMsd0Qc3xDb9QwsYvLCNvdHl1EgLfgod0ZLfanjPxwYybfXEqNBAvUZ+w00FTQv4vSvBfp4A==}
+    dev: true
+
   /@hackbg/logs@2.0.1:
     resolution: {integrity: sha512-qKFFXi5cSNQBYr56bdRLrUDR/3bySD0LNZ40wtOcC/df/D9c9ZIwwipsJK8ZEGndenG7liWCcFuY3jlsvVfimA==}
     dependencies:
       '@hackbg/allo': 1.0.1
       '@hackbg/hide': 1.0.0
       chalk: 4.1.2
+
+  /@hackbg/logs@2.0.7:
+    resolution: {integrity: sha512-DAlE0fCS6ssFV6SaCiX3Pmt6vbp6oU0bvRGF82Uzdcd1gWS3x2ReR//ALyGlJ6WvH43slrEU9bBmr3wgqAKdEg==}
+    dependencies:
+      '@hackbg/allo': 1.0.2
+      '@hackbg/hide': 1.0.3
+      chalk: 4.1.2
+    dev: true
 
   /@hackbg/spec@1.0.0:
     resolution: {integrity: sha512-YlruR8UORlr9YF1a6eSMEVRSXrUGK397xErPSKkJnJ6VCQK35ULp3Hkf1HCc7wptZZI1+oRl1QG5wFwYOkET1w==}
