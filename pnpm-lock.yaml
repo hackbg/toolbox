@@ -284,6 +284,9 @@ importers:
       c8:
         specifier: ^8.0.1
         version: 8.0.1
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
 
 packages:
 
@@ -372,6 +375,20 @@ packages:
       - typescript
     dev: true
 
+  /@ganesha/node-legacy@4.0.2(typescript@5.2.2):
+    resolution: {integrity: sha512-2KWL9kq1/rmtCQ/Yv+ecKEA65hSRSTfLartTx4Td6KsHarvk09CiFewOcWhNEWUZ3+RBIJ5Xg17P3+dtZGaX2A==}
+    dependencies:
+      '@ganesha/core': 3.0.1
+      '@ganesha/ts': 2.0.1(typescript@5.2.2)
+      front-matter: 4.0.2
+      joycon: 3.1.1
+      jsonc-parser: 3.2.0
+      pirates: 4.0.5
+      source-map-support: 0.5.21
+    transitivePeerDependencies:
+      - typescript
+    dev: true
+
   /@ganesha/node@2.3.3:
     resolution: {integrity: sha512-/8mp/vqGHEv7KjzV8lCfIdQ3NWqgtIU7/h0iNqlF3QiMJKD3OaesafBs9/HrTfi31rYu9rOV/awCFlGUWkLmgg==}
     dependencies:
@@ -406,6 +423,18 @@ packages:
       - typescript
     dev: true
 
+  /@ganesha/node@3.2.0(typescript@5.2.2):
+    resolution: {integrity: sha512-intQCwKDACcaPQOWxuALKPAWy0DMyFUbpSbkby+Jdln0slQf6mt3jdVG53LFgJY4FfQKKvHab/9GiKDQWMEv2g==}
+    dependencies:
+      '@ganesha/core': 3.0.1
+      '@ganesha/ts': 2.0.1(typescript@5.2.2)
+      front-matter: 4.0.2
+      jsonc-parser: 3.2.0
+      source-map-support: 0.5.21
+    transitivePeerDependencies:
+      - typescript
+    dev: true
+
   /@ganesha/ts@2.0.1(typescript@5.0.2):
     resolution: {integrity: sha512-FI30EVfSAjAHxVJ9lFs7jSoI7V/x4NxNdKj2jeUBtm7dyQqiSi6Fgl7s9Hd0e5utHpf6nQ+69MO3LMgnqneByA==}
     hasBin: true
@@ -428,6 +457,18 @@ packages:
       joycon: 3.1.1
       jsonc-parser: 3.2.0
       typescript: 5.0.4
+    dev: true
+
+  /@ganesha/ts@2.0.1(typescript@5.2.2):
+    resolution: {integrity: sha512-FI30EVfSAjAHxVJ9lFs7jSoI7V/x4NxNdKj2jeUBtm7dyQqiSi6Fgl7s9Hd0e5utHpf6nQ+69MO3LMgnqneByA==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5
+    dependencies:
+      '@ganesha/core': 3.0.1
+      joycon: 3.1.1
+      jsonc-parser: 3.2.0
+      typescript: 5.2.2
     dev: true
 
   /@hackbg/4mat@1.0.0:
@@ -517,7 +558,7 @@ packages:
     hasBin: true
     dependencies:
       '@hackbg/file': 2.0.0
-      '@hackbg/ganesha': 4.2.0(typescript@5.0.4)
+      '@hackbg/ganesha': 4.2.0(typescript@5.2.2)
       '@hackbg/logs': 2.0.7
       '@hackbg/spec': 1.0.0
       '@types/js-yaml': 4.0.5
@@ -531,7 +572,7 @@ packages:
       markdown-it-highlightjs: 4.0.1
       markdown-it-table-of-contents: 0.6.0
       pug: 3.0.2
-      typescript: 5.0.4
+      typescript: 5.2.2
       why-is-node-still-running: 1.0.0
       ws: 8.13.0
     transitivePeerDependencies:
@@ -612,6 +653,24 @@ packages:
       cross-spawn: 7.0.3
       pkg-up: 4.0.0
       typescript: 5.0.4
+    dev: true
+
+  /@hackbg/ganesha@4.2.0(typescript@5.2.2):
+    resolution: {integrity: sha512-jggapQzghoNB7AertXUFBqG6GMtYC9u/B4cMEcUGyefOjucMHORAV0RA7eXKTJEsTrshgj90TyxwQaFwJCaEzg==}
+    hasBin: true
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@ganesha/core': 3.0.1
+      '@ganesha/node': 3.2.0(typescript@5.2.2)
+      '@ganesha/node-legacy': 4.0.2(typescript@5.2.2)
+      '@ganesha/ts': 2.0.1(typescript@5.2.2)
+      cross-spawn: 7.0.3
+      pkg-up: 4.0.0
+      typescript: 5.2.2
     dev: true
 
   /@hackbg/hide@1.0.0:
@@ -2714,6 +2773,12 @@ packages:
   /typescript@5.0.4:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
     engines: {node: '>=12.20'}
+    hasBin: true
+    dev: true
+
+  /typescript@5.2.2:
+    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
+    engines: {node: '>=14.17'}
     hasBin: true
     dev: true
 
