@@ -1,8 +1,19 @@
 {
+  "include": [
+    "*",
+    "package.json"
+  ],
   "exclude": [
-    "*.test.js", "dist/**/*", "ubik/test/**/*", "ganesha/tsc", "ganesha/vsc", "ganesha/test"
+    "*.test.js",
+    "dist/**/*",
+    "ubik/test/**/*",
+    "ganesha/tsc",
+    "ganesha/vsc",
+    "ganesha/test",
+    "node_modules"
   ],
   "compilerOptions": {
+    "composite":                    true,
     "outDir":                       "dist",
     "target":                       "es2020",
     "module":                       "es2022",
