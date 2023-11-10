@@ -1,6 +1,7 @@
 {
-  "exclude": [ "*.test.js", "dist/**/*", "ubik/test/**/*" ],
-  "exclude": [ "ganesha/tsc", "ganesha/vsc", "ganesha/test" ],
+  "exclude": [
+    "*.test.js", "dist/**/*", "ubik/test/**/*", "ganesha/tsc", "ganesha/vsc", "ganesha/test"
+  ],
   "compilerOptions": {
     "outDir":                       "dist",
     "target":                       "es2020",
