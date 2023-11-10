@@ -1,1 +1,7 @@
-packages: [ "*", "!ubik/example" ]
+packages:
+  - "*"
+  - "!ubik/example"
+  - "ganesha"
+  - "ganesha/*"
+  - "!ganesha/tsc"
+  - "!ganesha/vsc"
