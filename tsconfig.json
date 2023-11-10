@@ -13,7 +13,6 @@
     "node_modules"
   ],
   "compilerOptions": {
-    "composite":                    true,
     "outDir":                       "dist",
     "target":                       "es2020",
     "module":                       "es2022",
