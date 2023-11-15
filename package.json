@@ -19,7 +19,7 @@
   "devDependencies": {
     "@hackbg/ganesha": "^4.2",
     "@hackbg/ensuite": "^1.5.1",
-    "@hackbg/ubik": "workspace:*",
+    "@hackbg/ubik": "workspace:^2",
     "@types/node": "latest",
     "concurrently": "7.2.2",
     "typescript":  "^5",
@@ -29,6 +29,7 @@
   },
   "scripts": {
     "prepare": "husky install",
+    "check":   "tsc",
 
     "ubik":  "npm run check && ubik",
     "ubik:all": "npm run check && pnpm -r ubik",
