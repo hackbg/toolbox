@@ -24,6 +24,6 @@
     "test":  "ensuite port.test.ts",
     "cov":   "ensuite-cov port.test.ts",
     "clean": "rm -rf dist packages/*/dist packages/*/types",
-    "release": "pnpm check && pnpm cov && ubik publish --access public --otp 123123"
+    "release": "pnpm check && pnpm cov && ubik release --access public --otp 123123"
   }
 }

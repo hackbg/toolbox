@@ -7,7 +7,7 @@
 ```json
 {
   "scripts": {
-    "release": "pnpm check && pnpm cov && pnpm exec ubik publish --access public --otp 123123`
+    "release": "pnpm check && pnpm cov && pnpm exec ubik release --access public --otp 123123`
   }
 }
 ```

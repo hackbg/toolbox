@@ -12,6 +12,6 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "true",
-    "release": "npm run check && npm run test && ubik publish --otp 123123"
+    "release": "npm run check && npm run test && ubik release --otp 123123"
   }
 }

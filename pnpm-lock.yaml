@@ -190,8 +190,8 @@ importers:
         version: 8.13.0
     devDependencies:
       '@hackbg/ubik':
-        specifier: 2.0.0-rc.2
-        version: 2.0.0-rc.2
+        specifier: ^2
+        version: 2.0.0
 
   file:
     dependencies:
@@ -1168,8 +1168,8 @@ packages:
     hasBin: true
     dev: true
 
-  /@hackbg/ubik@2.0.0-rc.2:
-    resolution: {integrity: sha512-rQ+9OF5a+t/Rr5F4lf5AB0c86YmyOpwvH6+dlTsQ7SNnCC/sqUbD0I3INzvjHJw9qdW9tz7V+id99Zkz1DQQOg==}
+  /@hackbg/ubik@2.0.0:
+    resolution: {integrity: sha512-j6ZcXrTVBujcXQ3WS3Se/MC+jCGEO9MBb8Ep4mCTN3TJPAYGx/2kBEFPuV+uAC8UFpddUUv3yOPEFzA58s4E+A==}
     hasBin: true
     dependencies:
       '@babel/parser': 7.23.3
