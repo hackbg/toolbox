@@ -31,3 +31,8 @@ export class Console extends defineCallable((...args: any) => Console) {
   get [Symbol.toStringTag](): string
   get width (): number
 }
+
+export class Logged {
+  log: Console
+  constructor (properties?: Partial<Logged>)
+}

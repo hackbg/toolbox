@@ -61,3 +61,11 @@ class SubConsole extends Console {
   table = (...args) => this._print('table', this._tag(chalk.white),   ...args)
 }
 module.exports.SubConsole = SubConsole
+
+module.exports.Logged = class Logged {
+  log
+  constructor (properties) {
+    this.log = properties?.log ?? new Console(this.constructor.name)
+    Object.defineProperty(this, 'log', { enumerable: false, configurable: true })
+  }
+}
