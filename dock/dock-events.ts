@@ -77,7 +77,6 @@ export class DockConsole extends Console {
     this.log(`Using dockerfile:`, bold(file))
 
   creatingContainer (name?: string) {
-    this.br()
     return this.log(`Creating container`, bold(name))
   }
 
