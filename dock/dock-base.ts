@@ -38,7 +38,7 @@ export abstract class Image {
     readonly dockerfile: string|null = null,
     readonly extraFiles: string[]    = []
   ) {
-    this.log = new Console(`image(${bold(this.name)})`)
+    this.log = new Console(`Image(${bold(this.name)})`)
     hide(this, 'log')
   }
 
@@ -116,7 +116,7 @@ export abstract class Container {
     readonly command?:    ContainerCommand,
     readonly entrypoint?: ContainerCommand
   ) {
-    this.log = new Console(name ? `container(${bold(name)})` : `container`)
+    this.log = new Console(name ? `Container(${bold(name)})` : `container`)
     hide(this, 'log')
   }
 

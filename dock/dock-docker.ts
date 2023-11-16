@@ -8,7 +8,7 @@ import { basename, dirname } from 'node:path'
 import Docker from 'dockerode'
 export { Docker }
 
-const log = new Console('docker')
+const console = new Console('@hackbg/dock: Docker')
 
 export interface DockerHandle {
   getImage:         Function
@@ -115,7 +115,7 @@ class DockerImage extends Image {
             throw new Error.PullFailed(name)
           }
           const data = ['id', 'status', 'progress'].map(x=>event[x]).join(' ')
-          log.log(data)
+          console.log(data)
         })
         ok()
       })
@@ -141,7 +141,7 @@ class DockerImage extends Image {
         throw new Error.BuildFailed(name??'(no name)', dockerfile, context)
       }
       const data = event.progress || event.status || event.stream || JSON.stringify(event) || ''
-      log.log(data.trim())
+      console.log(data.trim())
     })
   }
 
@@ -283,8 +283,8 @@ class DockerContainer extends Container {
 
     // Update the logger tag with the container id
     this.log.label = this.name
-      ? `docker container ${this.name} (${this.container.id})`
-      : `docker container ${this.container.id}`
+      ? `DockerContainer(${this.container.id} ${this.name})`
+      : `DockerContainer(${this.container.id})`
 
     // Display any warnings emitted during container creation
     if (this.warnings) {
@@ -316,11 +316,11 @@ class DockerContainer extends Container {
     const id = this.shortId
     const prettyId = bold(id.slice(0,8))
     if (await this.isRunning) {
-      log.log(`Stopping ${prettyId}...`)
+      console.log(`Stopping ${prettyId}...`)
       await this.dockerode.getContainer(id).kill()
-      log.log(`Stopped ${prettyId}`)
+      console.log(`Stopped ${prettyId}`)
     } else {
-      log.warn(`Container already stopped: ${prettyId}`)
+      console.warn(`Container already stopped: ${prettyId}`)
     }
     return this
   }
@@ -331,17 +331,27 @@ class DockerContainer extends Container {
     return { error, code }
   }
 
+  /** Detect when service is ready. */
   async waitLog (
     expected:     string,
     logFilter?:   (data: string) => boolean,
     thenDetach?:  boolean,
   ): Promise<void> {
-    if (!this.container) throw new Error.NoContainer()
-    return waitUntilLogsSay(
-      this.container,
+    if (!this.container) {
+      throw new Error.NoContainer()
+    }
+    const id = this.container.id.slice(0,8)
+    const log = new Console(`DockerContainer(${bold(id)})`)
+    const stream = await this.container.logs({ stdout: true, stderr: true, follow: true, })
+    if (!stream) {
+      throw new Error('no stream returned from container')
+    }
+    return await waitStream(
+      stream as any,
       expected,
-      logFilter,
       thenDetach,
+      (data:string)=>{if (logFilter(data)) log.debug(data)},
+      this.log
     )
   }
 
@@ -409,31 +419,13 @@ export async function follow (
   })
 }
 
-/** (to the tune of "What does the fox say?") The caveman solution
-  * to detecting when a service is ready to start receiving requests:
-  * trail node logs until a certain string is encountered.
-  *
-  * FIXME: Stop on Ctrl-C or exit code from container */
-export async function waitUntilLogsSay (
-  container: Docker.Container,
-  expected:  string,
-  logFilter  = (data: string) => true,
-  thenDetach = true,
-): Promise<void> {
-  const id = container.id.slice(0,8)
-  const log = new Console(`docker container ${id}`)
-  const stream = await container.logs({ stdout: true, stderr: true, follow: true, })
-  if (!stream) throw new Error('no stream returned from container')
-  const trail = (data:string)=>{if (logFilter(data)) log.debug(data)}
-  return await waitStream(stream as any, expected, thenDetach, trail)
-}
-
 /* Is this equivalent to follow() and, if so, which implementation to keep? */
 export function waitStream (
   stream:     { on: Function, off: Function, destroy: Function },
   expected:   string,
   thenDetach: boolean = true,
-  trail:      (data: string) => unknown = ()=>{}
+  trail:      (data: string) => unknown = ()=>{},
+  { log }:    Console = console
 ): Promise<void> {
   return new Promise((resolve, reject)=>{
     stream.on('error', (error: any) => {
@@ -445,20 +437,11 @@ export function waitStream (
       const dataStr = String(data).trim()
       if (trail) trail(dataStr)
       if (dataStr.indexOf(expected)>-1) {
-        log.log(`Found expected message:`, bold(expected))
+        log(`Found expected message:`, bold(expected))
         stream.off('data', waitStream_onData)
         if (thenDetach) stream.destroy()
         resolve()
       }
-    }
-  })
-}
-
-export function waitSeconds (seconds = 0): Promise<void> {
-  return new Promise(resolve=>{
-    if (seconds > 0) {
-      log.log(`Waiting for`, bold(`${seconds} seconds`))
-      return setTimeout(resolve, seconds * 1000)
     }
   })
 }
