@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "2.0.4",
+  "version":      "2.0.5",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
@@ -22,10 +22,9 @@
     "@hackbg/ensuite":  "^1.1.1"
   },
   "scripts": {
-    "ubik":  "npm run check && npm test && ubik",
-    "check": "tsc --noEmit",
-    "test":  "ensuite dock.test.ts",
-    "cov":   "ensuite-cov dock.test.ts",
-    "clean": "rm -rf dist packages/*/dist packages/*/types"
+    "check":   "tsc --noEmit",
+    "test":    "ensuite dock.test.ts",
+    "cov":     "ensuite-cov dock.test.ts",
+    "release": "pnpm check && (pnpm cov || true) && ubik release --access public --otp 123123"
   }
 }

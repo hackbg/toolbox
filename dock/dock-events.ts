@@ -85,9 +85,14 @@ export class DockConsole extends Console {
     return this.debug(`port localhost:${bold(hostPort)} => :${bold(containerPort)}`)
   }
 
-  boundVolume (bind: any) {
-    const [ host, mount, mode ] = bind.split(':')
-    return this.debug([ 'mount', mode, mount, '=', bold(host) ].filter(Boolean).join(' '))
+  boundVolumes (binds: any[]) {
+    return this.debug('Mount volumes:\n ', binds
+      .map(bind=>{
+        const [ host, mount, mode = 'rw' ] = bind.split(':')
+        return [ mode, bold(mount), '=\n    ', host ].join(' ')
+      })
+      .join('\n  ')
+    )
   }
 
   createdWithWarnings = (id: string, warnings?: any) => {

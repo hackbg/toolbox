@@ -269,9 +269,7 @@ class DockerContainer extends Container {
     this.image.log.creatingContainer(opts.name)
 
     // Log mounted volumes
-    for (const bind of opts?.HostConfig?.Binds ?? []) {
-      this.log.boundVolume(bind)
-    }
+    this.log.boundVolumes(opts?.HostConfig?.Binds ?? [])
 
     // Log exposed ports
     for (const [containerPort, config] of Object.entries(opts?.HostConfig?.PortBindings ?? {})) {
