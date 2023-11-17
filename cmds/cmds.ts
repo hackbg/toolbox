@@ -26,7 +26,7 @@ export default class LocalCommandContext extends CommandContext {
         setTimeout(async()=>await this.run(argv).then(()=>this.exit(0)), 0)
       } else {
         // If no command was specified, exit
-        this.printUsage(this)
+        this.printUsage(this as any)
         this.exit(1)
       }
     })
