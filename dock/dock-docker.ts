@@ -346,12 +346,14 @@ class DockerContainer extends Container {
     if (!stream) {
       throw new Error('no stream returned from container')
     }
+    const filter = logFilter || (x=>true)
+    const logFiltered = (data:string) => {
+      if (filter(data)) {
+        log.debug(data)
+      }
+    }
     return await waitStream(
-      stream as any,
-      expected,
-      thenDetach,
-      (data:string)=>{if (logFilter(data)) log.debug(data)},
-      this.log
+      stream as any, expected, thenDetach, logFiltered, this.log
     )
   }
 
