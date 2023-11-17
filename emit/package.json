@@ -6,13 +6,10 @@
   "types": "emit.d.ts",
   "files": ["emit.*"],
   "description": "Embeddable event emitter mixin based on EventTarget.",
-  "devDependencies": {
-    "@hackbg/ensuite": "^1.4.5"
-  },
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "ensuite README.md",
-    "cov": "ensuite-cov README.md",
-    "ubik": "npm run check && npm run cov && ubik"
+    "test":  "ensuite README.md",
+    "cov":   "ensuite-cov README.md",
+    "ubik":  "npm run check && npm run cov && ubik"
   }
 }

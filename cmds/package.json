@@ -24,9 +24,6 @@
     "@hackbg/time": "workspace:^1",
     "@hackbg/hide": "workspace:^1.0.3"
   },
-  "devDependencies": {
-    "@hackbg/ensuite": "^1.4.4"
-  },
   "scripts": {
     "ubik": "npm run check && npm run cov && ubik",
     "test": "ensuite README.md",

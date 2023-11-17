@@ -6,9 +6,6 @@
   "types": "dome.d.ts",
   "files": ["dome.*"],
   "description": "DOM helper library. Create, compose, and query DOM elements quickly and without syntactic hassle.",
-  "devDependencies": {
-    "@hackbg/ensuite": "^1.4.5"
-  },
   "scripts": {
     "check": "tsc --noEmit",
     "test": "ensuite README.md || true",

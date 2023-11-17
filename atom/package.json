@@ -6,9 +6,6 @@
   "types": "atom.d.ts",
   "files": ["atom.*"],
   "description": "Observable with multiple outputs. Intended for DOM state management.",
-  "devDependencies": {
-    "@hackbg/ensuite": "^1.4.5"
-  },
   "scripts": {
     "check": "tsc --noEmit",
     "test": "ensuite README.md || true",
