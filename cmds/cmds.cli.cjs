@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const { Console, bold } = require('@hackbg/logs/logs.cjs')
+const console = new Console(`@hackbg/cmds ${require('./package.json').version}`)
+
 let ganesha
 try {
   ganesha = require.resolve('@hackbg/ganesha')
@@ -23,7 +26,7 @@ const entrypoint  = process.argv[1]
 
 const argv        = process.argv.slice(2)
 
-if (process.env.Komandi_Debug) {
+if (process.env.VERBOSE) {
   console.info('  Interpreter:', shortPathTo(interpreter))
   if (transpiler) console.info('  Transpiler: ', shortPathTo(transpiler))
   console.info('  Entrypoint: ', shortPathTo(entrypoint))
