@@ -1,113 +1,17 @@
-import Command from './cmds-command'
-export * from './cmds-command'
-export { default as Command } from './cmds-command'
+export * from './cmds.browser'
 
-import Step from './cmds-step'
-import type { StepFn, Steps } from './cmds-step'
-export * from './cmds-step'
-export { default as Step } from './cmds-step'
-
-import { hideProperties } from '@hackbg/hide'
-import { timestamp } from '@hackbg/time'
-import { Console, colors, bold } from '@hackbg/logs'
+import CommandContext from './cmds.browser'
 import { fileURLToPath } from 'node:url'
+import { Console, colors, bold } from '@hackbg/logs'
 
-export type CommandTree<T extends CommandContext> = Record<string, Command<T>|CommandContext>
+export default class LocalCommandContext extends CommandContext {
 
-export class CommandContext {
-  log: Console
-  /** Start of command execution. */
-  timestamp: string = timestamp()
-  /** Process environment at lauch of process. */
-  env: Record<string, string|undefined> = { ...process.env }
-  /** Current working directory at launch of process. */
-  cwd: string = process.cwd()
-  /** All registered commands. */
-  commandTree: CommandTree<this> = {}
-  /** Currently executing command. */
-  currentCommand: string = ''
-  /** Extra arguments passed from the command line. */
-  args: string[] = []
-
-  constructor (
-    public label:       string  = new.target.constructor.name,
-    public description: string  = '@hackbg/cmds',
-    repl:               boolean = true
-  ) {
-    this.log = new Console(label)
-    hideProperties(this, 'cwd', 'env')
-    if (repl) {
-      this.addCommand('repl', 'run an interactive JavaScript REPL in this context', () =>
-        this.startREPL())
-    }
+  constructor (...args: ConstructorParameters<typeof CommandContext>) {
+    super(...args)
+    this.addCommand('repl', 'run an interactive JavaScript REPL in this context', () =>
+      this.startREPL())
   }
 
-  /** Define a command during construction.
-    * @returns the passed command
-    * @example
-    *   class MyCommands extends CommandContext {
-    *     doThing = this.command('do-thing', 'command example', async function doThing () {
-    *       // implementation
-    *     })
-    *   } */
-  command <X extends StepFn<this, unknown>> (name: string, description: string, step: X): X {
-    this.addCommand(name, description, step)
-    return step
-  }
-  /** Define a command subtree during construction.
-    * @returns the passed command subtree
-    * @example
-    *   class MyCommands extends CommandContext {
-    *     doThings = this.commands('sub', 'command subtree example', new SubCommands())
-    *   }
-    *   class SubCommands extends CommandContext {
-    *     // ...
-    *   }
-    **/
-  commands <C extends CommandContext> (name: string, description: string, subtree: C): C {
-    this.addCommands(name, description, subtree)
-    return subtree
-  }
-  /** Define a command after the instance is constructed.
-    * @returns this
-    * @example
-    *   export default new CommandContext()
-    *     .addCommand('foo', 'do one thing', async () => { ... })
-    *     .addCommand('bar', 'do another thing', () => { ... })
-    **/
-  addCommand (name: string, description: string, ...steps: Steps<this>): this {
-    // store command
-    this.commandTree[name] = new Command(name, description, steps.map(step=>Step.from(step)))
-    return this
-  }
-  /** Define a command subtree after the instance is constructed.
-    * @returns this
-    * @example
-    *   export default new CommandContext()
-    *     .addCommands('empty', 'do nothing in new context', new CommandContext())
-    *     .addCommands('baz', 'do some more things', new CommandContext()
-    *       .addCommand(...)
-    *       .addCommand(...))
-    **/
-  addCommands (name: string, description: string, subtree: CommandContext): this {
-    subtree.description = description
-    this.commandTree[name] = subtree
-    return this
-  }
-  /** Filter commands by each word from the list of arguments
-    * then pass the rest as arguments to the found command. */
-  parse (args: string[]): [Command<this>|CommandContext|null, ...string[]] {
-    return parseCommandLine(this.commandTree, args)
-  }
-  /** Start an interactive REPL with this deployment as global context.
-    * @throws if the `node:repl` and `node:vm` native modules are unavailable. */
-  startREPL () {
-    return startRepl(this, this.log)
-  }
-  /** End the process. */
-  exit (code: number = 0) {
-    process.exit(code)
-  }
   /** If this command tree is the default export of the process entrypoint,
     * run the commands as specified by the process command line.
     * @example
@@ -128,65 +32,26 @@ export class CommandContext {
     })
     return this
   }
-  /** Run a command from this command tree. */
-  async run <T> (argv: string[], context: any = this): Promise<T> {
-    // If no arguments were passed, exit.
-    if (argv.length === 0) {
-      this.log.br()
-      this.log.info('No command invoked.')
-      this.printUsage(this)
-      return null as unknown as T
-    }
-    // Parse the command and arguments
-    const [command, ...args] = this.parse(argv)
-    // Run the command
-    if (command) {
-      return await command.run(args, context) as T
-    }
-    // If no command was run, print usage and throw
-    this.printUsage(this)
-    throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
-  }
-  printUsage ({ constructor: { name }, commandTree }: CommandContext) {
-    // Align
-    const columns = { name: 0, sub: 0 }
-    for (const name of Object.keys(commandTree)) {
-      columns.name = Math.max(name.length, columns.name)
-      let sub = 0
-      if ((commandTree[name] as any).commandTree) {
-        sub = String(Object.keys((commandTree[name] as any).commandTree).length).length
-      }
-      columns.sub = Math.max(sub, columns.sub)
-    }
-    columns.name += 1
-    columns.sub  += 2
-    // Display
-    const commands = Object.entries(commandTree)
-    if (commands.length < 1) {
-      this.log.info(`${name} defines no commands.`)
-      return
-    }
-    this.log.br()
-    for (let [name, entry] of Object.entries(commandTree)) {
-      name = bold(name.padEnd(columns.name))
-      let sub = ''
-      if ((entry as any).commandTree) {
-        const keys = Object.keys((entry as any).commandTree)?.length ?? 0
-        sub = `...`
-      }
-      sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
-      this.log.info(`${name} ${sub} ${entry.description}`)
-    }
-    this.log.br()
-  }
-}
 
-export function isEntrypoint (url: string) {
-  return process.argv[1] === fileURLToPath(url)
+  /** Start an interactive REPL with this deployment as global context.
+    * @throws if the `node:repl` and `node:vm` native modules are unavailable. */
+  startREPL () {
+    return startRepl(this, this.log)
+  }
+
+  /** End the process. */
+  exit (code: number = 0) {
+    process.exit(code)
+  }
+
 }
 
 export function entrypoint (url: string, callback: Function) {
   if (isEntrypoint(url)) callback()
+}
+
+export function isEntrypoint (url: string) {
+  return process.argv[1] === fileURLToPath(url)
 }
 
 export function startRepl (context: object, log = new Console('REPL')) {
@@ -203,25 +68,4 @@ export function startRepl (context: object, log = new Console('REPL')) {
     log.warn(e)
     log.info('REPL is only available in Node.')
   })
-}
-
-export function parseCommandLine <T extends CommandContext> (
-  commandTree: CommandTree<T>,
-  commandLine: string[]
-): [Command<T>|CommandContext|null, ...string[]] {
-  let commands = Object.entries(commandTree)
-  for (let i = 0; i < commandLine.length; i++) {
-    const arg = commandLine[i]
-    const nextCommands = []
-    for (const [name, command] of commands) {
-      if (name === arg) {
-        return [command, ...commandLine.slice(i+1)]
-      } else if (name.startsWith(arg)) {
-        nextCommands.push([name.slice(arg.length).trim(), command])
-      }
-    }
-    commands = nextCommands as [string, Command<T>][]
-    if (commands.length === 0) return [null]
-  }
-  return [null]
 }
