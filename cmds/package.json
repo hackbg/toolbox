@@ -29,6 +29,7 @@
     "test": "ensuite README.md",
     "cov":  "ensuite-cov README.md",
     "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "clean": "ubik clean && rm -rf dist types *.dist.*",
+    "release": "pnpm check && ubik release --access public --otp 000000"
   }
 }
