@@ -1,11 +1,11 @@
 {
   "name": "@hackbg/dome",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "main": "dome.mjs",
   "types": "dome.d.ts",
   "files": ["dome.*"],
-  "description": "DOM helper library. Create, compose, and query DOM elements quickly and without syntactic hassle.",
+  "description": "DOM helper library. Create, compose, and query DOM elements quickly without syntactic sugar.",
   "scripts": {
     "check": "tsc --noEmit",
     "test": "ensuite README.md || true",
