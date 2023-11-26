@@ -19,7 +19,7 @@
   "devDependencies": {
     "@hackbg/ganesha": "^4.2",
     "@hackbg/ensuite": "workspace:^1.5",
-    "@hackbg/ubik":    "workspace:^2",
+    "@hackbg/ubik":    "workspace:^3.0.0-rc.1",
 
     "@types/node": "latest",
     "concurrently": "7.2.2",
