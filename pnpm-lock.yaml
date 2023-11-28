@@ -82,7 +82,7 @@ importers:
   dock:
     dependencies:
       '@hackbg/file':
-        specifier: workspace:^2.0.0-rc.1
+        specifier: workspace:^2.0.1
         version: link:../file
       '@hackbg/hide':
         specifier: workspace:^1
@@ -398,7 +398,7 @@ importers:
   repo:
     dependencies:
       '@hackbg/file':
-        specifier: workspace:^2.0.0-rc.1
+        specifier: workspace:^2.0.1
         version: link:../file
       '@hackbg/logs':
         specifier: workspace:^2.0.7
