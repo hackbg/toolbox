@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/file",
-  "version":      "2.0.0",
+  "version":      "2.0.1",
   "main":         "file.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",
@@ -10,7 +10,7 @@
   "description":  "File utilities.",
   "files":        [ "README.md", "file.ts" ],
   "dependencies": {
-    "@hackbg/4mat":   "workspace:^1",
+    "@hackbg/4mat":   "workspace:^2",
     "@hackbg/logs":   "workspace:^2.0.7",
     "@hackbg/hide":   "workspace:^1.0.3",
     "js-yaml":        "^4.1.0",
@@ -30,11 +30,13 @@
     "c8":              "^7.11.2"
   },
   "scripts": {
-    "check":       "tsc --noEmit",
-    "test":        "time ganesha-run node_modules/@hackbg/spec file.spec.ts.md",
-    "cov":         "Ganesha_NoSourceMap=1 time c8 -r text -r lcov -x *.spec.* ganesha-run node_modules/@hackbg/spec file.spec.ts.md",
-    "test:readme": "ganesha-run README.md",
-    "ubik":        "npm run check && npm run cov && ubik",
-    "release":     "ubik release --otp 123123 --access public"
+    "check":          "tsc --noEmit",
+    "test":           "time ganesha-run node_modules/@hackbg/spec file.spec.ts.md",
+    "cov":            "Ganesha_NoSourceMap=1 time c8 -r text -r lcov -x *.spec.* ganesha-run node_modules/@hackbg/spec file.spec.ts.md",
+    "test:readme":    "ganesha-run README.md",
+    "ubik":           "npm run check && npm run cov && ubik",
+    "release":        "npm run check && npm run cov && ubik release --otp 123123 --access public",
+    "release:fast":   "npm run check && ubik release --otp 123123 --access public",
+    "release:faster": "ubik release --otp 123123 --access public --no-git-checks"
   }
 }

@@ -18,7 +18,7 @@ importers:
         specifier: ^4.2
         version: 4.2.0(typescript@5.0.2)
       '@hackbg/ubik':
-        specifier: workspace:^3.0.0-rc.1
+        specifier: workspace:./ubik
         version: link:ubik
       '@types/node':
         specifier: latest
@@ -53,12 +53,6 @@ importers:
       '@scure/bip39':
         specifier: ^1.2.1
         version: 1.2.1
-      '@types/secure-random':
-        specifier: ^1.1.0
-        version: 1.1.0
-      secure-random:
-        specifier: ^1.1.2
-        version: 1.1.2
 
   allo: {}
 
@@ -180,7 +174,7 @@ importers:
   file:
     dependencies:
       '@hackbg/4mat':
-        specifier: workspace:^1
+        specifier: workspace:^2
         version: link:../4mat
       '@hackbg/hide':
         specifier: workspace:^1.0.3
@@ -426,8 +420,8 @@ importers:
         specifier: ^7.22.10
         version: 7.22.10
       '@hackbg/logs':
-        specifier: ^2.0.8
-        version: 2.0.8
+        specifier: ^2.1.0
+        version: 2.1.0
       acorn:
         specifier: ^8.10.0
         version: 8.10.0
@@ -924,7 +918,7 @@ packages:
     dependencies:
       '@hackbg/4mat': 1.0.0
       '@hackbg/hide': 1.0.3
-      '@hackbg/logs': 2.0.8
+      '@hackbg/logs': 2.1.0
       js-yaml: 4.1.0
       mkdirp: 1.0.4
       recursive-copy: 2.0.14
@@ -989,6 +983,14 @@ packages:
       '@hackbg/allo': 1.0.2
       '@hackbg/hide': 1.0.3
       chalk: 4.1.2
+    dev: false
+
+  /@hackbg/logs@2.1.0:
+    resolution: {integrity: sha512-+hNvLUiWKE63UGOtak1kX7OmY6uDXj/zg6vqO/9v3ShwDbB2JftEpeSdCrutQLRShNx0UtBSgoRTtHNe/uo8mg==}
+    dependencies:
+      '@hackbg/allo': 1.0.2
+      '@hackbg/hide': 1.0.3
+      chalk: 4.1.2
 
   /@hackbg/spec@1.0.0:
     resolution: {integrity: sha512-YlruR8UORlr9YF1a6eSMEVRSXrUGK397xErPSKkJnJ6VCQK35ULp3Hkf1HCc7wptZZI1+oRl1QG5wFwYOkET1w==}
@@ -1000,7 +1002,7 @@ packages:
     hasBin: true
     dependencies:
       '@babel/parser': 7.23.3
-      '@hackbg/logs': 2.0.8
+      '@hackbg/logs': 2.1.0
       acorn: 8.10.0
       acorn-walk: 8.2.0
       astring: 1.8.6
@@ -1200,11 +1202,6 @@ packages:
     resolution: {integrity: sha512-D0WfRmU9TQ8I9PFx9Yc+EBHw+vSpIub4IDvQivcp26PtPrdMGAq5SDcpXEo/epqa/DXotVpekHiLNTg3iaKXBQ==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
-
-  /@types/node@20.3.1:
-    resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
-    dev: false
 
   /@types/node@20.9.0:
     resolution: {integrity: sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw==}
@@ -1222,7 +1219,7 @@ packages:
   /@types/secure-random@1.1.0:
     resolution: {integrity: sha512-FVkD9qNAeuc1m53VQfWhuUdn9IWjv6griflGfLcSoF3ZexyNv1ciPlZLyrucWYcdhNjKERgDb45IJwb8a/ZKDQ==}
     dependencies:
-      '@types/node': 20.3.1
+      '@types/node': 20.10.0
     dev: false
 
   /@types/ssh2-streams@0.1.9:
@@ -4290,7 +4287,6 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-    dev: true
 
   /unicode-length@2.1.0:
     resolution: {integrity: sha512-4bV582zTV9Q02RXBxSUMiuN/KHo5w4aTojuKTNT96DIKps/SIawFp7cS5Mu25VuY1AioGXrmYyzKZUzh8OqoUw==}

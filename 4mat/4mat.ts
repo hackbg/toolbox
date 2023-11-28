@@ -1,3 +1,5 @@
+import { base16, base64, bech32, bech32m } from '@scure/base'
+
 /** Returns a function that throws when called.
   * Use to give more helpful errors when an expected value is missing.
   * use as: `const foo = context.foo || required('value of foo')`
@@ -25,36 +27,32 @@ export const utf8 = {
   }
 }
 
-import * as _SecureRandom from 'secure-random'
-const SecureRandom = _SecureRandom.default ?? _SecureRandom
-export { SecureRandom }
 /** Replaces of randomBytes from node:crypto.
   * Returns Uint8Array of given length. */
-export const randomBytes   = SecureRandom.randomBuffer
+export const randomBytes = (n: number = 16) =>
+  globalThis.crypto.getRandomValues(new Uint8Array(n))
+
 /** Returns a hex-encoded string of given length.
   * Default is 16 bytes, i.e. 128 bits of entropy. */
-export const randomBase16  = (bytes = 16) =>
-  SecureRandom.randomBuffer(bytes).toString("hex")
-export const randomHex = randomBase16
+export const randomBase16 = (n: number = 16) =>
+  base16.encode(randomBytes(n))
+
 /** Returns a base64-encoded string of given length.
   * Default is 64 bytes, i.e. 512 bits of entropy. */
-export const randomBase64  = (bytes = 64) =>
-  SecureRandom.randomBuffer(bytes).toString("base64")
+export const randomBase64  = (n: number = 64) =>
+  base64.encode(randomBytes(n))
 
-export * from '@scure/base'
-import { bech32, bech32m } from '@scure/base'
 /** Returns a random valid bech32 address.
   * Default length is 32 bytes (canonical addr in Cosmos) */
-export const randomBech32  = (prefix = 'hackbg', bytes = 32) =>
-  bech32.encode(prefix, bech32.toWords(SecureRandom.randomBuffer(bytes)))
+export const randomBech32  = (prefix = 'hackbg', n = 32) =>
+  bech32.encode(prefix, bech32.toWords(randomBytes(n)))
+
 /** Returns a random valid bech32m address. */
-export const randomBech32m = (prefix = 'hackbg', bytes = 32) =>
-  bech32m.encode(prefix, bech32m.toWords(SecureRandom.randomBuffer(bytes)))
+export const randomBech32m = (prefix = 'hackbg', n = 32) =>
+  bech32m.encode(prefix, bech32m.toWords(randomBytes(n)))
 
+export * from '@scure/base'
 export * from '@noble/hashes/sha256'
-
 export * as bip32 from '@scure/bip32'
-
 export * as bip39 from '@scure/bip39'
-
 export { wordlist as bip39EN } from '@scure/bip39/wordlists/english'
