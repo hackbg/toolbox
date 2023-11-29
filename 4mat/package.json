@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/4mat",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "4mat.ts",
   "type": "module",
   "license": "MIT",
@@ -14,7 +14,7 @@
   "description": "Data formats, encodings, hashes, and miscellaneous utilities.",
   "files": [
     "README.md",
-    "4mat.ts"
+    "*.ts"
   ],
   "dependencies": {
     "@noble/hashes": "^1.1.5",
