@@ -40,7 +40,12 @@ export const replace = (node, newnode) => {
 
 /** Append one more nodes to a parent node. Return the parent. */
 export const append = (node, ...nodes) => {
-  nodes.forEach(n=>node.appendChild(n))
+  nodes.forEach(n=>{
+    if (n instanceof Array) {
+      n = render(...n)
+    }
+    node.appendChild(n)
+  })
   return node
 }
 
