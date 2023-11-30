@@ -34,7 +34,7 @@ export const selectAll = (selector) => globalThis.document.querySelectorAll(sele
 
 /** Replace a node in place. */
 export const replace = (node, newnode) => {
-  node.parentElement.replaceChild(newnode, node)
+  node.parentElement?.replaceChild(newnode, node)
   return newnode
 }
 
