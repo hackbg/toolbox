@@ -13,6 +13,6 @@ declare module "@hackbg/dome" {
 
   export function replace <H extends HTMLElement> (node: Element, newnode: H): H
 
-  export function append <H extends HTMLElement> (node: H,
+  export function append <H extends HTMLElement|DocumentFragment> (node: H,
     ...nodes: (Element|Parameters<typeof render>)[]): H
 }
