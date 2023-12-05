@@ -443,6 +443,9 @@ importers:
       recast:
         specifier: ^0.23.4
         version: 0.23.4
+      resolve.exports:
+        specifier: ^2.0.2
+        version: 2.0.2
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -3728,6 +3731,11 @@ packages:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
     dev: true
+
+  /resolve.exports@2.0.2:
+    resolution: {integrity: sha512-X2UW6Nw3n/aMgDVy+0rSqgHlv39WZAlZrXCdnbyEiKm17DSqHX4MmQMaST3FbeWR5FTuRcUwYAziZajji0Y7mg==}
+    engines: {node: '>=10'}
+    dev: false
 
   /resolve@1.22.1:
     resolution: {integrity: sha512-nBpuuYuY5jFsli/JIs1oldw6fOQCBioohqWZg/2hiaOybXOft4lonv85uDOKXdf8rhyK159cxU5cDcK/NKk8zw==}

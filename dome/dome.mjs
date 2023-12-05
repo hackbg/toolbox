@@ -34,13 +34,18 @@ export const selectAll = (selector) => globalThis.document.querySelectorAll(sele
 
 /** Replace a node in place. */
 export const replace = (node, newnode) => {
-  node.parentElement.replaceChild(newnode, node)
+  node.parentElement?.replaceChild(newnode, node)
   return newnode
 }
 
 /** Append one more nodes to a parent node. Return the parent. */
 export const append = (node, ...nodes) => {
-  nodes.forEach(n=>node.appendChild(n))
+  nodes.forEach(n=>{
+    if (n instanceof Array) {
+      n = render(...n)
+    }
+    node.appendChild(n)
+  })
   return node
 }
 
