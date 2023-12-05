@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/file",
-  "version":      "2.0.2",
+  "version":      "2.0.3",
   "main":         "file.ts",
   "type":         "module",
   "homepage":     "https://github.com/hackbg/toolbox",
@@ -10,24 +10,23 @@
   "description":  "File utilities.",
   "files":        [ "README.md", "file.ts" ],
   "dependencies": {
-    "@hackbg/4mat":   "workspace:^2.0.2",
-    "@hackbg/logs":   "workspace:^2.0.7",
-    "@hackbg/hide":   "workspace:^1.0.3",
+    "@hackbg/4mat":   "workspace:^",
+    "@hackbg/logs":   "workspace:^",
+    "@hackbg/hide":   "workspace:^",
     "js-yaml":        "^4.1.0",
     "mkdirp":         "^1.0.4",
-    "recursive-copy": "^2.0.13",
+    "recursive-copy": "^2.0.14",
     "rimraf":         "^3.0.2",
-    "symlink-dir":    "^5.0.1",
+    "symlink-dir":    "^5.2.0",
     "tmp":            "^0.2.1",
-    "toml":           "^3"
+    "toml":           "^3.0.0"
   },
   "devDependencies": {
-    "@types/js-yaml":  "^4.0.5",
+    "@types/js-yaml":  "^4.0.9",
     "@types/mkdirp":   "^1.0.2",
     "@types/rimraf":   "^3.0.2",
     "@types/tmp":      "^0.2.3",
-    "@hackbg/spec":    "workspace:*",
-    "c8":              "^7.11.2"
+    "@hackbg/ensuite": "workspace:^"
   },
   "scripts": {
     "check":          "tsc --noEmit",
