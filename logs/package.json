@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/logs",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "main": "logs.mjs",
   "types": "logs.d.ts",
   "type": "module",
@@ -18,9 +18,9 @@
   "description": "Define custom console loggers.",
   "files": [ "README.md", "logs.cjs", "logs.mjs", "logs.d.ts" ],
   "dependencies": {
-    "@hackbg/allo": "workspace:^1.0.2",
-    "@hackbg/hide": "workspace:^1.0.3",
-    "chalk": "^4"
+    "@hackbg/allo": "workspace:^",
+    "@hackbg/hide": "workspace:^",
+    "chalk": "^4.1.2"
   },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
