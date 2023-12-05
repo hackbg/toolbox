@@ -1,13 +1,13 @@
 {
   "name": "@hackbg/repo",
   "description": "Source control utilities.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "repo.mjs",
   "types": "repo.d.ts",
   "dependencies": {
-    "@hackbg/file": "workspace:^2.0.1",
-    "@hackbg/logs": "workspace:^2.0.7"
+    "@hackbg/file": "workspace:^",
+    "@hackbg/logs": "workspace:^"
   },
   "scripts": {
     "check": "tsc --noEmit",
