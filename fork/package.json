@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/fork",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "forkers.ts",
   "type": "module",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "types"
   ],
   "dependencies": {
-    "@types/zen-observable": "^0.8.3",
+    "@types/zen-observable": "^0.8.7",
     "zen-observable": "^0.8.15"
   },
   "scripts": {
