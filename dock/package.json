@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "2.0.6",
+  "version":      "2.0.7",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
@@ -11,14 +11,14 @@
   "files":        [ "README.md", "*.ts" ],
   "dependencies": {
     "colors":       "1.4.0",
-    "dockerode":    "^3.3.4",
-    "@hackbg/logs": "workspace:^2.0.1",
-    "@hackbg/oops": "workspace:^1.0.1",
-    "@hackbg/file": "workspace:^2.0.1",
-    "@hackbg/hide": "workspace:^1"
+    "dockerode":    "^3.3.5",
+    "@hackbg/logs": "workspace:^",
+    "@hackbg/oops": "workspace:^",
+    "@hackbg/file": "workspace:^",
+    "@hackbg/hide": "workspace:^"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.14",
+    "@types/dockerode": "^3.3.23",
     "@hackbg/ensuite":  "^1.1.1"
   },
   "scripts": {
