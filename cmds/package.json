@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/cmds",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "main": "cmds.ts",
   "browser": "cmds.browser.ts",
   "type": "module",
@@ -20,10 +20,10 @@
     "./cmds-ts.cli.cjs": "./cmds-ts.cli.cjs"
   },
   "dependencies": {
-    "@hackbg/logs": "workspace:^2.1",
-    "@hackbg/task": "workspace:^1",
-    "@hackbg/time": "workspace:^1",
-    "@hackbg/hide": "workspace:^1.0.3"
+    "@hackbg/logs": "workspace:^",
+    "@hackbg/task": "workspace:^",
+    "@hackbg/time": "workspace:^",
+    "@hackbg/hide": "workspace:^"
   },
   "scripts": {
     "ubik": "npm run check && npm run cov && ubik",
