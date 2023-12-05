@@ -2,7 +2,6 @@
   "name": "@hackbg/toolbox",
   "version": "5.0.0",
   "type": "module",
-  "main": "toolbox.ts",
   "private": true,
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
@@ -12,29 +11,22 @@
   },
   "license": "BSD-3-Clause-No-Military-License",
   "description": "Baseline utilities.",
-  "dependencies": {
-    "open":        "^8.4.0",
-    "signal-exit": "^3.0.7"
-  },
   "devDependencies": {
-    "@hackbg/ganesha": "^4.2",
-    "@hackbg/ensuite": "workspace:^1.5",
-    "@hackbg/ubik":    "workspace:./ubik",
-
+    "@hackbg/ensuite": "workspace:^",
+    "@hackbg/ganesha": "^4.2.0",
+    "@hackbg/ubik": "workspace:./ubik",
     "@types/node": "latest",
     "concurrently": "7.2.2",
-    "typescript":  "^5",
-    "typedoc": "^0.24.8",
     "husky": "^8.0.3",
-    "lint-staged": "^13.1.2"
+    "lint-staged": "^13.3.0",
+    "typedoc": "^0.25.4",
+    "typescript": "^5.3.2"
   },
   "scripts": {
     "prepare": "husky install",
-    "check":   "tsc",
-
-    "ubik":  "npm run check && ubik",
-    "ubik:all": "npm run check && pnpm -r ubik",
     "check": "tsc --noEmit",
+    "ubik": "npm run check && ubik",
+    "ubik:all": "npm run check && pnpm -r ubik",
     "ts:clean": "rm -rf dist packages/*/dist packages/*/types",
     "ts:build": "npm run ts:clean && concurrently 'npm:ts:build:*'",
     "ts:build:cjs": "ttsc -p tsconfig.cjs.json",
