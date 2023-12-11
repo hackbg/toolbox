@@ -15,4 +15,5 @@ steps:
   - du -sh ./docs
   - mkdir -p /var/www/docs.hack.bg
   - cp -r docs /var/www/docs.hack.bg/toolbox~
+  - rm -rf /var/www/docs.hack.bg/toolbox
   - mv /var/www/docs.hack.bg/toolbox~ /var/www/docs.hack.bg/toolbox
