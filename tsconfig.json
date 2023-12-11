@@ -1,6 +1,7 @@
 {
   "include": [
     "*",
+    "**/*.ts",
     "package.json"
   ],
   "exclude": [
