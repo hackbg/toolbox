@@ -2,7 +2,7 @@
 
 [![Built with PNPM](https://img.shields.io/badge/Built%20with-PNPM-%239013fe?style=for-the-badge)](https://pnpm.io)
 
-**`@hackbg/toolbox` is a survival kit** that includes all the four-letter words you with
+**`@hackbg/toolbox` is a survival kit** that includes all the four-letter words you wish
 JavaScript had. Its development is informed by a decade or so of cussedly wrangling the
 ECMAScript ecosystem. This library powers:
 
