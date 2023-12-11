@@ -2,7 +2,7 @@
 kind: pipeline
 type: docker
 name: default
-trigger: { event: [ push ] }
+trigger: { event: [ push ], branch: [ main ] }
 volumes: [ { name: docs, host: { path: /var/www/docs.hack.bg  } } ]
 steps:
 - name: test
