@@ -9,6 +9,7 @@ steps:
   - corepack enable
   - pnpm i --frozen-lockfile --strict-peer-dependencies
   - pnpm docs:typedoc
+  - du -sh ./docs
 trigger:
   event:
     - push
