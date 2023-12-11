@@ -2,14 +2,17 @@
 kind: pipeline
 type: docker
 name: default
+trigger: { event: [ push ] }
+volumes: [ { name: docs, host: { path: /var/www/docs.hack.bg  } } ]
 steps:
 - name: test
   image: node:21-alpine3.18
+  volumes: [ { name: docs, path: /var/www/docs.hack.bg } ]
   commands:
   - corepack enable
   - pnpm i --frozen-lockfile --strict-peer-dependencies
   - pnpm docs:typedoc
   - du -sh ./docs
-trigger:
-  event:
-    - push
+  - mkdir -p /var/www/docs.hack.bg
+  - cp -r docs /var/www/docs.hack.bg/toolbox~
+  - mv /var/www/docs.hack.bg/toolbox~ /var/www/docs.hack.bg/toolbox
