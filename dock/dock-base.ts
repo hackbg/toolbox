@@ -5,10 +5,20 @@ import type { Writable } from 'node:stream'
 
 export abstract class Engine {
 
-  constructor (readonly name?: string) {
-    this.log = new Console(`@hackbg/dock: ${this.name}`)
+  constructor (options: string|{
+    name: string
+    log?: Console
+  }) {
+    if (typeof options === 'string') {
+      options = { name: options }
+    }
+    this.name = options.name
+    this.log  = options.log ?? new Console(`@hackbg/dock: ${this.name}`)
     hide(this, 'log')
   }
+
+  readonly name:
+    string
 
   log:
     Console

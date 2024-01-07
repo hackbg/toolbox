@@ -333,15 +333,14 @@ class DockerContainer extends Container {
 
   /** Detect when service is ready. */
   async waitLog (
-    expected:     string,
-    logFilter?:   (data: string) => boolean,
-    thenDetach?:  boolean,
+    expected:    string,
+    logFilter?:  (data: string) => boolean,
+    thenDetach?: boolean,
   ): Promise<void> {
     if (!this.container) {
       throw new Error.NoContainer()
     }
     const id = this.container.id.slice(0,8)
-    const log = new Console(`DockerContainer(${bold(id)})`)
     const stream = await this.container.logs({ stdout: true, stderr: true, follow: true, })
     if (!stream) {
       throw new Error('no stream returned from container')
@@ -349,7 +348,7 @@ class DockerContainer extends Container {
     const filter = logFilter || (x=>true)
     const logFiltered = (data:string) => {
       if (filter(data)) {
-        log.debug(data)
+        this.log.debug(data)
       }
     }
     return await waitStream(

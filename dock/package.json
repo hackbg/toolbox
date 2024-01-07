@@ -1,6 +1,6 @@
 {
   "name":         "@hackbg/dock",
-  "version":      "2.0.7",
+  "version":      "2.0.8",
   "main":         "dock.ts",
   "type":         "module",
   "license":      "MIT",
