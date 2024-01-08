@@ -115,7 +115,7 @@ class DockerImage extends Image {
             throw new Error.PullFailed(name)
           }
           const data = ['id', 'status', 'progress'].map(x=>event[x]).join(' ')
-          console.log(data)
+          this.log.log(data)
         })
         ok()
       })
