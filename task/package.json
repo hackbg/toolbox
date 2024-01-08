@@ -13,9 +13,8 @@
     "@hackbg/logs": "workspace:^"
   },
   "scripts": {
-    "ubik": "npm test && npm run check && ubik",
-    "test": "true || ganesha-node README.md",
     "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "test": "true",
+    "release": "npm run check && npm run test && ubik release --otp 123123"
   }
 }
