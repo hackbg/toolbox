@@ -36,3 +36,18 @@ export class Logged {
   log: Console
   constructor (properties?: Partial<Logged>)
 }
+
+export function randomColor(options?: RandomColorOptionsSingle): string;
+export function randomColor(options?: RandomColorOptionsMultiple): string[];
+
+interface RandomColorOptionsSingle {
+    hue?: number | string | undefined;
+    luminosity?: "bright" | "light" | "dark" | "random" | undefined;
+    seed?: number | string | undefined;
+    format?: "hsvArray" | "hslArray" | "hsl" | "hsla" | "rgbArray" | "rgb" | "rgba" | "hex" | undefined;
+    alpha?: number | undefined;
+}
+
+interface RandomColorOptionsMultiple extends RandomColorOptionsSingle {
+    count: number;
+}
