@@ -44,7 +44,6 @@ ECMAScript ecosystem. This library powers:
 |---|---|---|---|---|
 |[**@hackbg/cmds**](./cmds/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/cmds?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/cmds)|**Command runner.**             |TS     |Backend   |
 |[**@hackbg/conf**](./conf/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/conf?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/conf)|**Environment configuration.**  |ESM    |Isomorphic|
-|[**@hackbg/dock**](./dock/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/dock?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/dock)|**Dockerize commands.**         |TS     |Backend   |
 |[**@hackbg/file**](./file/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/file?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/file)|**Filesystem model.**           |TS     |Backend   |
 |[**@hackbg/port**](./port/README.md)|[![NPM version](https://img.shields.io/npm/v/@hackbg/port?color=9013fe&label=&style=for-the-badge)](https://www.npmjs.com/package/@hackbg/port)|**Network port utilities.**     |TS     |Backend   |
 
