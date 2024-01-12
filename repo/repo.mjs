@@ -15,7 +15,7 @@ export class DotGit extends Path {
     if (!base) {
       throw new Error(
         'you need to pass a base directory in order to '+
-        'compute the path of the corresponding.git datastore'
+        'compute the path of the corresponding .git datastore'
       )
     }
     if (base instanceof URL) {

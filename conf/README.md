@@ -1,5 +1,7 @@
 # @hackbg/conf
 
+**Configuration utilities.**
+
 Loads configuration from environment.
 
 Parses the values of "empty string", `false`, `no`, and `0` as negatives.

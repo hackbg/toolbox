@@ -1,22 +1,18 @@
 # @hackbg/file
 
-**Classes for accessing the filesystem.**
+**Filesystem utilities.**
 
-Your OS's filesystem isn't the most powerful database by far,
-it's the most human-friendly one out there.
+Your OS's filesystem isn't the most powerful database,
+it's one of the more familiar and human-friendly ones out there.
 
-Exports `File` and `Directory` classes, as well as example `JSON` subclasses of the same
-that take care of extensions and the data format. `YAML` and `TOML` subclasses are planned,
-too.
+This package exports:
 
-Reexports `fs`, `fs/promises`, as well as `mkdirp` and `rimraf`.
-
-Basis of the Receipts subsystem in Fadroma. A "receipt" is a good metaphor
-for the kind of data best stored with this module: a record of a meaningful
-interaction between a user and a system, which is stored *with the user*
-(as it's recorded by the system's state, anyway). Think keeping track of
-what programs (e.g. smart contracts) you uploaded to an append-only public
-compute service (e.g. a programmable blockchain).
+* The `$` helper function, which concatenates paths.
+* The `File` and `Directory` classes, which you can use to
+  specify whether you expect a file or a directory at a given path.
+* The `JSONFile`, `YAMLFile` etc. subclasses for automatically
+  loading data in a given format.
+* Reexports `fs`, `fs/promises`, as well as `mkdirp` and `rimraf`.
 
 ```javascript
 import $, { Directory, TextFile, JSONFile } from '@hackbg/file'

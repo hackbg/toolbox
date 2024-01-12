@@ -2,7 +2,12 @@
 
 **Network port utilities.**
 
-* Defines `freePort`
+This package provides the following features:
+
+* Getting a random free port.
+
+* Port manager, allowing for ports to be reserved ahead of time.
+
 * Reexports `waitPort`
 
 <div align="center">

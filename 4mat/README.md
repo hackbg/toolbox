@@ -1,5 +1,7 @@
 # @hackbg/4mat
 
+**Data format utilities.**
+
 <div align="center">
 
 ---

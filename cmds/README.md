@@ -1,14 +1,6 @@
 # @hackbg/cmds
 
-<div align="center">
-
-Tiny command parser.
-
----
-
-Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
-
-</div>
+**Tiny command parser.**
 
 ```typescript
 import { CommandContext } from '@hackbg/cmds'
@@ -20,3 +12,11 @@ class MyCommands extends CommandContext {
 new MyCommands('my commands')
   .addCommand('cmd2', 'command 2', () => {}, () => {})
 ```
+
+<div align="center">
+
+---
+
+Made with **#%&!** @ [**Hack.bg**](https://foss.hack.bg)
+
+</div>
