@@ -125,8 +125,7 @@ export default class CommandContext extends Logged {
   async run <T> (argv: string[], context: any = this): Promise<T> {
     // If no arguments were passed, exit.
     if (argv.length === 0) {
-      this.log.error('No command invoked.')
-      this.printUsage(this)
+      await this.printUsageNoCommand(this)
       return null as unknown as T
     }
     // Parse the command and arguments
@@ -136,11 +135,20 @@ export default class CommandContext extends Logged {
       return await command.run(args, context) as T
     }
     // If no command was run, print usage and throw
-    this.printUsage(this)
+    await this.printUsageMissingCommand(this)
     throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
   }
 
-  printUsage ({ constructor: { name }, commandTree }: CommandContext) {
+  async printUsageNoCommand (arg0: this) {
+    this.log.error('No command invoked.')
+    return this.printUsage(arg0)
+  }
+
+  async printUsageMissingCommand (arg0: Parameters<typeof this["printUsage"]>[0]) {
+    return this.printUsage(arg0)
+  }
+
+  async printUsage ({ constructor: { name }, commandTree }: CommandContext) {
     // Align
     const columns = { name: 0, args: 0, sub: 0 }
     for (const name of Object.keys(commandTree)) {
@@ -166,7 +174,6 @@ export default class CommandContext extends Logged {
       this.log.info(`${name} defines no commands.`)
       return
     }
-    this.log.br()
     for (let [name, entry] of Object.entries(commandTree)) {
       name = bold(name.padEnd(columns.name))
       let args = ''
@@ -180,9 +187,9 @@ export default class CommandContext extends Logged {
         sub = `...`
       }
       sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
-      this.log.info(`${name} ${args} ${sub} ${entry.description}`)
+      this.log.info(`  ${name} ${args} ${sub} ${entry.description}`)
     }
-    this.log.br()
+    this.log.info()
   }
 }
 
