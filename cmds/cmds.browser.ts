@@ -3,7 +3,7 @@ export { default as Command } from './cmds-command'
 export * from './cmds-step'
 export { default as Step } from './cmds-step'
 
-import Command from './cmds-command'
+import Command, { Command2 } from './cmds-command'
 import Step from './cmds-step'
 import type { StepFn, Steps } from './cmds-step'
 import { hideProperties } from '@hackbg/hide'
@@ -33,6 +33,30 @@ export default class CommandContext extends Logged {
     super()
     this.log.label = label
     hideProperties(this, 'cwd', 'env')
+  }
+
+  command2 <X extends StepFn<this, unknown>> (parameters: {
+    name: string,
+    args: string,
+    info: string,
+  }, step: X): X {
+    this.addCommand2(parameters, step)
+    return step
+  }
+
+  addCommand2 <X extends StepFn<this, unknown>> (parameters: {
+    name: string,
+    args: string,
+    info: string,
+  }, step: X): this {
+    // store command
+    this.commandTree[parameters.name] = new Command2({
+      name: parameters.name,
+      args: parameters.args,
+      info: parameters.info,
+      steps: [step as any]
+    })
+    return this
   }
 
   /** Define a command during construction.
@@ -101,8 +125,7 @@ export default class CommandContext extends Logged {
   async run <T> (argv: string[], context: any = this): Promise<T> {
     // If no arguments were passed, exit.
     if (argv.length === 0) {
-      this.log.br()
-      this.log.info('No command invoked.')
+      this.log.error('No command invoked.')
       this.printUsage(this)
       return null as unknown as T
     }
@@ -119,9 +142,16 @@ export default class CommandContext extends Logged {
 
   printUsage ({ constructor: { name }, commandTree }: CommandContext) {
     // Align
-    const columns = { name: 0, sub: 0 }
+    const columns = { name: 0, args: 0, sub: 0 }
     for (const name of Object.keys(commandTree)) {
       columns.name = Math.max(name.length, columns.name)
+
+      let args = 0
+      if ((commandTree[name] as any).args) {
+        args = String((commandTree[name] as any).args).length
+      }
+      columns.args = Math.max(args, columns.args)
+
       let sub = 0
       if ((commandTree[name] as any).commandTree) {
         sub = String(Object.keys((commandTree[name] as any).commandTree).length).length
@@ -139,13 +169,18 @@ export default class CommandContext extends Logged {
     this.log.br()
     for (let [name, entry] of Object.entries(commandTree)) {
       name = bold(name.padEnd(columns.name))
+      let args = ''
+      if ((entry as any).args) {
+        args = (entry as any).args
+      }
+      args = args.padEnd(columns.args)
       let sub = ''
       if ((entry as any).commandTree) {
         const keys = Object.keys((entry as any).commandTree)?.length ?? 0
         sub = `...`
       }
       sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
-      this.log.info(`${name} ${sub} ${entry.description}`)
+      this.log.info(`${name} ${args} ${sub} ${entry.description}`)
     }
     this.log.br()
   }

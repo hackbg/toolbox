@@ -21,7 +21,7 @@ try {
 if (ganesha && !process.env.CMDS_TS) {
   const { version: ganeshaVersion } = require('@hackbg/ganesha/package.json')
   // If ganesha is available and not enabled restart through ganesha
-  console.info(`TS JIT by`, bold(`@hackbg/ganesha ${ganeshaVersion}`))
+  //console.info(`TS JIT by`, bold(`@hackbg/ganesha ${ganeshaVersion}`))
   if (process.env.VERBOSE) {
     const interpreter = process.argv[0]
     const transpiler  = require.resolve('@hackbg/ganesha')
