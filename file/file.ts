@@ -424,6 +424,8 @@ export function alignYAML (str: string, pad: number = 0) {
   }).join('\n')
 }
 
+export { default as XDG } from '@folder/xdg'
+
 // reexports
 export {
   copy,
