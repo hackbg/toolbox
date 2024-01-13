@@ -8,8 +8,11 @@ export default class LocalCommandContext extends CommandContext {
 
   constructor (...args: ConstructorParameters<typeof CommandContext>) {
     super(...args)
-    this.addCommand('repl', 'run an interactive JavaScript REPL in this context', () =>
-      this.startREPL())
+    this.addCommand2({
+      name: 'repl',
+      info: 'run an interactive JavaScript REPL in this context',
+      args: ''
+    }, () => this.startREPL())
   }
 
   /** If this command tree is the default export of the process entrypoint,
@@ -61,7 +64,7 @@ export function startRepl (context: object, log = new Console('REPL')) {
     //@ts-ignore
     import('node:vm')
   ]).then(([repl, { createContext }])=>{
-    let prompt = '\nFadroma> '
+    let prompt = `\n${colors.black.bgGreen.bold(' JS ')}${colors.green('▒')} `
     context = createContext(context)
     setTimeout(()=>Object.assign(repl.start({ prompt }), { context }))
   }).catch((e: Error)=>{
