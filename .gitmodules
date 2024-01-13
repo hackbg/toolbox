@@ -1,9 +1,12 @@
 [submodule "ubik"]
-  path = ubik
-  url  = https://github.com/hackbg/ubik.git
+  path   = ubik
+  url    = https://github.com/hackbg/ubik.git
+  branch = main
 [submodule "ensuite"]
-  path = ensuite
-  url  = https://github.com/hackbg/ensuite.git
+  path   = ensuite
+  url    = https://github.com/hackbg/ensuite.git
+  branch = main
 [submodule "ganesha"]
-  path = ganesha
-  url  = https://github.com/hackbg/ganesha.git
+  path   = ganesha
+  url    = https://github.com/hackbg/ganesha.git
+  branch = main
