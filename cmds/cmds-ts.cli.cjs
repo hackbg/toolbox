@@ -45,7 +45,7 @@ if (ganesha && !process.env.CMDS_TS) {
 } else {
   // Run the default export of the commands module
   if (process.env.CMDS_TS) {
-    console.info('TS support enabled. On-demand compilation may be slower.\n')
+    console.warn('TS JIT on. This may be slow on large codebases.')
   }
   const entrypoint = resolve(process.cwd(), process.argv[2])
   import(entrypoint).then(module=>{
