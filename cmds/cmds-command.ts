@@ -6,15 +6,19 @@ import { Console, colors, bold } from '@hackbg/logs'
 /** A command is a binding between a string and one or more steps
   * that operate sequentially on the same context.  */
 export default class Command<C extends object> extends Timed<C, Error> {
-  log:   Console
   name:  string
   args:  string
   info:  string
   steps: Step<C, unknown>[]
+  log:   Console
 
   constructor (parameters: Partial<Command<C>> = {}) {
     super()
-    this.log = new Console(this.name)
+    this.name = parameters.name
+    this.args = parameters.args
+    this.info = parameters.info
+    this.steps = parameters.steps
+    this.log = parameters.log || new Console(this.name)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
     this.args = parameters.args
   }

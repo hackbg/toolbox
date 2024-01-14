@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/cmds",
-  "version": "4.0.0-rc.2",
+  "version": "4.0.0-rc.3",
   "main": "cmds.ts",
   "browser": "cmds.browser.ts",
   "type": "module",
