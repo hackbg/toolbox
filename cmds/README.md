@@ -3,9 +3,9 @@
 **Tiny command parser.**
 
 ```typescript
-import { CommandContext } from '@hackbg/cmds'
+import Commands from '@hackbg/cmds'
 
-class MyCommands extends CommandContext {
+class MyCommands extends Commands {
   cmd1 = this.command('cmd1', 'command 1', () => {})
 }
 

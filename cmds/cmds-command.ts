@@ -6,17 +6,17 @@ import { Console, colors, bold } from '@hackbg/logs'
 /** A command is a binding between a string and one or more steps
   * that operate sequentially on the same context.  */
 export default class Command<C extends object> extends Timed<C, Error> {
+  log:   Console
+  name:  string
+  args:  string
+  info:  string
+  steps: Step<C, unknown>[]
 
-  log: Console
-
-  constructor (
-    readonly label:       string             = '',
-    readonly description: string             = '',
-    readonly steps:       Step<C, unknown>[] = [],
-  ) {
+  constructor (parameters: Partial<Command<C>> = {}) {
     super()
-    this.log = new Console(this.label)
+    this.log = new Console(this.name)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
+    this.args = parameters.args
   }
 
   /** Run the command with the specified arguments. */
@@ -49,33 +49,23 @@ export default class Command<C extends object> extends Timed<C, Error> {
       .reduce((max: number, x: string)=>Math.max(max, x.length), 0)
   }
 
-  after = () => {
-    const command = this
-    const result = command.failed ? colors.red('failed') : colors.green('completed')
-    const took   = command.took
-    const logMethod = (command.failed ? this.log.error : this.log.log).bind(this.log)
-    this.log.br()
-    logMethod(`The command "${bold(command.label)}" ${result} in ${command.took}`)
-    for (const step of command.steps) {
-      const name     = (step.name ?? '(nameless step)').padEnd(40)
-      const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
-      const timing   = (step.took ?? '').padStart(10)
-      logMethod(status, bold(name), timing, 's')
-    }
-    this.log.br()
-  }
+  after = () => {}
 }
 
 export class Command2<C extends object> extends Command<C> {
-  constructor (parameters: {
-    name:  string,
-    args:  string,
-    info:  string,
-    steps: Step<C, unknown>[]
-  }) {
-    super(parameters.name, parameters.info, parameters.steps)
-    this.args = parameters.args
+}
+
+export const afterSteps = (command: Command<any>) => {
+  const result = command.failed ? colors.red('failed') : colors.green('completed')
+  const took   = command.took
+  const logMethod = (command.failed ? command.log.error : command.log.log).bind(command.log)
+  command.log.br()
+  logMethod(`The command "${bold(command.name)}" ${result} in ${command.took}`)
+  for (const step of command.steps) {
+    const name     = (step.name ?? '(nameless step)').padEnd(40)
+    const status   = step.failed ? `${colors.red('fail')}` : `${colors.green('ok  ')}`
+    const timing   = (step.took ?? '').padStart(10)
+    logMethod(status, bold(name), timing, 's')
   }
-  args: string
-  after = () => {}
+  command.log.br()
 }

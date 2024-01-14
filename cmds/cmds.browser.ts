@@ -3,16 +3,22 @@ export { default as Command } from './cmds-command'
 export * from './cmds-step'
 export { default as Step } from './cmds-step'
 
-import Command, { Command2 } from './cmds-command'
+import Command from './cmds-command'
 import Step from './cmds-step'
 import type { StepFn, Steps } from './cmds-step'
 import { hideProperties } from '@hackbg/hide'
 import { timestamp } from '@hackbg/time'
 import { Console, Logged, colors, bold } from '@hackbg/logs'
 
-export type CommandTree<T extends CommandContext> = Record<string, Command<T>|CommandContext>
+export type CommandTree<T extends CommandContext> =
+  Record<string, Command<T>|CommandContext>
 
 export default class CommandContext extends Logged {
+  /** Name of this command tree. */
+  name: string
+  /** Description of this command tree. */
+  info: string
+
   /** Start of command execution. */
   timestamp: string = timestamp()
   /** Process environment at lauch of process. */
@@ -26,31 +32,35 @@ export default class CommandContext extends Logged {
   /** Extra arguments passed from the command line. */
   args: string[] = []
 
-  constructor (
-    public label:       string  = new.target.constructor.name,
-    public description: string  = '@hackbg/cmds',
-  ) {
+  constructor (options: Partial<{
+    name: string,
+    info: string
+  }> = {}) {
     super()
-    this.log.label = label
+    this.name = options.name ?? new.target.constructor.name
+    this.info = options.info ?? 'CLI by @hackbg/cmds'
+    this.log.label = this.name
     hideProperties(this, 'cwd', 'env')
   }
 
-  command2 <X extends StepFn<this, unknown>> (parameters: {
+  /** Define a command and return it. */
+  command <X extends StepFn<this, unknown>> (parameters: {
     name: string,
     args: string,
     info: string,
   }, step: X): X {
-    this.addCommand2(parameters, step)
+    this.addCommand(parameters, step)
     return step
   }
 
-  addCommand2 <X extends StepFn<this, unknown>> (parameters: {
+  /** Define a command and return `this`. */
+  addCommand <X extends StepFn<this, unknown>> (parameters: {
     name: string,
     args: string,
     info: string,
   }, step: X): this {
     // store command
-    this.commandTree[parameters.name] = new Command2({
+    this.commandTree[parameters.name] = new Command({
       name: parameters.name,
       args: parameters.args,
       info: parameters.info,
@@ -59,58 +69,15 @@ export default class CommandContext extends Logged {
     return this
   }
 
-  /** Define a command during construction.
-    * @returns the passed command
-    * @example
-    *   class MyCommands extends CommandContext {
-    *     doThing = this.command('do-thing', 'command example', async function doThing () {
-    *       // implementation
-    *     })
-    *   } */
-  command <X extends StepFn<this, unknown>> (name: string, description: string, step: X): X {
-    this.addCommand(name, description, step)
-    return step
-  }
-
-  /** Define a command subtree during construction.
-    * @returns the passed command subtree
-    * @example
-    *   class MyCommands extends CommandContext {
-    *     doThings = this.commands('sub', 'command subtree example', new SubCommands())
-    *   }
-    *   class SubCommands extends CommandContext {
-    *     // ...
-    *   }
-    **/
-  commands <C extends CommandContext> (name: string, description: string, subtree: C): C {
-    this.addCommands(name, description, subtree)
+  /** Attach a command subtree and return it. */
+  commands <C extends CommandContext> (name: string, info: string, subtree: C): C {
+    this.addCommands(name, info, subtree)
     return subtree
   }
 
-  /** Define a command after the instance is constructed.
-    * @returns this
-    * @example
-    *   export default new CommandContext()
-    *     .addCommand('foo', 'do one thing', async () => { ... })
-    *     .addCommand('bar', 'do another thing', () => { ... })
-    **/
-  addCommand (name: string, description: string, ...steps: Steps<this>): this {
-    // store command
-    this.commandTree[name] = new Command(name, description, steps.map(step=>Step.from(step)))
-    return this
-  }
-
-  /** Define a command subtree after the instance is constructed.
-    * @returns this
-    * @example
-    *   export default new CommandContext()
-    *     .addCommands('empty', 'do nothing in new context', new CommandContext())
-    *     .addCommands('baz', 'do some more things', new CommandContext()
-    *       .addCommand(...)
-    *       .addCommand(...))
-    **/
-  addCommands (name: string, description: string, subtree: CommandContext): this {
-    subtree.description = description
+  /** Attach a command subtree and return this. */
+  addCommands (name: string, info: string, subtree: CommandContext): this {
+    subtree.info = info
     this.commandTree[name] = subtree
     return this
   }
@@ -187,7 +154,7 @@ export default class CommandContext extends Logged {
         sub = `...`
       }
       sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
-      this.log.info(`  ${name} ${args} ${sub} ${entry.description}`)
+      this.log.info(`  ${name} ${args} ${sub} ${entry.info}`)
     }
     this.log.info()
   }

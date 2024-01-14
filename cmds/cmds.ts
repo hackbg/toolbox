@@ -8,7 +8,7 @@ export default class LocalCommandContext extends CommandContext {
 
   constructor (...args: ConstructorParameters<typeof CommandContext>) {
     super(...args)
-    this.addCommand2({
+    this.addCommand({
       name: 'repl',
       info: 'run an interactive JavaScript REPL in this context',
       args: ''
