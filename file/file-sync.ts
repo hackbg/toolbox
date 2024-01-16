@@ -12,6 +12,7 @@ import {
   readFileSync,
   readdirSync,
   readlinkSync, 
+  statSync,
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
@@ -46,7 +47,7 @@ export class LocalPathSync extends Path {
 
   /** @returns an instance of the passed class, pointing to this.absolute,
     * and (hopefully) knowing what to do with the data at this.absolute. */
-  as <T, U extends BaseFile<T>|BaseDirectory<T, BaseFile<T>>> (Ctor: PathCtor<U>): U {
+  as <T, U extends { new (path: string): T }> (Ctor: U): T {
     return new Ctor(this.absolute)
   }
 
