@@ -1,3 +1,4 @@
+export * from './file-core'
 export * as SyncFS from './file-sync'
 export * as AsyncFS from './file-async'
 export * as FileFormat from './file-format'

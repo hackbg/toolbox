@@ -7,8 +7,14 @@ export class LocalPathAsync extends Path {
   }
 }
 
-export class LocalDirectoryAsync extends Path {
+export class LocalDirectoryAsync extends LocalPathAsync {
 }
 
-export class LocalFileAsync extends Path {
+export class LocalFileAsync extends LocalPathAsync {
+}
+
+export {
+  LocalPathAsync as Path,
+  LocalFileAsync as File,
+  LocalDirectoryAsync as Directory
 }

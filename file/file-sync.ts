@@ -19,7 +19,7 @@ import {
 
 import { Path } from './file-core'
 
-export class LocalPathSync extends Path {
+class LocalPathSync extends Path {
 
   /** @returns absolute path to parent directory. */
   get parent (): LocalDirectorySync {
@@ -153,7 +153,7 @@ export class LocalPathSync extends Path {
 
 }
 
-export class LocalDirectorySync extends LocalPathSync {
+class LocalDirectorySync extends LocalPathSync {
 
   resolve (path: string): string {
     return resolve(this.absolute, path)
@@ -193,7 +193,7 @@ export class LocalDirectorySync extends LocalPathSync {
 
 }
 
-export class LocalFileSync extends LocalPathSync {
+class LocalFileSync extends LocalPathSync {
 
   format?: {
     load <T> (data: unknown): T
@@ -263,4 +263,10 @@ export class LocalFileSync extends LocalPathSync {
     return base16.encode(sha256(this.loadBinary()))
   }
 
+}
+
+export {
+  LocalPathSync as Path,
+  LocalFileSync as File,
+  LocalDirectorySync as Directory
 }
