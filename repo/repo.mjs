@@ -1,12 +1,12 @@
 //@ts-check
-import $, { Path, TextFile } from '@hackbg/file'
+import { SyncFS } from '@hackbg/file'
 import { Console, bold } from '@hackbg/logs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { chdir } from 'node:process'
 
-export class DotGit extends Path {
+export class DotGit extends SyncFS.Path {
   log = new Console('@hackbg/repo')
   present
   isSubmodule = false
@@ -24,25 +24,25 @@ export class DotGit extends Path {
     super(base, ...fragments, '.git')
     if (!this.exists()) {
       // If .git does not exist, it is not possible to build past commits
-      this.log.warn(bold(this.shortPath), 'does not exist')
+      this.log.warn(bold(this.short), 'does not exist')
       this.present = false
     } else if (this.isFile()) {
       // If .git is a file, the workspace is contained in a submodule
-      const gitPointer = this.as(TextFile).load().trim()
+      const gitPointer = new SyncFS.File(this).load().trim()
       const prefix = 'gitdir:'
       if (gitPointer.startsWith(prefix)) {
         // If .git contains a pointer to the actual git directory,
         // building past commits is possible.
         const gitRel = gitPointer.slice(prefix.length).trim()
-        const gitPath = $(this.parent, gitRel).path
-        const gitRoot = $(gitPath)
-        //this.log.info(bold(this.shortPath), 'is a file, pointing to', bold(gitRoot.shortPath))
-        this.path = gitRoot.path
+        const gitPath = new SyncFS.File(this.parent, gitRel).absolute
+        const gitRoot = new SyncFS.Directory(gitPath)
+        //this.log.info(bold(this.short), 'is a file, pointing to', bold(gitRoot.short))
+        this.path = gitRoot.absolute
         this.present = true
         this.isSubmodule = true
       } else {
         // Otherwise, who knows?
-        this.log.info(bold(this.shortPath), 'is an unknown file.')
+        this.log.info(bold(this.short), 'is an unknown file.')
         this.present = false
       }
     } else if (this.isDirectory()) {
@@ -51,13 +51,13 @@ export class DotGit extends Path {
       this.present = true
     } else {
       // Otherwise, who knows?
-      this.log.warn(bold(this.shortPath), `is not a file or directory`)
+      this.log.warn(bold(this.short), `is not a file or directory`)
       this.present = false
     }
   }
 
   get rootRepo () {
-    return $(this.path.split(DotGit.rootRepoRE)[0])
+    return new SyncFS.Path(this.path.split(DotGit.rootRepoRE)[0])
   }
 
   get submoduleDir () {
@@ -65,7 +65,7 @@ export class DotGit extends Path {
   }
 
   /* Matches "/.git" or "/.git/" */
-  static rootRepoRE = new RegExp(`${Path.separator}.git${Path.separator}?`)
+  static rootRepoRE = new RegExp(`${SyncFS.Path.separator}.git${SyncFS.Path.separator}?`)
 
 }
 
