@@ -10,8 +10,10 @@
     "@hackbg/logs": "workspace:^"
   },
   "scripts": {
-    "check": "tsc --noEmit",
-    "test": "true",
-    "release": "npm run check && npm run test && ubik release --otp 123123"
+    "check":          "tsc --noEmit",
+    "test":           "true",
+    "release":        "npm run check && npm run cov && ubik release --otp 123123 --access public",
+    "release:fast":   "npm run check && ubik release --otp 123123 --access public",
+    "release:faster": "ubik release --otp 123123 --access public --no-git-checks"
   }
 }
