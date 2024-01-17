@@ -94,7 +94,6 @@ class LocalPathSync extends Path {
 
   delete (): this {
     if (this.exists()) {
-      this.log.log('Deleting')
       rimrafCb.sync(this.absolute)
     }
     return this
@@ -211,7 +210,6 @@ class LocalFileSync extends LocalPathSync {
 
   make () {
     if (!existsSync(this.absolute)) {
-      this.log.debug('Creating.')
       this.makeParent()
       writeFileSync(this.absolute, '')
     }
@@ -251,6 +249,7 @@ class LocalFileSync extends LocalPathSync {
         path: this.absolute
       })
     }
+    this.makeParent()
     writeFileSync(this.absolute, this.format.save(data))
     return this
   }
