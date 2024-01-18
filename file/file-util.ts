@@ -37,22 +37,17 @@ export function withTmpDir <T> (
   fn: (path: string)=>T,
   { remove = true, prefix = 'temp-' }: { remove?: boolean, prefix?: string } = {}
 ): T {
-
   const name = mkdtempSync(resolve(tmpdir(), prefix))
-
-  console.log(`Created temporary directory ${bold}`, remove
+  console.log(`Created temporary directory ${bold(name)}`, remove
     ? 'Will remove it on process exit.'
     : 'Will keep it after process exits.')
-
   if (remove) {
     process.on('beforeexit', () => {
       new Console(`${name}`).log('Removing temporary directory', name)
       _rimraf.sync(name)
     })
   }
-
   return fn(name)
-
 }
 
 export function withTmpFile <T> (fn: (path: string)=>T): T {

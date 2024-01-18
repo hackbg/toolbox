@@ -1,6 +1,12 @@
 import _TOML from 'toml'
 import _YAML from 'js-yaml'
 
+export class Text {
+  static defaultExtension = '.json'
+  static load = (data) => data
+  static save = (data: unknown) => String(data)
+}
+
 export class JSON {
   static defaultExtension = '.json'
   static load = (data) => globalThis.JSON.parse(data)

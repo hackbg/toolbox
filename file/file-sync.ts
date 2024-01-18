@@ -5,6 +5,7 @@ import { base16, sha256 } from '@hackbg/4mat'
 import { cwd } from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { resolve, dirname, basename, relative, sep } from 'node:path'
+import { Text } from './file-format'
 import {
   existsSync,
   lstatSync,
@@ -194,10 +195,10 @@ class LocalDirectorySync extends LocalPathSync {
 
 class LocalFileSync extends LocalPathSync {
 
-  format?: {
+  format: {
     load <T> (data: unknown): T
     save (data: unknown)
-  }
+  } = Text
 
   setFormat (format: typeof this['format']) {
     this.format = format
@@ -220,7 +221,7 @@ class LocalFileSync extends LocalPathSync {
     return new Uint8Array(readFileSync(this.absolute))
   }
 
-  loadText (encoding: BufferEncoding = 'utf8'): string {
+  loadRaw (encoding: BufferEncoding = 'utf8'): string {
     return readFileSync(this.absolute, encoding)
   }
 
@@ -238,7 +239,7 @@ class LocalFileSync extends LocalPathSync {
     return this
   }
 
-  saveText (data: string, encoding: BufferEncoding = 'utf8') {
+  saveRaw (data: string, encoding: BufferEncoding = 'utf8') {
     writeFileSync(this.absolute, data, encoding)
     return this
   }
