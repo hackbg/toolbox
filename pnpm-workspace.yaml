@@ -1,7 +1,6 @@
 packages:
   - "*"
   - "!ubik/example"
-  - "ganesha"
-  - "ganesha/*"
-  - "!ganesha/tsc"
-  - "!ganesha/vsc"
+  - "!ganesha"
+  - "!ganesha/*"
+  - "ganesha/esbuild"

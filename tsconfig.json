@@ -8,15 +8,13 @@
     "*.test.js",
     "dist/**/*",
     "ubik/test/**/*",
-    "ganesha/tsc",
-    "ganesha/vsc",
-    "ganesha/test",
+    "ganesha/tests",
     "node_modules"
   ],
   "compilerOptions": {
     "outDir":                       "dist",
-    "target":                       "es2020",
-    "module":                       "es2022",
+    "target":                       "esnext",
+    "module":                       "esnext",
     "moduleResolution":             "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop":              true,
