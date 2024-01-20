@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/port",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "type": "module",
   "main": "port.ts",
   "description": "Network port utilities.",
