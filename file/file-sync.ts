@@ -166,7 +166,7 @@ class LocalDirectorySync extends LocalPathSync {
 
   list (ext?: string): string[]|null {
     if (!this.exists()) {
-      return null
+      throw new Error(`directory does not exist: ${bold(this.absolute)}`)
     }
     if (ext) {
       const match = (x: string) => x.endsWith(ext)
@@ -174,6 +174,8 @@ class LocalDirectorySync extends LocalPathSync {
       return readdirSync(this.absolute)
         .filter(match)
         .map(strip)
+    } else {
+      return readdirSync(this.absolute)
     }
   }
 
