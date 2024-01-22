@@ -12,15 +12,15 @@
   "license": "BSD-3-Clause-No-Military-License",
   "description": "Baseline utilities.",
   "devDependencies": {
-    "@hackbg/ensuite": "workspace:^",
-    "@hackbg/ganesha": "workspace:./ganesha",
-    "@hackbg/ubik":    "workspace:./ubik",
-    "@types/node":     "latest",
-    "concurrently":    "7.2.2",
-    "husky":           "^8.0.3",
-    "lint-staged":     "^13.3.0",
-    "typedoc":         "^0.25.4",
-    "typescript":      "^5.3.2"
+    "@hackbg/ensuite":  "workspace:^",
+    "@ganesha/esbuild": "workspace:./ganesha/esbuild",
+    "@hackbg/ubik":     "workspace:./ubik",
+    "@types/node":      "latest",
+    "concurrently":     "7.2.2",
+    "husky":            "^8.0.3",
+    "lint-staged":      "^13.3.0",
+    "typedoc":          "^0.25.4",
+    "typescript":       "^5.3.2"
   },
   "scripts": {
     "prepare": "husky install",

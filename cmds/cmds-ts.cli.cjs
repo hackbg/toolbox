@@ -83,7 +83,7 @@ function enableDebugMode () {
   process.env.NODE_OPTIONS = `${process.env.NODE_OPTIONS} --inspect`
   console.info('  Debug mode. Will run Node with --inspect.')
   if (ganesha) {
-    process.env.Ganesha_NoSourceMap = "1"
+    process.env.GANESHA_NO_SOURCE_MAP = "1"
     console.info('  Runtime source maps disabled.')
   }
 }
