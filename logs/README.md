@@ -2,8 +2,11 @@
 
 **Logging utilities.**
 
-The `Console` class exported by this package
-is a fancier, handier console.
+Exports a `Console` class in ESM and CJS formats.
+
+## TODO:
+
+* [ ] Honor `NO_COLOR`
 
 <div align="center">
 
