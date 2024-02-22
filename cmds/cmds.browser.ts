@@ -144,7 +144,7 @@ export default class CommandContext extends Logged {
     for (let [name, entry] of Object.entries(commandTree)) {
       name = bold(name.padEnd(columns.name))
       let args = ''
-      if ((entry as any).args) {
+      if (typeof (entry as any).args === 'string') {
         args = (entry as any).args
       }
       args = args.padEnd(columns.args)
