@@ -1,4 +1,5 @@
 import { base16, base64, bech32, bech32m } from '@scure/base'
+import * as Case from 'case'
 
 /** Returns a function that throws when called.
   * Use to give more helpful errors when an expected value is missing.
@@ -55,3 +56,4 @@ export * from '@noble/hashes/sha256'
 export * as bip32 from '@scure/bip32'
 export * as bip39 from '@scure/bip39'
 export { wordlist as bip39EN } from '@scure/bip39/wordlists/english'
+export { Case }
