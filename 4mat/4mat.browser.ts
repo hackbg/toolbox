@@ -17,6 +17,38 @@ export function pick (obj: Record<string, unknown> = {}, ...keys: string[]): Par
     }, {})
 }
 
+/** Helper for assigning only allowed properties of value object:
+  * - safe, can't set unsupported properties
+  * - no need to state property name thrice
+  * - doesn't leave `undefined`s */
+export function assign <T extends {}> (
+  object: T, properties: Partial<T> & any = {}, allowed: Array<keyof T>|Set<keyof T>
+) {
+  if (!allowed || (typeof allowed !== 'object')) {
+    throw new Error(`no list of allowed properties when constructing ${object.constructor.name}`)
+  }
+  for (const property of allowed) {
+    if (property in properties) object[property] = properties[property]
+  }
+}
+
+export function assignCamelCase <T extends {}> (
+  object: T, properties: Partial<T> & any = {}, allowed: Array<keyof T>|Set<keyof T>
+) {
+  if (!allowed || (typeof allowed !== 'object')) {
+    throw new Error(`no list of allowed properties when constructing ${object.constructor.name}`)
+  }
+  for (const property of allowed) {
+    if (property in properties) {
+      if (typeof property === 'string') {
+        object[Case.camel(property)] = properties[property]
+      } else {
+        object[property] = properties[property]
+      }
+    }
+  }
+}
+
 declare const TextEncoder: any;
 declare const TextDecoder: any;
 export const utf8 = {
