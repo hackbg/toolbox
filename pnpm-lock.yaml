@@ -38,6 +38,9 @@ importers:
 
   4mat:
     dependencies:
+      '@hackbg/dump':
+        specifier: workspace:*
+        version: link:../dump
       '@noble/hashes':
         specifier: ^1.3.3
         version: 1.3.3

@@ -35,6 +35,7 @@ export const randomBech32  = (prefix = 'hackbg', n = 32) =>
 export const randomBech32m = (prefix = 'hackbg', n = 32) =>
   bech32m.encode(prefix, bech32m.toWords(randomBytes(n)))
 
+export * from '@hackbg/dump'
 export * from '@scure/base'
 export * from '@noble/hashes/sha256'
 export * as bip32 from '@scure/bip32'

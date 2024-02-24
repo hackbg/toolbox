@@ -1,18 +1,18 @@
 {
   "name": "@hackbg/dump",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dump.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "dump"},
+  "keywords": [ "braille", "binary", "dump", "debug" ],
   "license": "MIT",
-  "description": "Use Braille characters to print binary data.",
+  "description": "Use Braille characters to print binary data legibly. JS/TS version of Justinne Tunney's brailledump (https://justine.lol/braille/)",
   "files": [ "README.md", "dump.ts" ],
   "scripts": {
-    "ubik": "npm test && npm run check && ubik",
-    "test": "true",
+    "test": "true || ganesha-node README.md",
     "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "release": "npm run check && npm run test && ubik release --otp 000000"
   }
 }
