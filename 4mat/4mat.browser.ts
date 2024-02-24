@@ -66,7 +66,9 @@ export function pick (obj: Record<string, unknown> = {}, ...keys: string[]): Par
   * - no need to state property name thrice
   * - doesn't leave `undefined`s */
 export function assign <T extends {}> (
-  object: T, properties: Partial<T> & any = {}, allowed: Array<keyof T>|Set<keyof T>
+  object:     T,
+  properties: Partial<T> & any = {},
+  allowed:    Array<keyof T>|Set<keyof T>
 ) {
   if (!allowed || (typeof allowed !== 'object')) {
     throw new Error(`no list of allowed properties when constructing ${object.constructor.name}`)
@@ -78,7 +80,9 @@ export function assign <T extends {}> (
 
 /** Assign properties from an allowlist to an object, converting to camelCase */
 export function assignCamelCase <T extends {}> (
-  object: T, properties: Partial<T> & any = {}, allowed: Array<keyof T>|Set<keyof T>
+  object:     T,
+  properties: Partial<T> & any = {},
+  allowed:    Array<string|number|symbol>|Set<string|number|symbol>
 ) {
   if (!allowed || (typeof allowed !== 'object')) {
     throw new Error(`no list of allowed properties when constructing ${object.constructor.name}`)
