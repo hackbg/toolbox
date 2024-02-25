@@ -1,5 +1,5 @@
 import { base16, base64, bech32, bech32m } from '@scure/base'
-import * as Case from 'case'
+import Case from 'case'
 
 declare const TextEncoder: any;
 declare const TextDecoder: any;

@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/4mat",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "main": "4mat.ts",
   "browser": "4mat.browser.ts",
   "type": "module",
