@@ -1,7 +1,7 @@
 import rimrafCb from 'rimraf'
 import mkdirp from 'mkdirp'
 import { Console, bold, colors, randomColor } from '@hackbg/logs'
-import { base16, sha256 } from '@hackbg/4mat'
+import { base16, SHA256 } from '@hackbg/4mat'
 import { cwd } from 'node:process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { resolve, dirname, basename, relative, sep } from 'node:path'
@@ -262,7 +262,7 @@ class LocalFileSync extends LocalPathSync {
   }
 
   sha256 () {
-    return base16.encode(sha256(this.loadBinary()))
+    return base16.encode(SHA256(this.loadBinary()))
   }
 
 }

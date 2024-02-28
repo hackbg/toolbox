@@ -1,6 +1,17 @@
 import { base16, base64, bech32, bech32m } from '@scure/base'
 import Case from 'case'
 
+export { Case }
+export * from '@hackbg/dump'
+export * from '@scure/base'
+export { sha256 as SHA256 } from '@noble/hashes/sha256'
+export { ripemd160 as RIPEMD160 } from '@noble/hashes/ripemd160'
+export { ed25519 as Ed25519 } from '@noble/curves/ed25519'
+export { secp256k1 as Secp256k1 } from '@noble/curves/secp256k1'
+export * as Bip32 from '@scure/bip32'
+export * as Bip39 from '@scure/bip39'
+export { wordlist as Bip39EN } from '@scure/bip39/wordlists/english'
+
 declare const TextEncoder: any;
 declare const TextDecoder: any;
 export const utf8 = {
@@ -34,14 +45,6 @@ export const randomBech32  = (prefix = 'hackbg', n = 32) =>
 /** Returns a random valid bech32m address. */
 export const randomBech32m = (prefix = 'hackbg', n = 32) =>
   bech32m.encode(prefix, bech32m.toWords(randomBytes(n)))
-
-export * from '@hackbg/dump'
-export * from '@scure/base'
-export * from '@noble/hashes/sha256'
-export * as bip32 from '@scure/bip32'
-export * as bip39 from '@scure/bip39'
-export { wordlist as bip39EN } from '@scure/bip39/wordlists/english'
-export { Case }
 
 /** Returns a function that throws when called.
   * Use to give more helpful errors when an expected value is missing.
