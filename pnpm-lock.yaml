@@ -248,10 +248,10 @@ importers:
   logs:
     dependencies:
       '@hackbg/allo':
-        specifier: workspace:^
+        specifier: workspace:^1.0.3
         version: link:../allo
       '@hackbg/hide':
-        specifier: workspace:^
+        specifier: workspace:^1.0.4
         version: link:../hide
       chalk:
         specifier: ^4.1.2
