@@ -13,3 +13,4 @@ dist
 !runspec.d.ts
 *.dist.*
 *.swp
+.ubik-*
