@@ -1,15 +1,20 @@
 {
   "name": "@hackbg/hide",
-  "version": "1.0.3",
-  "main": "hide.js",
-  "types": "hide.d.ts",
+  "version": "1.0.4",
+  "main": "./hide.mjs",
+  "types": "./hide.d.ts",
   "type": "module",
   "exports": {
     ".": {
+      "types":   "./hide.d.ts",
       "import":  "./hide.mjs",
-      "require": "./hide.cjs"
+      "require": "./hide.cjs",
+      "default": "./hide.mjs"
     },
-    "./hide.cjs": "./hide.cjs"
+    "./hide.cjs": {
+      "types":   "./hide.d.ts",
+      "default": "./hide.cjs"
+    }
   },
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
@@ -18,9 +23,9 @@
   "description": "Redefine object properties as non-enumerable.",
   "files": [ "README.md", "hide.ts", "hide.cjs", "hide.d.ts", "hide.mjs" ],
   "scripts": {
-    "ubik": "npm test && npm run check && ubik",
     "test": "true || ganesha-node README.md",
     "check": "true",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "clean": "ubik clean && rm -rf dist types *.dist.*",
+    "release": "pnpm check && pnpm test && ubik release --access public --otp 123123"
   }
 }
