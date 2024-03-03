@@ -4,7 +4,6 @@
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "declarationDir": "dist/types",
     "lib": ["DOM"]
   }
 }
