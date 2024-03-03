@@ -1,12 +1,16 @@
 {
   "name": "@hackbg/allo",
-  "version": "1.0.2",
-  "main": "allo.mjs",
-  "types": "allo.d.ts",
+  "version": "1.0.3",
+  "main": "./allo.mjs",
+  "types": "./allo.d.ts",
   "type": "module",
   "exports": {
-    "import":  "./allo.mjs",
-    "require": "./allo.cjs"
+    ".": {
+      "types":   "./allo.d.ts",
+      "import":  "./allo.mjs",
+      "require": "./allo.cjs",
+      "default": "./allo.mjs"
+    }
   },
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
@@ -15,9 +19,9 @@
   "description": "Make objects callable.",
   "files": [ "README.md", "allo.mjs", "allo.cjs", "allo.ts", "allo.d.ts" ],
   "scripts": {
-    "ubik":  "npm test && npm run check && ubik",
     "test":  "true || ganesha-node allo.spec.ts.md",
     "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*"
+    "clean": "ubik clean && rm -rf dist types *.dist.*",
+    "release": "pnpm check && pnpm test && ubik release --access public --otp 123123"
   }
 }
