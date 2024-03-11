@@ -1,0 +1,23 @@
+{
+  "name": "@hackbg/borshest",
+  "main": "borshest.ts",
+  "type": "module",
+  "bugs": "https://github.com/hackbg/toolbox/issues",
+  "files": [ "README.md", "*.ts" ],
+  "version": "1.0.0-rc.1",
+  "license": "MIT",
+  "keywords": [ "borsh", "zcash", "encoding", "decoding", "binary", "format", "fadroma", "namada" ],
+  "homepage": "https://github.com/hackbg/toolbox",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hackbg/toolbox",
+    "directory": "borshest"
+  },
+  "description": "Extensible, zero-dependency Borsh and Zcash encoding and decoding",
+  "dependencies": {},
+  "scripts": {
+    "test": "true || ganesha-node README.md",
+    "check": "tsc --noEmit",
+    "release": "npm run check && npm run test && ubik release --otp 000000"
+  }
+}
