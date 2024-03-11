@@ -1,7 +1,7 @@
-import type { Field, AnyField, EncodeBuffer, DecodeBuffer } from './borsh-base'
+import type { Field, AnyField, Writer, Reader } from './borsh-base'
 
 /** An enum variant which may have additional data attached. */
-export const variant = <T extends object>(...variants: [string, AnyField][]): Field<T> => {
+export const variants = <T extends object>(...variants: [string, AnyField][]): Field<T> => {
 
   for (let i = 0; i < variants.length; i++) {
     const variant = variants[i]
@@ -22,8 +22,8 @@ export const variant = <T extends object>(...variants: [string, AnyField][]): Fi
 
   return {
 
-    encode (buffer: EncodeBuffer, value: T) {
-      const [valueKey, valueData] = destructureVariant<T, keyof T>(value)
+    encode (buffer: Writer, value: T) {
+      const [valueKey, valueData] = variant<T, keyof T>(value)
 
       for (let i = 0; i < variants.length; i++) {
         const [key, field] = variants[i]
@@ -37,7 +37,7 @@ export const variant = <T extends object>(...variants: [string, AnyField][]): Fi
       throw new Error(`Variant "${String(valueKey)}" not found in enum. Valid are ${keys}`)
     },
 
-    decode (buffer: DecodeBuffer): T {
+    decode (buffer: Reader): T {
       const index = Number(buffer.readNumber('u8'))
       if (index > variants.length) {
         throw new Error(`Enum option ${index} is not available`);
@@ -50,7 +50,7 @@ export const variant = <T extends object>(...variants: [string, AnyField][]): Fi
 
 }
 
-export function destructureVariant <T extends object, K extends keyof T> (object: T): [K, T[K]] {
+export function variant <T extends object, K extends keyof T> (object: T): [K, T[K]] {
   const keys = Object.keys(object) as K[]
   if (keys.length !== 1) {
     throw new Error('enum variant should have exactly 1 key')

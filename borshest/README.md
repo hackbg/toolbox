@@ -30,13 +30,13 @@ import {
   signed, i8, i16, i32, i64, i128, i256,   // signed integer
   float, f32, f64,                         // floating point
   array, vector, set, map,                 // collections
-  struct, variant,                         // structures (variant = enum)
+  struct, variants,                         // structures (variant = enum)
 } from '@hackbg/borshest'
 
 // Helpers:
 import {
-  Struct,             // structs into class instances
-  destructureVariant, // enum variant -> [name, data]
+  Struct,  // structs into class instances
+  variant, // enum variant -> [name, data]
 } from '@hackbg/borshest'
 
 // Encoding and decoding:
@@ -47,7 +47,7 @@ const decoded: bigint     = decode(u256, encoded)
 const schema = struct(
   ['field1',     u256],
   ['field2',     bool],
-  ['field3',     enum(
+  ['field3',     variants(
     ['variant1', unit],
     ['variant2', string],
     ['variant3', struct(
@@ -111,8 +111,8 @@ const schema = struct(
 )
 
 // Enum variants:
-import { variant } from '@hackbg/borshest'
-const schema = variant(
+import { variants } from '@hackbg/borshest'
+const schema = variants(
   ['variant1', schema],
   ['variant2', schema],
   ['variant3', schema],

@@ -1,21 +1,21 @@
 export type AnyField = {
-  encode (buffer: EncodeBuffer, value: unknown)
-  decode (buffer: DecodeBuffer): unknown
+  encode (buffer: Writer, value: unknown)
+  decode (buffer: Reader): unknown
 }
 
 export type Field<T> = {
-  encode (buffer: EncodeBuffer, value: T)
-  decode (buffer: DecodeBuffer): T
+  encode (buffer: Writer, value: T)
+  decode (buffer: Reader): T
 }
 
 /** The unit type (empty). */
 export const unit: Field<void> = ({
-  encode (buffer: EncodeBuffer, value: void) {},
-  decode (buffer: DecodeBuffer): void {}
+  encode (buffer: Writer, value: void) {},
+  decode (buffer: Reader): void {}
 })
 
 /** Contains the state of an encoding operation. */
-export class EncodeBuffer {
+export class Writer {
   offset:     number      = 0
   bufferSize: number      = 256
   buffer:     ArrayBuffer = new ArrayBuffer(this.bufferSize)
@@ -55,7 +55,7 @@ export class EncodeBuffer {
 }
 
 /** Contains the state of a decoding operation. */
-export class DecodeBuffer {
+export class Reader {
   offset:     number = 0
   bufferSize: number
   buffer:     ArrayBuffer

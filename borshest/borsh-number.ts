@@ -1,4 +1,4 @@
-import type { Field, EncodeBuffer, DecodeBuffer } from './borsh-base'
+import type { Field, Writer, Reader } from './borsh-base'
 import { nativeIntBytes, nativeFloatBytes } from './borsh-base'
 
 /** An unsigned integer. */
@@ -6,82 +6,85 @@ export const unsigned = (bytes: number): Field<bigint> => {
   if (nativeIntBytes.includes(bytes)) {
     const hint = `u${bytes*8}`
     return {
-      encode (buffer: EncodeBuffer, value: bigint) {
+      encode (buffer: Writer, value: bigint) {
         return buffer.writeNumber(value, this.hint)
       },
-      decode (buffer: DecodeBuffer): bigint {
+      decode (buffer: Reader): bigint {
         return BigInt(buffer.readNumber(this.hint))
       },
     }
-  } else {
-    return {
-      encode (buffer: EncodeBuffer, value: bigint) {
-        const chunk = new Uint8Array(bytes);
-        for (let i = 0; i < bytes; i++) {
-          buffer[i] = Number(value & BigInt(0xff));
-          value = value >> BigInt(8);
-        }
-        buffer.write(chunk)
-      },
-      decode (buffer: DecodeBuffer): bigint {
-        const chunk = buffer.read(bytes)
-        let number = 0n
-        for (let i = bytes - 1; i >= 0; i--) {
-          number = number * 256n + BigInt(chunk[i])
-        }
-        return number
-      },
-    }
+  }
+
+  return {
+    encode (buffer: Writer, value: bigint) {
+      const chunk = new Uint8Array(bytes);
+      for (let i = 0; i < bytes; i++) {
+        buffer[i] = Number(value & 0xFFn);
+        value = value >> 8n;
+      }
+      buffer.write(chunk)
+    },
+    decode (buffer: Reader): bigint {
+      const chunk = buffer.read(bytes)
+      let number = 0n
+      for (let i = bytes - 1; i >= 0; i--) {
+        number = number << 8n
+        number = number + BigInt(chunk[i])
+      }
+      return number
+    },
   }
 }
 
 /** A signed integer. */
-export const signed = (size: number): Field<bigint> & { hint?: string } => {
+export const signed = (size: number): Field<bigint> => {
   if (nativeIntBytes.includes(size)) {
     const hint = `i${size*8}`
     return {
-      encode (buffer: EncodeBuffer, value: bigint) {
+      encode (buffer: Writer, value: bigint) {
         return buffer.writeNumber(value, this.hint)
       },
-      decode (buffer: DecodeBuffer): bigint {
+      decode (buffer: Reader): bigint {
         return BigInt(buffer.readNumber(this.hint))
       },
     }
-  } else {
-    const sizes = nativeIntBytes.join('|')
-    return {
-      encode (buffer: EncodeBuffer, value: bigint) {
-        throw new Error(`todo: encode signed of size other than ${sizes}`)
-      },
-      decode (buffer: DecodeBuffer): bigint {
-        throw new Error(`todo: decode signed of size other than ${sizes}`)
-      },
-    }
   }
+
+  const sizes = nativeIntBytes.join('|')
+  return {
+    encode (buffer: Writer, value: bigint) {
+      throw new Error(`todo: encode signed of size other than ${sizes}`)
+    },
+    decode (buffer: Reader): bigint {
+      throw new Error(`todo: decode signed of size other than ${sizes}`)
+    },
+  }
+
 }
 
-export const float = (size: number): Field<number> & { hint?: string } => {
+export const float = (size: number): Field<number> => {
   if (nativeFloatBytes.includes(size)) {
     const hint = `f${size*8}`
     return {
-      encode (buffer: EncodeBuffer, value: number) {
+      encode (buffer: Writer, value: number) {
         return buffer.writeNumber(value, this.hint)
       },
-      decode (buffer: DecodeBuffer): number {
+      decode (buffer: Reader): number {
         return buffer.readNumber(this.hint) as number
       },
     }
-  } else {
-    const sizes = nativeFloatBytes.join('|')
-    return {
-      encode (buffer: EncodeBuffer, value: number) {
-        throw new Error(`todo: encode float of size other than ${sizes}`)
-      },
-      decode (buffer: DecodeBuffer): number {
-        throw new Error(`todo: decode float of size other than ${sizes}`)
-      },
-    }
   }
+
+  const sizes = nativeFloatBytes.join('|')
+  return {
+    encode (buffer: Writer, value: number) {
+      throw new Error(`todo: encode float of size other than ${sizes}`)
+    },
+    decode (buffer: Reader): number {
+      throw new Error(`todo: decode float of size other than ${sizes}`)
+    },
+  }
+
 }
 
 /** An 8-bit unsigned integer. */
@@ -115,49 +118,47 @@ export const f32 = () => float(4)
 /** A 64-bit floating point number. */
 export const f64 = () => float(16)
 
-//function decode_integer(schema: IntegerType): number | bigint {
-  //const size: number = parseInt(schema.substring(1));
-  //if (size <= 32 || schema == 'f64') {
-    //return this.buffer.consume_value(schema);
-  //}
-  //return this.decode_bigint(size, schema.startsWith('i'));
-//}
+/** A Zcash compact integer. */
+export const compact: Field<bigint> = {
 
-//function decode_bigint(size: number, signed = false): bigint {
-  //const buffer_len = size / 8;
-  //const buffer = new Uint8Array(this.buffer.read(buffer_len));
-  //const bits = buffer.reduceRight((r, x) => r + x.toString(16).padStart(2, '0'), '');
-  //if (signed && buffer[buffer_len - 1]) {
-    //return BigInt.asIntN(size, BigInt(`0x${bits}`));
-  //}
-  //return BigInt(`0x${bits}`);
-//}
+  encode (buffer: Writer, value: number|bigint) {
+    throw new Error('encode CompactSize: not implemented')
+  },
 
-//function encode_integer(value: unknown, schema: IntegerType): void {
-  //const size: number = parseInt(schema.substring(1));
-  //if (size <= 32 || schema == 'f64') {
-    //this.encoded.store_value(value as number, schema);
-  //} else {
-    //this.encode_bigint(BigInt(value as string), size);
-  //}
-//}
+  decode (buffer: Reader): bigint {
+    let flag = buffer.readNumber('u8')
+    let result: bigint
 
-//function encode_bigint(value: bigint, size: number): void {
-  //const buffer_len = size / 8;
-  //const buffer = new Uint8Array(buffer_len);
-  //for (let i = 0; i < buffer_len; i++) {
-    //buffer[i] = Number(value & BigInt(0xff));
-    //value = value >> BigInt(8);
-  //}
-  //this.encoded.write(new Uint8Array(buffer));
-//}
+    if (flag < 253n) {
+      result = BigInt(flag)
 
-//export function expectBigint (value: unknown, fieldPath: string[]): void {
-  //const basicType = ['number', 'string', 'bigint', 'boolean'].includes(typeof(value));
-  //const strObject = typeof (value) === 'object' && value !== null && 'toString' in value;
-  //if (!basicType && !strObject) {
-    //throw new Error(
-      //`Expected bigint, number, boolean or string not ${typeof (value)}(${value}) at ${fieldPath.join('.')}`
-    //)
-  //}
-//}
+    } else if (flag === 253n) {
+      let pole = buffer.readNumber('u16')
+      if (pole < 253n) {
+        throw new Error('non-canonical CompactSize')
+      }
+      result = BigInt(pole)
+
+    } else if (flag == 254n) {
+      let pole = buffer.readNumber('u32')
+      if (pole < 0x10000n) {
+        throw new Error('non-canonical CompactSize')
+      }
+      result = BigInt(pole)
+
+    } else {
+      let pole = buffer.readNumber('u64')
+      if (pole < 0x100000000n) {
+        throw new Error('non-canonical CompactSize')
+      }
+      result = BigInt(pole)
+    }
+
+    if (result > 0x02000000n) {
+      throw new Error('CompactSize too large')
+    }
+
+    return result
+  }
+
+}

@@ -1,8 +1,8 @@
-import type { Field, EncodeBuffer, DecodeBuffer } from './borsh-base'
+import type { Field, Writer, Reader } from './borsh-base'
 
 export const string: Field<string> = {
 
-  encode (buffer: EncodeBuffer, value: string) {
+  encode (buffer: Writer, value: string) {
     const _value = value as string;
     // encode to utf8 bytes without using TextEncoder
     const utf8Bytes: number[] = [];
@@ -30,7 +30,7 @@ export const string: Field<string> = {
     buffer.write(new Uint8Array(utf8Bytes));
   },
 
-  decode (buffer: DecodeBuffer): string {
+  decode (buffer: Reader): string {
     const len: number = buffer.readNumber('u32') as number;
     const buf = new Uint8Array(buffer.read(len));
     // decode utf-8 string without using TextDecoder

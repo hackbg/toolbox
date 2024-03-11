@@ -1,14 +1,14 @@
 import type { Field } from './borsh-base'
-import { EncodeBuffer, DecodeBuffer } from './borsh-base'
+import { Writer, Reader } from './borsh-base'
 import { struct } from './borsh-struct'
 
 export function encode <T> (schema: Field<T>, decoded: T): Uint8Array {
-  return schema.encode(new EncodeBuffer(), decoded)
+  return schema.encode(new Writer(), decoded)
 }
 
 export function decode <T> (schema: Field<T>, encoded: Uint8Array|Array<number>): T {
   if (!(encoded instanceof Uint8Array)) encoded = new Uint8Array(encoded)
-  return schema.decode(new DecodeBuffer(encoded))
+  return schema.decode(new Reader(encoded))
 }
 
 export function Struct (...fields) {
@@ -75,6 +75,6 @@ export {
 } from './borsh-struct'
 
 export {
-  variant,
-  destructureVariant
+  variants,
+  variant
 } from './borsh-enum'

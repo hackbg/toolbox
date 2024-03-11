@@ -1,13 +1,13 @@
-import type { Field, EncodeBuffer, DecodeBuffer } from './borsh-base'
+import type { Field, Writer, Reader } from './borsh-base'
 
 /** A boolean value. */
 export const bool: Field<boolean> = ({
 
-  encode (buffer: EncodeBuffer, value: boolean) {
+  encode (buffer: Writer, value: boolean) {
     buffer.writeNumber(value as boolean ? 1 : 0, 'u8');
   },
 
-  decode (buffer: DecodeBuffer): boolean {
+  decode (buffer: Reader): boolean {
     return buffer.readNumber('u8') > 0;
   }
 
@@ -16,7 +16,7 @@ export const bool: Field<boolean> = ({
 /** Either a value or NULL. */
 export const option = <T>(element: Field<T>) => ({
 
-  encode (buffer: EncodeBuffer, value: T|null|undefined) {
+  encode (buffer: Writer, value: T|null|undefined) {
     if (value === null || value === undefined) {
       buffer.writeNumber(0, 'u8')
       return
@@ -25,7 +25,7 @@ export const option = <T>(element: Field<T>) => ({
     element.encode(buffer, value)
   },
 
-  decode (buffer: DecodeBuffer): T|null {
+  decode (buffer: Reader): T|null {
     const option = buffer.readNumber('u8')
     if (option === 1) {
       return element.decode(buffer)
@@ -37,3 +37,6 @@ export const option = <T>(element: Field<T>) => ({
   }
 
 })
+
+export const zOptional = {
+}
