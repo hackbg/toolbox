@@ -26,13 +26,13 @@ export const string: Field<string> = {
       }
     }
     // 4 bytes for length + string bytes
-    buffer.store_value(utf8Bytes.length, 'u32');
-    buffer.store_bytes(new Uint8Array(utf8Bytes));
+    buffer.writeNumber(utf8Bytes.length, 'u32');
+    buffer.write(new Uint8Array(utf8Bytes));
   },
 
   decode (buffer: DecodeBuffer): string {
-    const len: number = this.decode_integer('u32') as number;
-    const buf = new Uint8Array(buffer.consume_bytes(len));
+    const len: number = buffer.readNumber('u32') as number;
+    const buf = new Uint8Array(buffer.read(len));
     // decode utf-8 string without using TextDecoder
     // first get all bytes to single byte code points
     const codePoints = [];

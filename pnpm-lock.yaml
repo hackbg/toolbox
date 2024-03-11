@@ -64,6 +64,8 @@ importers:
 
   atom: {}
 
+  borshest: {}
+
   cmds:
     dependencies:
       '@hackbg/hide':
