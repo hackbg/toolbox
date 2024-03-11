@@ -1,6 +1,8 @@
-import type { Field } from './borsh-base'
+import type { Field, AnyField } from './borsh-base'
 import { Writer, Reader } from './borsh-base'
 import { struct } from './borsh-struct'
+
+export type Fields = [string, AnyField][]
 
 export function encode <T> (schema: Field<T>, decoded: T): Uint8Array {
   return schema.encode(new Writer(), decoded)
