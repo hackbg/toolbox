@@ -1,7 +1,7 @@
 import type { Field, AnyField, EncodeBuffer, DecodeBuffer } from './borsh-base'
 
 /** An enum variant which may have additional data attached. */
-export const variant = <T>(...variants: [string, AnyField][]): Field<T> => {
+export const variant = <T extends object>(...variants: [string, AnyField][]): Field<T> => {
 
   for (let i = 0; i < variants.length; i++) {
     const variant = variants[i]
@@ -23,38 +23,37 @@ export const variant = <T>(...variants: [string, AnyField][]): Field<T> => {
   return {
 
     encode (buffer: EncodeBuffer, value: T) {
-      this.checkTypes && expectEnum(value, this.fieldPath);
-      const valueKey = Object.keys(value)[0];
-      for (let i = 0; i < schema.enum.length; i++) {
-        const valueSchema = schema.enum[i] as StructType;
-        if (valueKey === Object.keys(valueSchema.struct)[0]) {
-          buffer.writeNumber(i, 'u8');
-          return this.encode_struct(value, valueSchema as StructType);
+      const [valueKey, valueData] = destructureVariant<T, keyof T>(value)
+
+      for (let i = 0; i < variants.length; i++) {
+        const [key, field] = variants[i]
+        if (key === valueKey) {
+          buffer.writeNumber(i, 'u8')
+          return field.encode(buffer, valueData)
         }
       }
-      throw new Error(
-        `Enum key (${valueKey}) not found in enum schema: ${JSON.stringify(schema)} at ${this.fieldPath.join('.')}`
-      );
+
+      const keys = variants.map(v=>v[0]).join('|')
+      throw new Error(`Variant "${String(valueKey)}" not found in enum. Valid are ${keys}`)
     },
 
     decode (buffer: DecodeBuffer): T {
-      const valueIndex = this.buffer.consume_value('u8');
-      if (valueIndex > schema.enum.length) {
-        throw new Error(`Enum option ${valueIndex} is not available`);
+      const index = Number(buffer.readNumber('u8'))
+      if (index > variants.length) {
+        throw new Error(`Enum option ${index} is not available`);
       }
-      const struct = schema.enum[valueIndex].struct;
-      const key = Object.keys(struct)[0];
-      return { [key]: this.decode_value(struct[key]) };
+      const [key, field] = variants[index]
+      return { [key]: field.decode(buffer) } as T
     }
 
   }
 
 }
 
-export function expectEnum (value: unknown, fieldPath: string[]): void {
-  if (typeof (value) !== 'object' || value === null ) {
-    throw new Error(
-      `Expected object not ${typeof (value)}(${value}) at ${fieldPath.join('.')}`
-    )
+export function destructureVariant <T extends object, K extends keyof T> (object: T): [K, T[K]] {
+  const keys = Object.keys(object) as K[]
+  if (keys.length !== 1) {
+    throw new Error('enum variant should have exactly 1 key')
   }
+  return [keys[0], object[keys[0]]]
 }

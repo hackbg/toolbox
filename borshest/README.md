@@ -16,11 +16,15 @@ See below for how we differ from those two.
 npm i --save @hackbg/borshest
 ```
 
-## All available types
+## API cheat sheet
 
 ```javascript
+// Entry points:
+import { decode, encode } from '@hackbg/borshest'
+
+// Types:
 import {
-  unit,                                    // empty
+  unit,                                    // empty type
   bool, option,                            // boolean, optional
   unsigned, u8, u16, u32, u64, u128, u256, // unsigned integer
   signed, i8, i16, i32, i64, i128, i256,   // signed integer
@@ -28,6 +32,37 @@ import {
   array, vector, set, map,                 // collections
   struct, variant,                         // structures (variant = enum)
 } from '@hackbg/borshest'
+
+// Helpers:
+import {
+  Struct,             // structs into class instances
+  destructureVariant, // enum variant -> [name, data]
+} from '@hackbg/borshest'
+
+// Encoding and decoding:
+const value:   bigint     = 12345678901234567890n
+const encoded: Uint8Array = encode(u256, value)
+const decoded: bigint     = decode(u256, encoded)
+
+const schema = struct(
+  ['field1',     u256],
+  ['field2',     bool],
+  ['field3',     enum(
+    ['variant1', unit],
+    ['variant2', string],
+    ['variant3', struct(
+      ['field1', array(20, u8)],
+      ['field2', vector(string)],
+      ['field3', type],
+    )],
+  )]
+)
+
+const value = { /*...*/ }
+
+const encoded = encode(schema, value)
+
+const decoded = decode(schema, encoded)
 ```
 
 ## Differences from prior art
@@ -36,17 +71,10 @@ import {
 
 Borshest provides signed and unsigned integers up to 256-bit precision.
 
-```javascript
-import { u256, i256 } from '@hackbg/borshest'
-const foo: bigint     = 12345678901234567890n
-const bar: Uint8Array = u256.encode(foo)
-const baz: bigint     = u256.decode(bar)
-```
-
 ### Extensibility
 
-We've scrapped the intermediate schema representation; all fields are represented by
-literal objects of the following form:
+Instead of an intermediate schema representation;
+all fields are represented by literal objects of the following form:
 
 ```typescript
 type Field<T> = {
@@ -56,8 +84,8 @@ type Field<T> = {
 ```
 
 ```typescript
-const encoded = field.encode(object)
-const decoded = field.decode(binary)
+const encoded = encode(field, object)
+const decoded = decode(field, binary)
 ```
 
 This means you can easily implement custom fields if your implementation requires extending Borsh
@@ -68,35 +96,28 @@ which is used alongside Borsh in the Namada API.
 
 ### Struct and enum schema
 
+Borsh expects consistent field order. The field order in JS objects is unspecified
 Borshest does not rely on key order for representations of structs and enums,
 which is undefined according to JS spec. That's why they are represented as
-arrays instead of objects:
+sequences of `[name, type]` pairs instead of the more customary `{name: type}` records.
 
 ```javascript
-import { struct, variant, u8, u16, u32 string, unit } from '@hackbg/borshest'
-const myStructSchema = struct(
-  ['my-u8-field',            u8],
-  ['my-string-field',        string],
-  ['my-sub-struct-field',    struct(
-    ['my-sub-field',         u16,
-    ['my-sub-enum-field',    variant(
-      ['enum-variant-1',     unit],
-      ['enum-variant-2',     struct(
-        ['variant-2-number', u32],
-        ['variant-2-string', string]
-      )],
-      ['enum-variant-3',     struct(
-        ['variant-3-number', u64],
-        ['variant-3-string', string]
-      )],
-      /// ... you get the idea.
-    )]
-  )
+// Struct fields:
+import { struct } from '@hackbg/borshest'
+const schema = struct(
+  ['field1', schema],
+  ['field2', schema],
+  ['field3', schema],
 )
-const myStructValue = struct.decode(binary)
-```
 
-Schema validation is performed upon calling `struct` or `variant`.
+// Enum variants:
+import { variant } from '@hackbg/borshest'
+const schema = variant(
+  ['variant1', schema],
+  ['variant2', schema],
+  ['variant3', schema],
+)
+```
 
 ### No decorators
 
@@ -106,7 +127,7 @@ Instead, you can define classes of the following form:
 
 ```javascript
 import { Struct } from '@hackbg/borshest'
-class MyStruct extends Struct(
+class MyStruct extends fromStruct(
   ['my_field',       string],
   ['my_other_field', u128]
 ) {
@@ -119,12 +140,12 @@ In TypeScript, to specify types, you must use the `declare` modifier
 
 ```typescript
 import { Struct } from '@hackbg/borshest
-class MyStruct extends Struct(
+class MyStruct extends fromStruct(
   ['myField',      string],
   ['myOtherField', u128]
 ) {
   declare myField:      string
-  declare myOtherField: u128
+  declare myOtherField: bigint
 
   myMethod () { /***/ }
 }

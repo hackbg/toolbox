@@ -1,6 +1,4 @@
 import type { Field, EncodeBuffer, DecodeBuffer } from './borsh-base'
-import { expectSameSize } from './borsh-validate'
-import { u32 } from './borsh-number'
 
 /** A fixed-length ordered collection. */
 export const array = <T>(size: number, element: Field<T>): Field<T[]> => ({
@@ -24,13 +22,13 @@ export const array = <T>(size: number, element: Field<T>): Field<T[]> => ({
 /** A variable-length ordered collection. */
 export const vec = <T>(element: Field<T>): Field<T[]> => ({
   encode (buffer: EncodeBuffer, value: T[]) {
-    u32.encode(buffer, BigInt(value.length))
+    buffer.writeNumber(value.length, 'u32')
     for (let i = 0; i < value.length; i++) {
       element.encode(buffer, value[i])
     }
   },
   decode (buffer: DecodeBuffer): T[] {
-    const size = Number(u32.decode(buffer))
+    const size = buffer.readNumber('u32')
     const result = []
     for (let i = 0; i < size; ++i) result.push(element.decode(buffer))
     return result
@@ -48,7 +46,7 @@ export const set = <T>(element: Field<T>): Field<Set<T>> => ({
     }
   },
   decode (buffer: DecodeBuffer): Set<T> {
-    const size = Number(u32.decode(buffer))
+    const size = buffer.readNumber('u32')
     const result = new Set<T>()
     for (let i = 0; i < size; ++i) result.add(element.decode(buffer))
     return result;
@@ -67,7 +65,7 @@ export const map = <K extends string|number|symbol, V>(k: Field<K>, v: Field<V>)
     }
   },
   decode (buffer: DecodeBuffer): Map<K, V> {
-    const size = Number(u32.decode(buffer))
+    const size = buffer.readNumber('u32')
     const result = new Map()
     for (let i = 0; i < size; ++i) result.set(k.decode(buffer), v.decode(buffer))
     return result

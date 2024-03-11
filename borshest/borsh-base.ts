@@ -14,44 +14,7 @@ export const unit: Field<void> = ({
   decode (buffer: DecodeBuffer): void {}
 })
 
-/** Types for which there is a native DataView method. */
-const nativeNumbers: Record<string, [keyof DataView, keyof DataView]> = {
-  'u8':   [ 'getUint8',      'setUint8'     ],
-  'u16':  [ 'getUint16',     'setUint16'    ],
-  'u32':  [ 'getUint32',     'setUint32'    ],
-  'u64':  [ 'getBigUint64',  'setBigUint64' ],
-
-  'i8':   [ 'getInt8',       'setInt8'      ],
-  'i16':  [ 'getInt16',      'setInt16',    ],
-  'i32':  [ 'getInt32',      'setInt32'     ],
-  'i64':  [ 'getBigInt64',   'setBigInt64'  ],
-
-  'f32':  [ 'getFloat32',    'setFloat32'   ],
-  'f64':  [ 'getFloat64',    'setFloat64'   ],
-}
-
-export const nativeIntBytes = [1, 2, 4, 8]
-
-export const nativeFloatBytes = [4, 8]
-
-type NativeNumber = keyof typeof nativeNumbers
-
-const getNativeGetter = (type: NativeNumber): [string, number]|null => {
-  if (type in nativeNumbers) {
-    const bSize = type.substring(1);
-    return [nativeNumbers[type][0] as string, parseInt(bSize) / 8]
-  }
-  return null
-}
-
-const getNativeSetter = (type: NativeNumber): [string, number]|null => {
-  if (type in nativeNumbers) {
-    const bSize = type.substring(1);
-    return [nativeNumbers[type][1] as string, parseInt(bSize) / 8]
-  }
-  return null
-}
-
+/** Contains the state of an encoding operation. */
 export class EncodeBuffer {
   offset:     number      = 0
   bufferSize: number      = 256
@@ -79,7 +42,7 @@ export class EncodeBuffer {
   }
 
   writeNumber (value: number|bigint, type: NativeNumber): void {
-    const native = getNativeSetter(type)
+    const native = nativeSetter(type)
     if (native) {
       const [toCall, size] = native
       this.grow(size);
@@ -91,6 +54,7 @@ export class EncodeBuffer {
   }
 }
 
+/** Contains the state of a decoding operation. */
 export class DecodeBuffer {
   offset:     number = 0
   bufferSize: number
@@ -118,7 +82,7 @@ export class DecodeBuffer {
   }
 
   readNumber (type: NativeNumber): number|bigint {
-    const native = getNativeGetter(type)
+    const native = nativeGetter(type)
     if (native) {
       const [toCall, size] = native
       this.assertEnough(size)
@@ -129,4 +93,42 @@ export class DecodeBuffer {
       throw new Error(`Passed invalid type hint: ${type}`)
     }
   }
+}
+
+/** Types for which there is a native DataView method. */
+const nativeNumbers: Record<string, [keyof DataView, keyof DataView]> = {
+  'u8':   [ 'getUint8',      'setUint8'     ],
+  'u16':  [ 'getUint16',     'setUint16'    ],
+  'u32':  [ 'getUint32',     'setUint32'    ],
+  'u64':  [ 'getBigUint64',  'setBigUint64' ],
+
+  'i8':   [ 'getInt8',       'setInt8'      ],
+  'i16':  [ 'getInt16',      'setInt16',    ],
+  'i32':  [ 'getInt32',      'setInt32'     ],
+  'i64':  [ 'getBigInt64',   'setBigInt64'  ],
+
+  'f32':  [ 'getFloat32',    'setFloat32'   ],
+  'f64':  [ 'getFloat64',    'setFloat64'   ],
+}
+
+export const nativeIntBytes = [1, 2, 4, 8]
+
+export const nativeFloatBytes = [4, 8]
+
+type NativeNumber = keyof typeof nativeNumbers
+
+const nativeGetter = (type: NativeNumber): [string, number]|null => {
+  if (type in nativeNumbers) {
+    const bSize = type.substring(1);
+    return [nativeNumbers[type][0] as string, parseInt(bSize) / 8]
+  }
+  return null
+}
+
+const nativeSetter = (type: NativeNumber): [string, number]|null => {
+  if (type in nativeNumbers) {
+    const bSize = type.substring(1);
+    return [nativeNumbers[type][1] as string, parseInt(bSize) / 8]
+  }
+  return null
 }
