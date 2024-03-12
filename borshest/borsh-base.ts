@@ -69,8 +69,17 @@ export class Reader {
   }
 
   assertEnough (size: number): void {
-    if (this.offset + size > this.buffer.byteLength) {
-      throw new Error('Error in schema, the buffer is smaller than expected');
+    const start  = this.offset
+    const end    = start + size
+    const buffer = this.buffer.byteLength
+    if (end > this.buffer.byteLength) {
+      throw Object.assign(new Error('Error in schema, the buffer is smaller than expected'), {
+        start,
+        size,
+        end,
+        buffer,
+        missing: end - this.buffer.byteLength
+      })
     }
   }
 
@@ -111,9 +120,9 @@ const nativeNumbers: Record<string, [keyof DataView, keyof DataView]> = {
   'f64':  [ 'getFloat64',    'setFloat64'   ],
 }
 
-export const nativeIntBytes = [1, 2, 4, 8]
+export const nativeInts = [1, 2, 4, 8]
 
-export const nativeFloatBytes = [4, 8]
+export const nativeFloats = [4, 8]
 
 type NativeNumber = keyof typeof nativeNumbers
 

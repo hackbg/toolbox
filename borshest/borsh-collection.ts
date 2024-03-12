@@ -1,4 +1,5 @@
 import type { Field, Writer, Reader } from './borsh-base'
+import { compact } from './borsh-number'
 
 /** A fixed-length ordered collection. */
 export const array = <T>(size: number, element: Field<T>): Field<T[]> => ({
@@ -31,6 +32,20 @@ export const vec = <T>(element: Field<T>): Field<T[]> => ({
     const size = buffer.readNumber('u32')
     const result = []
     for (let i = 0; i < size; ++i) result.push(element.decode(buffer))
+    return result
+  }
+})
+
+export const zVec = <T>(element: Field<T>) => ({
+  encode (buffer, value) {
+    throw new Error('encode zVec: not implemented')
+  },
+  decode (buffer: Reader): T[] {
+    const size = compact.decode(buffer)
+    const result = []
+    for (let i = 0n; i < size; ++i) {
+      result.push(element.decode(buffer))
+    }
     return result
   }
 })
@@ -83,9 +98,6 @@ function isArrayLike (value: unknown): boolean {
         (value.length - 1) in value)
     )
   )
-}
-
-export const zVec = {
 }
 
 export const zArray = {

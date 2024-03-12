@@ -40,10 +40,16 @@ export const variants = <T extends object>(...variants: [string, AnyField][]): F
     decode (buffer: Reader): T {
       const index = Number(buffer.readNumber('u8'))
       if (index > variants.length) {
-        throw new Error(`Enum option ${index} is not available`);
+        throw new Error(`enum option ${index} is not available`);
       }
       const [key, field] = variants[index]
-      return { [key]: field.decode(buffer) } as T
+      try {
+        return { [key]: field.decode(buffer) } as T
+      } catch (e) {
+        e.structPath ??= []
+        e.structPath.unshift(`/${key}`)
+        throw e
+      }
     }
 
   }

@@ -1,9 +1,9 @@
 import type { Field, Writer, Reader } from './borsh-base'
-import { nativeIntBytes, nativeFloatBytes } from './borsh-base'
+import { nativeInts, nativeFloats } from './borsh-base'
 
 /** An unsigned integer. */
 export const unsigned = (bytes: number): Field<bigint> => {
-  if (nativeIntBytes.includes(bytes)) {
+  if (nativeInts.includes(bytes)) {
     const typeHint = `u${bytes*8}`
     return {
       encode (buffer: Writer, value: bigint) {
@@ -25,7 +25,7 @@ export const unsigned = (bytes: number): Field<bigint> => {
       buffer.write(chunk)
     },
     decode (buffer: Reader): bigint {
-      const chunk = buffer.read(bytes)
+      const chunk = new Uint8Array(buffer.read(bytes))
       let number = 0n
       for (let i = bytes - 1; i >= 0; i--) {
         number = number << 8n
@@ -38,7 +38,7 @@ export const unsigned = (bytes: number): Field<bigint> => {
 
 /** A signed integer. */
 export const signed = (size: number): Field<bigint> => {
-  if (nativeIntBytes.includes(size)) {
+  if (nativeInts.includes(size)) {
     const typeHint = `i${size*8}`
     return {
       encode (buffer: Writer, value: bigint) {
@@ -50,7 +50,7 @@ export const signed = (size: number): Field<bigint> => {
     }
   }
 
-  const sizes = nativeIntBytes.join('|')
+  const sizes = nativeInts.join('|')
   return {
     encode (buffer: Writer, value: bigint) {
       throw new Error(`todo: encode signed of size other than ${sizes}`)
@@ -63,7 +63,7 @@ export const signed = (size: number): Field<bigint> => {
 }
 
 export const float = (size: number): Field<number> => {
-  if (nativeFloatBytes.includes(size)) {
+  if (nativeFloats.includes(size)) {
     const typeHint = `f${size*8}`
     return {
       encode (buffer: Writer, value: number) {
@@ -75,7 +75,7 @@ export const float = (size: number): Field<number> => {
     }
   }
 
-  const sizes = nativeFloatBytes.join('|')
+  const sizes = nativeFloats.join('|')
   return {
     encode (buffer: Writer, value: number) {
       throw new Error(`todo: encode float of size other than ${sizes}`)

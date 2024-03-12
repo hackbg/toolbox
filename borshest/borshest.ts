@@ -69,7 +69,8 @@ export {
   array,
   vec,
   set,
-  map
+  map,
+  zVec
 } from './borsh-collection'
 
 export {
