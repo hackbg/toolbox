@@ -28,7 +28,15 @@ export const struct = <T>(...fields: [string, AnyField][]): Field<T> => {
 
     decode (buffer: Reader): T {
       const result: Partial<T> = {};
-      for (const [key, element] of fields) result[key] = element.decode(buffer)
+      for (const [key, element] of fields) {
+        try {
+          result[key] = element.decode(buffer)
+        } catch (e) {
+          e.structPath ??= []
+          e.structPath.unshift(key)
+          throw e
+        }
+      }
       return result as T
     }
 
