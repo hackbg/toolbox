@@ -15,7 +15,7 @@ export const struct = <T>(...fields: [string, AnyField][]): Field<T> => {
       (typeof fields[i][1].decode === 'function')
     )) {
       throw new Error(
-        `struct fields #${i} must look like: ["name", { encode(), decode() }]`
+        `struct field #${i} must look like: ["name", { encode(), decode() }], found: ${field}`
       )
     }
   }

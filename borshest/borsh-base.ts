@@ -49,7 +49,7 @@ export class Writer {
       this.view[toCall](this.offset, value, true);
       this.offset += size;
     } else {
-      throw new Error(`Passed invalid type hint: ${type}`)
+      throw new Error(`writeNumber got invalid type hint: ${type}`)
     }
   }
 }
@@ -90,7 +90,7 @@ export class Reader {
       this.offset += size
       return ret
     } else {
-      throw new Error(`Passed invalid type hint: ${type}`)
+      throw new Error(`readNumber got invalid type hint: ${type}`)
     }
   }
 }

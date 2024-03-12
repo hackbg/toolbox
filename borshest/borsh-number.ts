@@ -4,13 +4,13 @@ import { nativeIntBytes, nativeFloatBytes } from './borsh-base'
 /** An unsigned integer. */
 export const unsigned = (bytes: number): Field<bigint> => {
   if (nativeIntBytes.includes(bytes)) {
-    const hint = `u${bytes*8}`
+    const typeHint = `u${bytes*8}`
     return {
       encode (buffer: Writer, value: bigint) {
-        return buffer.writeNumber(value, this.hint)
+        return buffer.writeNumber(value, typeHint)
       },
       decode (buffer: Reader): bigint {
-        return BigInt(buffer.readNumber(this.hint))
+        return BigInt(buffer.readNumber(typeHint))
       },
     }
   }
@@ -39,13 +39,13 @@ export const unsigned = (bytes: number): Field<bigint> => {
 /** A signed integer. */
 export const signed = (size: number): Field<bigint> => {
   if (nativeIntBytes.includes(size)) {
-    const hint = `i${size*8}`
+    const typeHint = `i${size*8}`
     return {
       encode (buffer: Writer, value: bigint) {
-        return buffer.writeNumber(value, this.hint)
+        return buffer.writeNumber(value, typeHint)
       },
       decode (buffer: Reader): bigint {
-        return BigInt(buffer.readNumber(this.hint))
+        return BigInt(buffer.readNumber(typeHint))
       },
     }
   }
@@ -64,13 +64,13 @@ export const signed = (size: number): Field<bigint> => {
 
 export const float = (size: number): Field<number> => {
   if (nativeFloatBytes.includes(size)) {
-    const hint = `f${size*8}`
+    const typeHint = `f${size*8}`
     return {
       encode (buffer: Writer, value: number) {
-        return buffer.writeNumber(value, this.hint)
+        return buffer.writeNumber(value, typeHint)
       },
       decode (buffer: Reader): number {
-        return buffer.readNumber(this.hint) as number
+        return buffer.readNumber(typeHint) as number
       },
     }
   }
