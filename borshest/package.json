@@ -18,6 +18,6 @@
   "scripts": {
     "test": "true || ganesha-node README.md",
     "check": "tsc --noEmit",
-    "release": "npm run check && npm run test && ubik release --otp 000000"
+    "release": "npm run check && npm run test && ubik release --access public --otp 000000"
   }
 }
