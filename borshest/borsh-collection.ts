@@ -12,7 +12,7 @@ export const array = <T>(size: number, element: Field<T>): Field<T[]> => ({
     }
   },
   decode (buffer: Reader): T[] {
-    const result = [];
+    const result: T[] = [];
     for (let i = 0; i < size; ++i) {
       result.push(element.decode(buffer))
     }

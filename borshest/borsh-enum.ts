@@ -46,8 +46,8 @@ export const variants = <T extends object>(...variants: [string, AnyField][]): F
       try {
         return { [key]: field.decode(buffer) } as T
       } catch (e) {
-        e.structPath ??= []
-        e.structPath.unshift(`/${key}`)
+        ;(e as any).structPath ??= []
+        ;(e as any).structPath.unshift(`/${key}`)
         throw e
       }
     }

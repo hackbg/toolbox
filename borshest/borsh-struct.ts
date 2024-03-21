@@ -32,8 +32,8 @@ export const struct = <T>(...fields: [string, AnyField][]): Field<T> => {
         try {
           result[key] = element.decode(buffer)
         } catch (e) {
-          e.structPath ??= []
-          e.structPath.unshift(key)
+          ;(e as any).structPath ??= []
+          ;(e as any).structPath.unshift(key)
           throw e
         }
       }
