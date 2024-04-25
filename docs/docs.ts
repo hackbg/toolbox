@@ -4,6 +4,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 const kinds = {
   module:      4,
   constant:    32,
+  function:    64,
   class:       128,
   interface:   256,
   constructor: 512,
@@ -59,6 +60,9 @@ export function documentModule ({
   recurseIntoModule(data)
 
   // Write output.
+  if (!output.generated.endsWith('\n')) {
+    output.generated += '\n'
+  }
   writeFileSync(target, [
     output.before,
     start,
