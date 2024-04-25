@@ -9,7 +9,7 @@ const kinds = {
   constructor: 512,
   property:    1024,
   method:      2048,
-  getter:      262144,
+  accessor:    262144,
   type:        2097152,
 }
 
@@ -154,59 +154,28 @@ export function collectIds (data: JSONDocs, sources: string[]) {
 }
 
 /** Generate Markdown documentation for a `class` definition. */
-export function documentClass (output: Output, child) {
-  output.append(`\n\n# class *${child.name}*`)
-  if (child.comment?.summary) {
+export function documentClass (output: Output, item) {
+  output.append(`\n\n# class *${item.name}*`)
+  if (item.comment?.summary) {
     output.append('\n')
-    for (const line of child.comment?.summary || []) {
+    for (const line of item.comment?.summary || []) {
       output.append(line.text)
     }
     output.append('\n')
   }
 
-  for (const item of child.children) {
+  const name = Case.camel(item.name)
+  documentConstructors(output, item.children, name)
+  documentProperties(output, item.children)
+  documentMethods(output, item.children, name)
+}
+
+export function documentConstructors (output: Output, items, name: string) {
+  for (const item of items) {
     if (item.name === 'constructor') {
-      documentConstructor(output, item, child.name)
+      documentConstructor(output, item, name)
     }
   }
-
-  output.append('\n<table><tbody>')
-
-  for (const item of child.children) {
-    if (item.name === '[toStringTag]') {
-      continue
-    }
-    if (item.name === 'constructor') {
-      continue
-    }
-    output.append('\n<tr><td valign="top">')
-    if (item.signatures) {
-      for (const signature of item.signatures) {
-        if (signature.parameters) {
-          output.append(`\n<br><strong>${item.name}(`)
-          for (const parameter of signature.parameters) {
-            output.append(`${parameter.name} `)
-          }
-          output.append(`)</strong>`)
-        } else {
-          output.append(`\n<strong>${item.name}()</strong>`)
-        }
-      }
-    } else {
-      output.append(`\n<strong>${item.name}</strong>`)
-    }
-    output.append('</td>\n<td>')
-    if (item.type) {
-      output.append(`<strong>${item.type.name}</strong>. `)
-    }
-    if (item.comment?.summary) {
-      for (const line of item.comment?.summary || []) {
-        output.append(line.text)
-      }
-    }
-    output.append('</td></tr>')
-  }
-  output.append('</tbody></table>')
 }
 
 /** Generate Markdown documentation for `constructor` signatures of a `class` definition. */
@@ -214,7 +183,7 @@ export function documentConstructor (output: Output, item, name: string) {
   output.append('\n```typescript\n')
   for (const signature of item.signatures) {
     if (signature.parameters?.length > 0) {
-      output.append(`let ${Case.camel(name)} = ${signature.name}(`)
+      output.append(`let ${name} = ${signature.name}(`)
       for (const parameter of signature.parameters) {
         if (parameter.type?.typeArguments) {
           output.append(`\n  ${parameter.name}: ${parameter.type.name}<...>,`)
@@ -230,14 +199,61 @@ export function documentConstructor (output: Output, item, name: string) {
   output.append('\n```\n')
 }
 
-/** Generate Markdown documentation for properties and accessors of a `class` definition. */
-export function documentProperties (output: Output, item) {
+/** Generate Markkdown documentation for properties and accessors of a `class` definition. */
+export function documentProperties (output: Output, items) {
+  output.append('\n<table><tbody>')
+  for (const item of items) {
+    if (
+      ((item.kind === kinds.property) || (item.kind === kinds.accessor))
+      && !(item.name === '[toStringTag]')
+    ) {
+      documentProperty(output, item)
+    }
+  }
+  output.append('</tbody></table>')
 }
 
-/** Generate Mardown documentation for a property or accessor. */
+/** Generate Markdown documentation for a property or accessor. */
 export function documentProperty (output: Output, item) {
+  output.append('\n<tr><td valign="top">')
+  output.append(`\n<strong>${item.name}</strong>`)
+  output.append('</td>\n<td>')
+  if (item.type) {
+    output.append(`<strong>${item.type.name}</strong>. `)
+  }
+  if (item.comment?.summary) {
+    for (const line of item.comment?.summary || []) {
+      output.append(line.text)
+    }
+  }
+  output.append('</td></tr>')
 }
 
-/** Generate Mardown documentation for a method. */
-export function documentMethod (output: Output, item) {
+/** Generate Markdown documentation for the methods of a `class` definition. */
+export function documentMethods (output: Output, items, name: string) {
+  for (const item of items) {
+    if (item.kind === kinds.method) {
+      documentMethod(output, item, name)
+    }
+  }
+}
+
+/** Generate Markdown documentation for a method. */
+export function documentMethod (output: Output, item, name: string) {
+  output.append(`\n\n## method *${name}.${item.name}*`)
+  if (item.signatures) {
+    for (const signature of item.signatures) {
+      output.append('\n```typescript')
+      if (signature.parameters) {
+        output.append(`\n${name}.${item.name}(`)
+        for (const parameter of signature.parameters) {
+          output.append(`${parameter.name} `)
+        }
+        output.append(`)`)
+      } else {
+        output.append(`\n${name}.${item.name}()`)
+      }
+      output.append('\n```')
+    }
+  }
 }
