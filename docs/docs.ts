@@ -24,7 +24,7 @@ type Output = {
   before:    string,
   after:     string,
   generated: string,
-  write (...args: string[])
+  append (...args: string[])
 }
 
 /** Main entry point. Adds documentation generated from `data` for specific `sources`
@@ -43,7 +43,56 @@ export function documentModule ({
   sources: string[]
 }) {
 
-  // Validate options
+  // Make sure we have the JSON output of Typedoc.
+  // TODO: Automatically invoke typedoc to generate this.
+  if (!data) {
+    throw new Error('Option "data" is empty: pass parsed output of "typedoc --json".')
+  }
+
+  // Construct output object
+  const output = createOutput({ target, start, end })
+
+  // Collect definitions that are in scope.
+  const ids = collectIds(data, sources)
+
+  // Generate documentation.
+  recurseIntoModule(data)
+
+  // Write output.
+  writeFileSync(target, [
+    output.before,
+    start,
+    output.generated,
+    end,
+    output.after
+  ].join(''), 'utf8')
+
+  console.log(`Generated ${target}.`)
+
+  function recurseIntoModule (node) {
+    for (const child of node.children) {
+      if (ids.has(child.id)) {
+        if (!Object.values(kinds).includes(child.kind)) {
+          console.warn('Unknown kind', child.kind, child)
+          continue
+        }
+        if (child.kind === kinds.class) {
+          documentClass(output, child)
+        }
+      }
+      if (child.children) {
+        recurseIntoModule(child)
+      }
+    }
+  }
+}
+
+export function createOutput ({ target, start, end, }: {
+  target:  string,
+  start:   string,
+  end:     string,
+}) {
+  // Validate parameters
   if (!target) {
     throw new Error('Option "target" is unset: specify target file.')
   }
@@ -53,26 +102,18 @@ export function documentModule ({
   if (!end) {
     throw new Error('Option "end" is empty: specify end marker or leave blank for default.')
   }
-  if (!data) {
-    throw new Error('Option "data" is empty: pass parsed output of "typedoc --json".')
-  }
-
-  // Validate options + collect definitions that are in scope.
-  const ids = collectIds(data, sources)
-
-  // The final output will be generated from the contents of this object.
+  // Create empty output object
   const output: Output = {
     before:    '',
     generated: '',
     after:     '',
-    write (...args: string[]) {
+    append (...args: string[]) {
       for (const arg of args) {
         this.generated += arg
       }
     }
   }
-
-  // Load pre-existing data into output object.
+  // If `target` file is present, load pre-existing data into output object.
   if (existsSync(target)) {
     const outputText = readFileSync(target, 'utf8')
     const splitBefore = outputText.split(start)
@@ -90,27 +131,9 @@ export function documentModule ({
     if (splitAfter.length > 2) {
       throw new Error(`End string found more than once in in "${output}": ${end}`)
     }
-    output.after = splitAfter[1]
+    output.after = splitAfter[1] || ''
   }
-
-  // Start generating documentation.
-  recurseIntoModule(data)
-  function recurseIntoModule (node) {
-    for (const child of node.children) {
-      if (ids.has(child.id)) {
-        if (!Object.values(kinds).includes(child.kind)) {
-          console.warn('Unknown kind', child.kind, child)
-          continue
-        }
-        if (child.kind === kinds.class) {
-          documentClass(output, child)
-        }
-      }
-      if (child.children) {
-        recurseIntoModule(child)
-      }
-    }
-  }
+  return output
 }
 
 /** Collect numeric IDs from JSON `data` that belong to specified `sources`. */
@@ -132,22 +155,22 @@ export function collectIds (data: JSONDocs, sources: string[]) {
 
 /** Generate Markdown documentation for a `class` definition. */
 export function documentClass (output: Output, child) {
-  console.log(`\n\n# class *${child.name}*`)
+  output.append(`\n\n# class *${child.name}*`)
   if (child.comment?.summary) {
-    process.stdout.write('\n')
+    output.append('\n')
     for (const line of child.comment?.summary || []) {
-      process.stdout.write(line.text)
+      output.append(line.text)
     }
-    process.stdout.write('\n')
+    output.append('\n')
   }
 
   for (const item of child.children) {
     if (item.name === 'constructor') {
-      documentConstructor(output, item)
+      documentConstructor(output, item, child.name)
     }
   }
 
-  process.stdout.write('\n<table><tbody>')
+  output.append('\n<table><tbody>')
 
   for (const item of child.children) {
     if (item.name === '[toStringTag]') {
@@ -156,55 +179,55 @@ export function documentClass (output: Output, child) {
     if (item.name === 'constructor') {
       continue
     }
-    process.stdout.write('\n<tr><td valign="top">')
+    output.append('\n<tr><td valign="top">')
     if (item.signatures) {
       for (const signature of item.signatures) {
         if (signature.parameters) {
-          process.stdout.write(`\n<br><strong>${item.name}(`)
+          output.append(`\n<br><strong>${item.name}(`)
           for (const parameter of signature.parameters) {
-            process.stdout.write(`${parameter.name} `)
+            output.append(`${parameter.name} `)
           }
-          process.stdout.write(`)</strong>`)
+          output.append(`)</strong>`)
         } else {
-          process.stdout.write(`\n<strong>${item.name}()</strong>`)
+          output.append(`\n<strong>${item.name}()</strong>`)
         }
       }
     } else {
-      process.stdout.write(`\n<strong>${item.name}</strong>`)
+      output.append(`\n<strong>${item.name}</strong>`)
     }
-    process.stdout.write('</td>\n<td>')
+    output.append('</td>\n<td>')
     if (item.type) {
-      process.stdout.write(`<strong>${item.type.name}</strong>. `)
+      output.append(`<strong>${item.type.name}</strong>. `)
     }
     if (item.comment?.summary) {
       for (const line of item.comment?.summary || []) {
-        process.stdout.write(line.text)
+        output.append(line.text)
       }
     }
-    process.stdout.write('</td></tr>')
+    output.append('</td></tr>')
   }
-  process.stdout.write('</tbody></table>')
+  output.append('</tbody></table>')
 }
 
 /** Generate Markdown documentation for `constructor` signatures of a `class` definition. */
-export function documentConstructor (output: Output, item) {
-  process.stdout.write('\n```typescript\n')
+export function documentConstructor (output: Output, item, name: string) {
+  output.append('\n```typescript\n')
   for (const signature of item.signatures) {
     if (signature.parameters?.length > 0) {
-      process.stdout.write(`let ${Case.camel(signature.name)} = ${signature.name}(`)
+      output.append(`let ${Case.camel(name)} = ${signature.name}(`)
       for (const parameter of signature.parameters) {
         if (parameter.type?.typeArguments) {
-          process.stdout.write(`\n  ${parameter.name}: ${parameter.type.name}<...>,`)
+          output.append(`\n  ${parameter.name}: ${parameter.type.name}<...>,`)
         } else {
-          process.stdout.write(`\n  ${parameter.name}: ${parameter.type.name}`)
+          output.append(`\n  ${parameter.name}: ${parameter.type.name}`)
         }
       }
-      process.stdout.write(`\n)`)
+      output.append(`\n)`)
     } else {
-      process.stdout.write(`${signature.name}()`)
+      output.append(`${signature.name}()`)
     }
   }
-  process.stdout.write('\n```\n')
+  output.append('\n```\n')
 }
 
 /** Generate Markdown documentation for properties and accessors of a `class` definition. */
