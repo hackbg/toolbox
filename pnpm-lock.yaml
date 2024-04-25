@@ -87,6 +87,12 @@ importers:
         specifier: workspace:^
         version: link:../over
 
+  docs:
+    dependencies:
+      '@hackbg/logs':
+        specifier: workspace:^
+        version: link:../logs
+
   dome: {}
 
   dump: {}

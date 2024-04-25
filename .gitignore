@@ -3,7 +3,6 @@
 */types
 .pnpm-debug.log
 node_modules
-docs
 coverage
 dist
 *.esm.js

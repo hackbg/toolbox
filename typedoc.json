@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "out": "docs",
+  "out": ".docs",
   "entryPointStrategy": "packages",
   "entryPoints": [
     "./ganesha",
@@ -10,6 +10,7 @@
     "./atom",
     "./cmds",
     "./conf",
+    "./docs",
     "./dome",
     "./dump",
     "./emit",
