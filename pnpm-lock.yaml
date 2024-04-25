@@ -92,6 +92,9 @@ importers:
       '@hackbg/logs':
         specifier: workspace:^
         version: link:../logs
+      case:
+        specifier: ^1.6.3
+        version: 1.6.3
 
   dome: {}
 

@@ -1,4 +1,3 @@
 # `@hackbg/docs`
 
-Generates customizable Markdown documentation
-from Typedoc JSON output.
+Generates Markdown documentation from Typedoc JSON output.

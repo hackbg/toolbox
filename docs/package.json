@@ -14,7 +14,8 @@
     "docs": "./docs.cli.cjs"
   },
   "dependencies": {
-    "@hackbg/logs": "workspace:^"
+    "@hackbg/logs": "workspace:^",
+    "case":         "^1.6.3"
   },
   "scripts": {
     "ubik": "npm run check && npm run cov && ubik",
