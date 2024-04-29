@@ -84,6 +84,8 @@ export function documentModule ({
         }
         if (child.kind === kinds.class) {
           generated += documentClass(child)
+        } else {
+          //console.warn('unhandled item kind', child.kind, 'in', target)
         }
       }
       if (child.children) {
@@ -351,9 +353,14 @@ export function documentParameters (signature) {
       if (parameter.flags?.isRest) {
         output += `...`
       }
-      output += `${parameter.name}`
+      if (parameter.name !== '__namedParameters') {
+        output += `${parameter.name}`
+        if (parameter.type) {
+          output += ': '
+        }
+      }
       if (parameter.type) {
-        output += ': <em>'
+        output += '<em>'
         output += documentParameterType(parameter.type)
         output += '</em>'
       }
@@ -380,8 +387,12 @@ export function documentParameterType (argType) {
       documentIntrinsic()
     } else if (argType.type === 'union') {
       documentUnion()
+    } else if (argType.type === 'intersection') {
+      documentIntersection()
     } else if (argType.type === 'reflection') {
       documentReflection()
+    } else if (argType.type === 'tuple') {
+      documentTuple()
     } else {
       console.warn('unhandled argument type kind:', argType)
     }
@@ -414,8 +425,31 @@ export function documentParameterType (argType) {
     output += argType.types.map(t=>documentParameterType(t)).join(' | ')
   }
 
+  function documentIntersection () {
+    output += argType.types.map(t=>documentParameterType(t)).join(' & ')
+  }
+
+  function documentTuple () {
+    output += '['
+    console.log(argType)
+    output += argType.elements.map(t=>documentParameterType(t.element)).join(', ')
+    output += ']'
+  }
+
   function documentReflection () {
-    console.warn('unhandled reflection:', argType.declaration)
-    output += argType.name || '???'
+    if (
+      (argType.declaration?.variant === 'declaration') &&
+      !!argType.declaration.children
+    ) {
+      output += '{'
+      output += argType.declaration.children.map(field=>`\n    ${field.name},`).join('')
+      if (argType.declaration.children.length > 0) {
+        output += '\n'
+      }
+      output += '  }'
+    } else {
+      console.warn('unhandled reflection:', argType)
+      output += argType.name || '???'
+    }
   }
 }
