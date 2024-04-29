@@ -187,7 +187,7 @@ export function documentConstructor (output: Output, item, name: string) {
   output.append('\n```typescript\n')
   for (const signature of item.signatures) {
     if (signature.parameters?.length > 0) {
-      output.append(`let ${name} = ${signature.name}(`)
+      output.append(`const ${name} = ${signature.name}(`)
       for (const parameter of signature.parameters) {
         if (parameter.type?.typeArguments) {
           output.append(`\n  ${parameter.name}: ${parameter.type.name}<...>,`)
@@ -225,10 +225,8 @@ export function documentProperty (output: Output, item) {
   if (item.type) {
     output.append(`<strong>${item.type.name}</strong>. `)
   }
-  if (item.comment?.summary) {
-    for (const line of item.comment?.summary || []) {
-      output.append(line.text)
-    }
+  for (const line of item.comment?.summary || []) {
+    output.append(line.text)
   }
   output.append('</td></tr>')
 }
@@ -236,7 +234,7 @@ export function documentProperty (output: Output, item) {
 /** Generate Markdown documentation for the methods of a `class` definition. */
 export function documentMethods (output: Output, items, name: string) {
   for (const item of items) {
-    if (item.kind === kinds.method) {
+    if (item.kind === kinds.method && !(item.flags?.isProtected) && !(item.flags?.isPrivate)) {
       documentMethod(output, item, name)
     }
   }
@@ -244,20 +242,107 @@ export function documentMethods (output: Output, items, name: string) {
 
 /** Generate Markdown documentation for a method. */
 export function documentMethod (output: Output, item, name: string) {
-  output.append(`\n\n## method *${name}.${item.name}*`)
+  const source = item.sources[0].url
+  const isAbstract = item.flags?.isAbstract ? 'abstract ' : ''
+  output.append(`\n\n## ${isAbstract}method [*${name}.${item.name}*](${source})`)
   if (item.signatures) {
     for (const signature of item.signatures) {
-      output.append('\n```typescript')
-      if (signature.parameters) {
-        output.append(`\n${name}.${item.name}(`)
-        for (const parameter of signature.parameters) {
-          output.append(`${parameter.name} `)
-        }
-        output.append(`)`)
-      } else {
-        output.append(`\n${name}.${item.name}()`)
-      }
-      output.append('\n```')
+      documentSignature(output, signature, item, name)
     }
+  }
+}
+
+export function documentSignature (output: Output, signature, item, name) {
+  //console.log('signature:', signature)
+  if (signature.comment?.summary) {
+    output.append('\n')
+    for (const line of signature.comment.summary) {
+      output.append(line.text)
+    }
+  }
+
+  output.append('\n<pre>\n')
+
+  let returnType = signature.type
+  let isAsync = false
+  if (returnType) {
+    if (returnType.type === 'reference' && returnType.name === 'Promise') {
+      returnType = returnType.typeArguments[0]
+      isAsync = true
+    }
+    if (returnType.type === 'reference') {
+      let typeName = returnType.name
+      //console.log(returnType)
+      if ((returnType.typeArguments || []).length > 0) {
+        typeName += '&lt;'
+        typeName += returnType.typeArguments.map(t=>t.name).join(', ')
+        typeName += '&gt;'
+      }
+      output.append(`<strong>const</strong> result: <em>`)
+      if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
+        output.append(`<a href="#">`)
+      }
+      output.append(typeName)
+      if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
+        output.append(`</a>`)
+      }
+      output.append(`</em> = `)
+      if (isAsync) {
+        output.append(`<strong>await</strong> `)
+      }
+    } else if (returnType?.type === 'intrinsic') {
+      if (returnType.name !== 'this') {
+        output.append(`<strong>const</strong> result: <em>${returnType.name}</em> = `)
+      }
+    } else {
+      console.warn('unhandled return type kind:', returnType.type)
+    }
+  }
+  output.append(`${name}.${item.name}`)
+  documentParameters(output, signature)
+
+  output.append('\n</pre>')
+}
+
+export function documentParameters (output: Output, signature) {
+  if (signature.parameters) {
+    output.append(`(`)
+    for (const parameter of signature.parameters) {
+      output.append(`\n  `)
+      if (parameter.flags?.isRest) {
+        output.append(`...`)
+      }
+      output.append(`${parameter.name}`)
+      let argType = parameter.type
+      let isArray = false
+      if (argType) {
+        if (argType.type === 'array') {
+          isArray = true
+          argType = argType.elementType
+        }
+        if (argType.type === 'reference') {
+          output.append(`: <em>`)
+          let typeName = argType.name
+          if ((argType.typeArguments || []).length > 0) {
+            typeName += '&lt;'
+            typeName += argType.typeArguments.map(t=>t.name).join(', ')
+            typeName += '&gt;'
+          }
+          output.append(typeName)
+          if (isArray) {
+            output.append('[]')
+          }
+          output.append('</em>')
+        } else if (argType.type === 'intrinsic') {
+          output.append(`: <em>${argType.name}</em>`)
+        } else {
+          console.warn('unhandler argument type kind:', argType.type)
+        }
+      }
+      output.append(`,`)
+    }
+    output.append(`\n)`)
+  } else {
+    output.append('()')
   }
 }
