@@ -51,7 +51,8 @@ export function documentModule ({
   }
 
   // Construct output object
-  const output = createOutput({ target, start, end })
+  const { before, after } = getAuthoredContent({ target, start, end })
+  let generated = ''
 
   // Collect definitions that are in scope.
   const ids = collectIds(data, sources)
@@ -60,15 +61,15 @@ export function documentModule ({
   recurseIntoModule(data)
 
   // Write output.
-  if (!output.generated.endsWith('\n')) {
-    output.generated += '\n'
+  if (!generated.endsWith('\n')) {
+    generated += '\n'
   }
   writeFileSync(target, [
-    output.before,
+    before,
     start,
-    output.generated,
+    generated,
     end,
-    output.after
+    after
   ].join(''), 'utf8')
 
   console.log(`Generated ${target}.`)
@@ -81,7 +82,7 @@ export function documentModule ({
           continue
         }
         if (child.kind === kinds.class) {
-          documentClass(output, child)
+          generated += documentClass(child)
         }
       }
       if (child.children) {
@@ -91,11 +92,14 @@ export function documentModule ({
   }
 }
 
-export function createOutput ({ target, start, end, }: {
-  target:  string,
-  start:   string,
-  end:     string,
-}) {
+export function getAuthoredContent ({ target, start, end, }: {
+  target: string,
+  start:  string,
+  end:    string,
+}): {
+  before: string,
+  after:  string
+} {
   // Validate parameters
   if (!target) {
     throw new Error('Option "target" is unset: specify target file.')
@@ -106,38 +110,29 @@ export function createOutput ({ target, start, end, }: {
   if (!end) {
     throw new Error('Option "end" is empty: specify end marker or leave blank for default.')
   }
-  // Create empty output object
-  const output: Output = {
-    before:    '',
-    generated: '',
-    after:     '',
-    append (...args: string[]) {
-      for (const arg of args) {
-        this.generated += arg
-      }
-    }
-  }
+  let before = ''
+  let after = ''
   // If `target` file is present, load pre-existing data into output object.
   if (existsSync(target)) {
     const outputText = readFileSync(target, 'utf8')
     const splitBefore = outputText.split(start)
     if (splitBefore.length === 1) {
-      throw new Error(`Start string not found in "${output}": ${start}`)
+      throw new Error(`Start string not found in "${target}": ${start}`)
     }
     if (splitBefore.length > 2) {
-      throw new Error(`Start string found more than once in "${output}": ${start}`)
+      throw new Error(`Start string found more than once in "${target}": ${start}`)
     }
-    output.before = splitBefore[0]
+    before = splitBefore[0]
     const splitAfter = splitBefore[1].split(end)
     if (splitAfter.length === 1) {
-      throw new Error(`End string not found in "${output}": ${end}`)
+      throw new Error(`End string not found in "${target}": ${end}`)
     }
     if (splitAfter.length > 2) {
-      throw new Error(`End string found more than once in in "${output}": ${end}`)
+      throw new Error(`End string found more than once in in "${target}": ${end}`)
     }
-    output.after = splitAfter[1] || ''
+    after = splitAfter[1] || ''
   }
-  return output
+  return { before, after }
 }
 
 /** Collect numeric IDs from JSON `data` that belong to specified `sources`. */
@@ -158,191 +153,262 @@ export function collectIds (data: JSONDocs, sources: string[]) {
 }
 
 /** Generate Markdown documentation for a `class` definition. */
-export function documentClass (output: Output, item) {
-  output.append(`\n\n# class *${item.name}*`)
+export function documentClass (item) {
+  let output = ''
+  output += `\n\n# class *${item.name}*`
   if (item.comment?.summary) {
-    output.append('\n')
+    output += '\n'
     for (const line of item.comment?.summary || []) {
-      output.append(line.text)
+      output += line.text
     }
-    output.append('\n')
+    output += '\n'
   }
 
   const name = Case.camel(item.name)
-  documentConstructors(output, item.children, name)
-  documentProperties(output, item.children)
-  documentMethods(output, item.children, name)
+  output += documentConstructors(item.children, name)
+  output += documentProperties(item.children)
+  output += documentMethods(item.children, name)
+
+  return output
 }
 
-export function documentConstructors (output: Output, items, name: string) {
+export function documentConstructors (items, name: string) {
+  let output = ''
   for (const item of items) {
     if (item.name === 'constructor') {
-      documentConstructor(output, item, name)
+      output += documentConstructor(item, name)
     }
   }
+  return output
 }
 
 /** Generate Markdown documentation for `constructor` signatures of a `class` definition. */
-export function documentConstructor (output: Output, item, name: string) {
-  output.append('\n```typescript\n')
+export function documentConstructor (item, name: string) {
+  let output = ''
+  output += '\n```typescript\n'
   for (const signature of item.signatures) {
     if (signature.parameters?.length > 0) {
-      output.append(`const ${name} = ${signature.name}(`)
+      output += `const ${name} = ${signature.name}(`
       for (const parameter of signature.parameters) {
         if (parameter.type?.typeArguments) {
-          output.append(`\n  ${parameter.name}: ${parameter.type.name}<...>,`)
+          output += `\n  ${parameter.name}: ${parameter.type.name}<...>,`
         } else {
-          output.append(`\n  ${parameter.name}: ${parameter.type.name}`)
+          output += `\n  ${parameter.name}: ${parameter.type.name}`
         }
       }
-      output.append(`\n)`)
+      output += `\n)`
     } else {
-      output.append(`${signature.name}()`)
+      output += `${signature.name}()`
     }
   }
-  output.append('\n```\n')
+  output += '\n```\n'
+  return output
 }
 
 /** Generate Markkdown documentation for properties and accessors of a `class` definition. */
-export function documentProperties (output: Output, items) {
-  output.append('\n<table><tbody>')
+export function documentProperties (items) {
+  let output = ''
+  output += '\n<table><tbody>'
   for (const item of items) {
     if (
       ((item.kind === kinds.property) || (item.kind === kinds.accessor))
       && !(item.name === '[toStringTag]')
     ) {
-      documentProperty(output, item)
+      output += documentProperty(item)
     }
   }
-  output.append('</tbody></table>')
+  output += '</tbody></table>'
+  return output
 }
 
 /** Generate Markdown documentation for a property or accessor. */
-export function documentProperty (output: Output, item) {
-  output.append('\n<tr><td valign="top">')
-  output.append(`\n<strong>${item.name}</strong>`)
-  output.append('</td>\n<td>')
+export function documentProperty (item) {
+  let output = ''
+  output += '\n<tr><td valign="top">'
+  output += `\n<strong>${item.name}</strong>`
+  output += '</td>\n<td>'
   if (item.type) {
-    output.append(`<strong>${item.type.name}</strong>. `)
+    output += `<strong>${item.type.name}</strong>. `
   }
   for (const line of item.comment?.summary || []) {
-    output.append(line.text)
+    output += line.text
   }
-  output.append('</td></tr>')
+  output += '</td></tr>'
+  return output
 }
 
 /** Generate Markdown documentation for the methods of a `class` definition. */
-export function documentMethods (output: Output, items, name: string) {
+export function documentMethods (items, name: string) {
+  let output = ''
   for (const item of items) {
     if (item.kind === kinds.method && !(item.flags?.isProtected) && !(item.flags?.isPrivate)) {
-      documentMethod(output, item, name)
+      output += documentMethod(item, name)
     }
   }
+  return output
 }
 
 /** Generate Markdown documentation for a method. */
-export function documentMethod (output: Output, item, name: string) {
+export function documentMethod (item, name: string) {
+  let output = ''
   const source = item.sources[0].url
   const isAbstract = item.flags?.isAbstract ? 'abstract ' : ''
-  output.append(`\n\n## ${isAbstract}method [*${name}.${item.name}*](${source})`)
+  output += `\n\n## ${isAbstract}method [*${name}.${item.name}*](${source})`
   if (item.signatures) {
     for (const signature of item.signatures) {
-      documentSignature(output, signature, item, name)
+      output += documentSignature(signature, item, name)
     }
   }
+  return output
 }
 
-export function documentSignature (output: Output, signature, item, name) {
+/** Generate Markdown documentation for a signature of a function or method. */
+export function documentSignature (signature, item, name) {
+  let output = ''
   //console.log('signature:', signature)
   if (signature.comment?.summary) {
-    output.append('\n')
+    output += '\n'
     for (const line of signature.comment.summary) {
-      output.append(line.text)
+      output += line.text
     }
   }
-
-  output.append('\n<pre>\n')
-
+  output += '\n<pre>\n'
   let returnType = signature.type
   let isAsync = false
+  let isArray = false
   if (returnType) {
     if (returnType.type === 'reference' && returnType.name === 'Promise') {
-      returnType = returnType.typeArguments[0]
-      isAsync = true
+      documentPromise()
+    }
+    if (returnType.type === 'array') {
+      documentArray()
     }
     if (returnType.type === 'reference') {
-      let typeName = returnType.name
-      //console.log(returnType)
-      if ((returnType.typeArguments || []).length > 0) {
-        typeName += '&lt;'
-        typeName += returnType.typeArguments.map(t=>t.name).join(', ')
-        typeName += '&gt;'
-      }
-      output.append(`<strong>const</strong> result: <em>`)
-      if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
-        output.append(`<a href="#">`)
-      }
-      output.append(typeName)
-      if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
-        output.append(`</a>`)
-      }
-      output.append(`</em> = `)
-      if (isAsync) {
-        output.append(`<strong>await</strong> `)
-      }
+      documentReference()
     } else if (returnType?.type === 'intrinsic') {
-      if (returnType.name !== 'this') {
-        output.append(`<strong>const</strong> result: <em>${returnType.name}</em> = `)
-      }
+      documentIntrinsic()
     } else {
       console.warn('unhandled return type kind:', returnType.type)
     }
   }
-  output.append(`${name}.${item.name}`)
-  documentParameters(output, signature)
+  output += `${name}.${item.name}`
+  output += documentParameters(signature)
+  output += '\n</pre>'
+  return output
 
-  output.append('\n</pre>')
+  function documentPromise () {
+    returnType = returnType.typeArguments[0]
+    isAsync = true
+  }
+
+  function documentArray () {
+    returnType = returnType.elementType
+    isArray = true
+  }
+
+  function documentReference () {
+    let typeName = returnType.name
+    if ((returnType.typeArguments || []).length > 0) {
+      typeName += '&lt;'
+      typeName += returnType.typeArguments.map(t=>t.name).join(', ')
+      typeName += '&gt;'
+    }
+    output += `<strong>const</strong> result: <em>`
+    if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
+      output += `<a href="#">`
+    }
+    output += typeName
+    if (!returnType.refersToTypeParameter && !(returnType.package === 'typescript')) {
+      output += `</a>`
+    }
+    if (isArray) {
+      output += `[]`
+    }
+    output += `</em> = `
+    if (isAsync) {
+      output += `<strong>await</strong> `
+    }
+  }
+
+  function documentIntrinsic () {
+    if (returnType.name !== 'this') {
+      output += `<strong>const</strong> result: <em>${returnType.name}</em> = `
+    }
+    if (isAsync) {
+      output += `<strong>await</strong> `
+    }
+  }
 }
 
-export function documentParameters (output: Output, signature) {
+/** Generate Markdown documentation for the parameters of a function or method. */
+export function documentParameters (signature) {
+  let output = ''
   if (signature.parameters) {
-    output.append(`(`)
+    output += `(`
     for (const parameter of signature.parameters) {
-      output.append(`\n  `)
-      if (parameter.flags?.isRest) {
-        output.append(`...`)
-      }
-      output.append(`${parameter.name}`)
-      let argType = parameter.type
-      let isArray = false
-      if (argType) {
-        if (argType.type === 'array') {
-          isArray = true
-          argType = argType.elementType
-        }
-        if (argType.type === 'reference') {
-          output.append(`: <em>`)
-          let typeName = argType.name
-          if ((argType.typeArguments || []).length > 0) {
-            typeName += '&lt;'
-            typeName += argType.typeArguments.map(t=>t.name).join(', ')
-            typeName += '&gt;'
-          }
-          output.append(typeName)
-          if (isArray) {
-            output.append('[]')
-          }
-          output.append('</em>')
-        } else if (argType.type === 'intrinsic') {
-          output.append(`: <em>${argType.name}</em>`)
-        } else {
-          console.warn('unhandler argument type kind:', argType.type)
-        }
-      }
-      output.append(`,`)
+      output += documentParameter(parameter)
+      output += `,`
     }
-    output.append(`\n)`)
+    output += `\n)`
   } else {
-    output.append('()')
+    output += '()'
+  }
+  return output
+}
+
+/** Generate Markdown documentation for a single parameter of a function or method. */
+export function documentParameter (parameter) {
+  let output = ''
+  let argType = parameter.type
+  let isArray = false
+  output += `\n  `
+  if (parameter.flags?.isRest) {
+    output += `...`
+  }
+  output += `${parameter.name}`
+  if (argType) {
+    if (argType.type === 'array') {
+      documentArray()
+    }
+    if (argType.type === 'reference') {
+      documentReference()
+    } else if (argType.type === 'intrinsic') {
+      documentIntrinsic()
+    } else if (argType.type === 'union') {
+      documentUnion()
+    } else {
+      console.warn('unhandled argument type kind:', argType)
+    }
+  }
+  return output
+
+  function documentArray () {
+    isArray = true
+    argType = argType.elementType
+  }
+
+  function documentReference () {
+    output += `: <em>`
+    let typeName = argType.name
+    if ((argType.typeArguments || []).length > 0) {
+      typeName += '&lt;'
+      typeName += argType.typeArguments.map(t=>t.name).join(', ')
+      typeName += '&gt;'
+    }
+    output += typeName
+    if (isArray) {
+      output += '[]'
+    }
+    output += '</em>'
+  }
+
+  function documentIntrinsic () {
+    output += `: <em>${argType.name}</em>`
+  }
+
+  function documentUnion () {
+    for (const unionType of argType.types) {
+      //output += documentParameter(unionType)
+    }
   }
 }
