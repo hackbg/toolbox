@@ -10,6 +10,7 @@ const kinds = {
   constructor: 512,
   property:    1024,
   method:      2048,
+  object:      65536,
   accessor:    262144,
   type:        2097152,
 }
@@ -346,7 +347,16 @@ export function documentParameters (signature) {
   if (signature.parameters) {
     output += `(`
     for (const parameter of signature.parameters) {
-      output += documentParameter(parameter)
+      output += `\n  `
+      if (parameter.flags?.isRest) {
+        output += `...`
+      }
+      output += `${parameter.name}`
+      if (parameter.type) {
+        output += ': <em>'
+        output += documentParameterType(parameter.type)
+        output += '</em>'
+      }
       output += `,`
     }
     output += `\n)`
@@ -357,15 +367,9 @@ export function documentParameters (signature) {
 }
 
 /** Generate Markdown documentation for a single parameter of a function or method. */
-export function documentParameter (parameter) {
+export function documentParameterType (argType) {
   let output = ''
-  let argType = parameter.type
   let isArray = false
-  output += `\n  `
-  if (parameter.flags?.isRest) {
-    output += `...`
-  }
-  output += `${parameter.name}`
   if (argType) {
     if (argType.type === 'array') {
       documentArray()
@@ -376,6 +380,8 @@ export function documentParameter (parameter) {
       documentIntrinsic()
     } else if (argType.type === 'union') {
       documentUnion()
+    } else if (argType.type === 'reflection') {
+      documentReflection()
     } else {
       console.warn('unhandled argument type kind:', argType)
     }
@@ -388,7 +394,6 @@ export function documentParameter (parameter) {
   }
 
   function documentReference () {
-    output += `: <em>`
     let typeName = argType.name
     if ((argType.typeArguments || []).length > 0) {
       typeName += '&lt;'
@@ -399,16 +404,18 @@ export function documentParameter (parameter) {
     if (isArray) {
       output += '[]'
     }
-    output += '</em>'
   }
 
   function documentIntrinsic () {
-    output += `: <em>${argType.name}</em>`
+    output += `${argType.name}`
   }
 
   function documentUnion () {
-    for (const unionType of argType.types) {
-      //output += documentParameter(unionType)
-    }
+    output += argType.types.map(t=>documentParameterType(t)).join(' | ')
+  }
+
+  function documentReflection () {
+    console.warn('unhandled reflection:', argType.declaration)
+    output += argType.name || '???'
   }
 }
