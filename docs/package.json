@@ -1,29 +1,26 @@
 {
   "name": "@hackbg/docs",
-  "version": "1.0.0-rc.1",
-  "main": "docs.ts",
-  "browser": "docs.browser.ts",
   "type": "module",
-  "homepage": "https://github.com/hackbg/toolbox",
+  "main": "docs.ts",
   "bugs": "https://github.com/hackbg/toolbox/issues",
-  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "docs"},
+  "version": "1.0.0-rc.1",
   "license": "MIT",
+  "homepage": "https://github.com/hackbg/toolbox",
+  "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "docs"},
   "description": "Renders nice Markdown documents from Typedoc JSON output.",
   "files": [ "README.md", "*.ts", "*.cli.cjs", "!.todo" ],
-  "bin": {
-    "docs": "./docs.cli.cjs"
-  },
+  "bin": { "docs": "./docs.cli.cjs" },
   "dependencies": {
     "@hackbg/logs": "workspace:^",
-    "case":         "^1.6.3"
+    "case":         "^1.6.3",
+    "typedoc":      "0.25.13"
   },
   "scripts": {
-    "ubik": "npm run check && npm run cov && ubik",
-    "test": "ensuite README.md",
-    "cov":  "ensuite-cov README.md",
-    "check": "tsc --noEmit",
-    "clean": "ubik clean && rm -rf dist types *.dist.*",
+    "ubik":    "npm run check && npm run cov && ubik",
+    "test":    "ensuite README.md",
+    "cov":     "ensuite-cov README.md",
+    "check":   "tsc --noEmit",
+    "clean":   "ubik clean && rm -rf dist types *.dist.*",
     "release": "pnpm check && ubik release --access public --otp 000000"
   }
 }
-

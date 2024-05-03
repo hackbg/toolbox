@@ -1,7 +1,8 @@
 import { Console } from '@hackbg/logs'
 import Case from 'case'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import type { DocumentationPage } from './docs'
+import { collect } from './docs-util'
 
 const KIND = {
   MODULE:      4,
@@ -13,10 +14,13 @@ const KIND = {
   PROPERTY:    1024,
   METHOD:      2048,
   LAMBDA:      4096,
+  ARGUMENT:    32768,
   OBJECT:      65536,
   ACCESSOR:    262144,
   TYPE:        2097152,
 }
+
+const RE_PARENS = /^\((.+)\)$/s
 
 export interface JSONDocs {
   children:    any[],
@@ -26,58 +30,41 @@ export interface JSONDocs {
   }>
 }
 
+export interface Item {
+  name: string,
+  kind: number,
+  [k: string]: unknown
+}
+
+export type Index = Record<number, Item>
+
 export interface PageSpec {
   sources: string[]
 }
 
-export function getAuthoredContent ({ target, start, end, }: {
-  target: string,
-  start:  string,
-  end:    string,
-}): {
-  before: string,
-  after:  string
-} {
-  // Validate parameters
-  if (!target) {
-    throw new Error('Option "target" is unset: specify target file.')
+export interface Signature {
+  parameters: Array<Parameter>
+}
+
+export interface Parameter {
+  name: string
+  flags?: { isRest?: boolean }
+  type: {
+    name: string
+    type: string
+    elementType
+    typeArguments
+    types
+    elements
+    declaration
   }
-  if (!start) {
-    throw new Error('Option "start" is empty: specify start marker or leave blank for default.')
-  }
-  if (!end) {
-    throw new Error('Option "end" is empty: specify end marker or leave blank for default.')
-  }
-  let before = ''
-  let after = ''
-  // If `target` file is present, load pre-existing data into output object.
-  if (existsSync(target)) {
-    const outputText = readFileSync(target, 'utf8')
-    const splitBefore = outputText.split(start)
-    if (splitBefore.length === 1) {
-      throw new Error(`Start string not found in "${target}": ${start}`)
-    }
-    if (splitBefore.length > 2) {
-      throw new Error(`Start string found more than once in "${target}": ${start}`)
-    }
-    before = splitBefore[0]
-    const splitAfter = splitBefore[1].split(end)
-    if (splitAfter.length === 1) {
-      throw new Error(`End string not found in "${target}": ${end}`)
-    }
-    if (splitAfter.length > 2) {
-      throw new Error(`End string found more than once in in "${target}": ${end}`)
-    }
-    after = splitAfter[1] || ''
-  }
-  return { before, after }
 }
 
 /** Generate Markdown documentation page by adding documentation generated from
   * `data` for specific `sources` into a `target` markdown file between the
   * `start` and `end` markers. */
 export function documentModule ({
-  log, data, sources, target
+  log, data, index, sources, target
 }: Partial<DocumentationPage> & { target: string }) {
   let generated = ''
   const items = collect({log, data, sources})
@@ -88,7 +75,13 @@ export function documentModule ({
       continue
     }
     if (item.kind === KIND.CLASS) {
-      generated += documentClass({ log, item })
+      generated += documentClass({ log, index, item })
+    } else if (
+      (item.kind === KIND.CONSTRUCTOR) ||
+      (item.kind === KIND.PROPERTY) ||
+      (item.kind === KIND.ACCESSOR) ||
+      (item.kind === KIND.METHOD)
+    ) {
     } else {
       log.warn('unhandled item:', item.name, item.kind)
     }
@@ -97,38 +90,12 @@ export function documentModule ({
   return generated
 }
 
-/** Collect item definitions that belong to specific sources. */
-export function collect ({
-  log, data, sources
-}: Partial<DocumentationPage>) {
-  if (!data || !data.symbolIdMap || Object.keys(data.symbolIdMap).length === 0) {
-    throw new Error('No data or empty data.symbolIdMap')
-  }
-  if (!sources || sources.length === 0) {
-    throw new Error('No sources specified.')
-  }
-  const ids = new Set()
-  for (const [symbol, { sourceFileName, qualifiedName }] of Object.entries(data.symbolIdMap)) {
-    if (sources.includes(sourceFileName)) {
-      ids.add(Number(symbol))
-    }
-  }
-  const items: Record<number, { name: string, kind: number }> = {}
-  ;(function descend (children) {
-    for (const child of children) {
-      if (ids.has(child.id)) {
-        items[child.id] = child
-      }
-      if (child.children) {
-        descend(child.children)
-      }
-    }
-  })(data.children)
-  return items
-}
-
 /** Generate Markdown documentation for a `class` definition. */
-export function documentClass ({ log, item }: { log: Console, item: any }) {
+export function documentClass ({ log, index, item }: {
+  log:   Console,
+  index: Index,
+  item:  any
+}) {
   log.debug('class', item.name)
 
   let output = ''
@@ -148,7 +115,13 @@ export function documentClass ({ log, item }: { log: Console, item: any }) {
   // Document constructor(s) as code blocks
   for (const child of item.children) {
     if (child.name === 'constructor') {
-      output += documentConstructor({ log, item: child, name })
+      output += documentConstructor({
+        log,
+        index,
+        cls: item,
+        ctor: child,
+        name
+      })
     }
   }
 
@@ -170,7 +143,7 @@ export function documentClass ({ log, item }: { log: Console, item: any }) {
       child.kind === KIND.METHOD &&
       !(child.flags?.isProtected) && !(child.flags?.isPrivate)
     ) {
-      output += documentMethod({ log, item: child, name, })
+      output += documentMethod({ log, index, item: child, name, })
     }
   }
 
@@ -178,27 +151,53 @@ export function documentClass ({ log, item }: { log: Console, item: any }) {
 }
 
 /** Generate Markdown documentation for `constructor` signatures of a `class` definition. */
-export function documentConstructor ({ log, item, name }: {
-  log:  Console
-  item: any
-  name: string
+export function documentConstructor ({ log, index, cls, ctor, name }: {
+  log:   Console
+  index: Index,
+  cls:   any
+  ctor:  any
+  name:  string
 }) {
-  log.debug('  constructor', item.name)
+  log.debug('  constructor', ctor.name)
   let output = ''
   output += '\n<pre>\n'
-  for (const signature of item.signatures) {
+  for (const signature of ctor.signatures) {
     output += `<strong>const</strong> ${name} = ${signature.name}`
-    output += documentParameters(signature)
+    if (signature.parameters?.length === 1) {
+      const [parameter] = signature.parameters
+      if (
+        (parameter.type.name === 'Partial') &&
+        (parameter.type.package === 'typescript') &&
+        (parameter.type.typeArguments[0].target === cls.id)
+      ) {
+        output += '({'
+        let needsNewline = false
+        for (const child of cls.children) {
+          if (
+            (child.kind === KIND.PROPERTY) &&
+            (child.name[0] !== '[')
+          ) {
+            output += `\n  ${child.name},`
+            needsNewline = true
+          }
+        }
+        if (needsNewline) {
+          output += '\n'
+        }
+        output += '})'
+        continue
+      }
+    }
+    output += documentParameters({ log, index, signature })
   }
   output += '\n</pre>\n'
   return output
 }
 
 /** Generate Markdown documentation for a property or accessor. */
-export function documentProperty ({ log, item, name }: {
+export function documentProperty ({ log, item }: {
   log:  Console
   item: any
-  name: string
 }) {
   log.debug('  property', item.name)
   let output = ''
@@ -216,10 +215,11 @@ export function documentProperty ({ log, item, name }: {
 }
 
 /** Generate Markdown documentation for a method. */
-export function documentMethod ({ log, item, name }: {
-  log:  Console
-  item: any
-  name: string
+export function documentMethod ({ log, index, item, name }: {
+  log:   Console
+  index: Index,
+  item:  any
+  name:  string
 }) {
   log.debug('  method', item.name)
   let output = ''
@@ -228,15 +228,16 @@ export function documentMethod ({ log, item, name }: {
   output += `\n\n## ${isAbstract}method [*${name}.${item.name}*](${source})`
   if (item.signatures) {
     for (const signature of item.signatures) {
-      output += documentSignature({ log, signature, item, name })
+      output += documentSignature({ log, index, signature, item, name })
     }
   }
   return output
 }
 
 /** Generate Markdown documentation for a signature of a function or method. */
-export function documentSignature ({ log, signature, item, name }: {
-  log: Console,
+export function documentSignature ({ log, index, signature, item, name }: {
+  log:   Console,
+  index: Index,
   signature
   item
   name
@@ -269,7 +270,7 @@ export function documentSignature ({ log, signature, item, name }: {
     }
   }
   output += `${name}.${item.name}`
-  output += documentParameters(signature)
+  output += documentParameters({ log, index, signature })
   output += '\n</pre>'
   return output
 
@@ -318,9 +319,42 @@ export function documentSignature ({ log, signature, item, name }: {
 }
 
 /** Generate Markdown documentation for the parameters of a function or method. */
-export function documentParameters (signature) {
+export function documentParameters ({ log, index, signature }: {
+  log:   Console,
+  index: Index
+  signature: Signature
+}) {
+
   let output = ''
-  if (signature.parameters) {
+
+  if (signature.parameters?.length === 1) {
+    documentSingleParameter()
+  } else if (signature.parameters) {
+    documentMultipleParameters()
+  } else {
+    documentNoParameters()
+  }
+
+  return output
+
+  function documentSingleParameter () {
+    const [parameter] = signature.parameters
+    output += `(`
+    if (parameter.name !== '__namedParameters') {
+      output += `${parameter.name}`
+      if (parameter.type) {
+        output += ': '
+      }
+    }
+    if (parameter.type) {
+      const type = documentParameterType({ log, index, argType: parameter.type, indent: '  ' })
+      const match = type.match(RE_PARENS)
+      output += match ? match[1] : type
+    }
+    output += `)`
+  }
+
+  function documentMultipleParameters () {
     output += `(`
     for (const parameter of signature.parameters) {
       output += `\n  `
@@ -335,28 +369,33 @@ export function documentParameters (signature) {
       }
       if (parameter.type) {
         output += '<em>'
-        output += documentParameterType(parameter.type)
+        const type = documentParameterType({ log, index, argType: parameter.type })
+        const match = type.match(RE_PARENS)
+        output += match ? match[1] : type
         output += '</em>'
       }
       output += `,`
     }
     output += `\n)`
-  } else {
+  }
+
+  function documentNoParameters () {
     output += '()'
   }
-  return output
 }
 
 /** Generate Markdown documentation for a single parameter of a function or method. */
-export function documentParameterType ({ log, argType }: {
+export function documentParameterType ({ log, index, argType, indent = '    ' }: {
   log: Console
+  index: Index,
+  indent?: string
   argType: {
-    name: string
+    name?: string
     type: string
-    elementType
-    typeArguments
-    types
-    elements
+    elementType?
+    typeArguments?
+    types?
+    elements?
     declaration
   }
 }) {
@@ -407,16 +446,66 @@ export function documentParameterType ({ log, argType }: {
   }
 
   function documentUnion () {
-    output += argType.types.map(t=>documentParameterType(t)).join(' | ')
+    output += '(' + argType.types.map(t=>documentParameterType({
+      log,
+      index,
+      argType: t,
+      indent
+    })).join(' | ') + ')'
   }
 
   function documentIntersection () {
-    output += argType.types.map(t=>documentParameterType(t)).join(' & ')
+    if (argType.types.every(t=>(isInPlace(t) || isPartial(t)))) {
+      documentIntersectionFlat()
+    } else {
+      output += '(' + argType.types.map(t=>documentParameterType({
+        log,
+        index,
+        argType: t,
+        indent
+      })).join(' & ') + ')'
+    }
+  }
+
+  function documentIntersectionFlat () {
+    const children: Record<string, { name: string }> = {}
+    for (const type of argType.types) {
+      if (isInPlace(type)) {
+        for (const child of type.declaration.children) {
+          children[child.name] = child
+        }
+      } else if (isPartial(type)) {
+        const target = index[type.typeArguments[0].target]
+        const properties = (target.children as any[]).filter(c=>c.kind===KIND.PROPERTY)
+        for (const child of properties) {
+          children[child.name] = child
+        }
+      } else {
+        throw new Error('unreachable!')
+      }
+    }
+    output += '('
+    output += documentParameterType({
+      log, index, indent, argType: {
+        type: 'reflection',
+        declaration: {
+          variant: 'declaration',
+          children: Object.values(children)
+            .sort((a,b)=>(a.name < b.name) ? -1 : (a.name > b.name) ? 1 : 0)
+        }
+      }
+    })
+    output += ')'
   }
 
   function documentTuple () {
     output += '['
-    output += argType.elements.map(t=>documentParameterType(t.element)).join(', ')
+    output += argType.elements.map(t=>documentParameterType({
+      log,
+      index,
+      argType: t.element,
+      indent
+    })).join(', ')
     output += ']'
   }
 
@@ -426,11 +515,11 @@ export function documentParameterType ({ log, argType }: {
       !!argType.declaration.children
     ) {
       output += '{'
-      output += argType.declaration.children.map(field=>`\n    ${field.name},`).join('')
+      output += argType.declaration.children.map(field=>`\n${indent}${field.name},`).join('')
       if (argType.declaration.children.length > 0) {
         output += '\n'
       }
-      output += '  }'
+      output += `${indent.slice(2)}}`
     } else {
       log.warn('unhandled reflection:', argType.declaration.signatures)
       output += argType.name || '???'
@@ -438,3 +527,18 @@ export function documentParameterType ({ log, argType }: {
   }
 }
 
+function isInPlace (t) {
+  return (
+    t.type==='reflection'&&
+    t.declaration.variant==='declaration'&&
+    t.declaration.kind===65536
+  )
+}
+
+function isPartial (t) {
+  return (
+    t.type==='reference'&&
+    t.name==='Partial'&&
+    t.package==='typescript'
+  )
+}
