@@ -100,7 +100,11 @@ export function documentClass ({ log, index, item }: {
 
   let output = ''
 
-  output += `\n\n# class *${item.name}*`
+  output += `\n\n# `
+  if (item.flags?.isAbstract) {
+    output += `abstract `
+  }
+  output += `class *${item.name}*`
 
   if (item.comment?.summary) {
     output += '\n'
@@ -113,15 +117,17 @@ export function documentClass ({ log, index, item }: {
   const name = Case.camel(item.name)
 
   // Document constructor(s) as code blocks
-  for (const child of item.children) {
-    if (child.name === 'constructor') {
-      output += documentConstructor({
-        log,
-        index,
-        cls: item,
-        ctor: child,
-        name
-      })
+  if (!(item.flags?.isAbstract)) {
+    for (const child of item.children) {
+      if (child.name === 'constructor') {
+        output += documentConstructor({
+          log,
+          index,
+          cls: item,
+          ctor: child,
+          name
+        })
+      }
     }
   }
 
