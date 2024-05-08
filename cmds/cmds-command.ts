@@ -12,15 +12,17 @@ export default class Command<C extends object> extends Timed<C, Error> {
   steps: Step<C, unknown>[]
   log:   Console
 
-  constructor (parameters: Partial<Command<C>> = {}) {
+  constructor (
+    parameters: Pick<Command<C>, 'name'|'steps'> &
+      Partial<Pick<Command<C>, 'args'|'info'|'log'>>
+  ) {
     super()
-    this.name = parameters.name
-    this.args = parameters.args
-    this.info = parameters.info
+    this.name  = parameters.name
     this.steps = parameters.steps
-    this.log = parameters.log || new Console(this.name)
+    this.args  = parameters.args || ''
+    this.info  = parameters.info || ''
+    this.log   = parameters.log  || new Console(this.name)
     Object.defineProperty(this, 'log', { enumerable: false, writable: true })
-    this.args = parameters.args
   }
 
   /** Run the command with the specified arguments. */

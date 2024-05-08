@@ -95,9 +95,9 @@ export function assignCamelCase <T extends {}> (
   for (const property of allowed) {
     if (property in properties) {
       if (typeof property === 'string') {
-        object[Case.camel(property)] = properties[property]
+        (object as any)[Case.camel(property)] = properties[property]
       } else {
-        object[property] = properties[property]
+        (object as any)[property] = properties[property]
       }
     }
   }
