@@ -1,10 +1,10 @@
 export type AnyField = {
-  encode (buffer: Writer, value: unknown)
+  encode (buffer: Writer, value: unknown): void
   decode (buffer: Reader): unknown
 }
 
 export type Field<T> = {
-  encode (buffer: Writer, value: T)
+  encode (buffer: Writer, value: T): void
   decode (buffer: Reader): T
 }
 
@@ -46,7 +46,7 @@ export class Writer {
     if (native) {
       const [toCall, size] = native
       this.grow(size);
-      this.view[toCall](this.offset, value, true);
+      ;(this.view[toCall as keyof DataView] as Function)(this.offset, value, true);
       this.offset += size;
     } else {
       throw new Error(`writeNumber got invalid type hint: ${type}`)
@@ -95,7 +95,7 @@ export class Reader {
     if (native) {
       const [toCall, size] = native
       this.assertEnough(size)
-      const ret = this.view[toCall](this.offset, true);
+      const ret = (this.view[toCall as keyof DataView] as Function)(this.offset, true);
       this.offset += size
       return ret
     } else {

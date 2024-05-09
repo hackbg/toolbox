@@ -19,7 +19,7 @@ export const unsigned = (bytes: number): Field<bigint> => {
     encode (buffer: Writer, value: bigint) {
       const chunk = new Uint8Array(bytes);
       for (let i = 0; i < bytes; i++) {
-        buffer[i] = Number(value & 0xFFn);
+        ;(buffer as unknown as Array<number>)[i] = Number(value & 0xFFn);
         value = value >> 8n;
       }
       buffer.write(chunk)

@@ -23,14 +23,16 @@ export const struct = <T>(...fields: [string, AnyField][]): Field<T> => {
   return {
 
     encode (buffer: Writer, value: T) {
-      for (const [key, element] of fields) element.encode(buffer, value[key])
+      for (const [key, element] of fields) {
+        element.encode(buffer, value[key as keyof T])
+      }
     },
 
     decode (buffer: Reader): T {
       const result: Partial<T> = {};
       for (const [key, element] of fields) {
         try {
-          result[key] = element.decode(buffer)
+          result[key as keyof typeof result] = element.decode(buffer) as typeof result[keyof T]
         } catch (e) {
           ;(e as any).structPath ??= []
           ;(e as any).structPath.unshift(key)

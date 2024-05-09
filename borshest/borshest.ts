@@ -5,7 +5,9 @@ import { struct } from './borsh-struct'
 export type Fields = [string, AnyField][]
 
 export function encode <T> (schema: Field<T>, decoded: T): Uint8Array {
-  return schema.encode(new Writer(), decoded)
+  const writer = new Writer()
+  schema.encode(writer, decoded)
+  return new Uint8Array(writer.buffer)
 }
 
 export function decode <T> (schema: Field<T>, encoded: Uint8Array|Array<number>): T {
@@ -13,15 +15,15 @@ export function decode <T> (schema: Field<T>, encoded: Uint8Array|Array<number>)
   return schema.decode(new Reader(encoded))
 }
 
-export function Struct (...fields) {
+export function Struct (...fields: [string, AnyField][]) {
   const schema = struct(...fields)
   return class Struct {
     static decode (encoded: Uint8Array) {
-      return new this(decode(schema, encoded))
+      return new this(decode(schema, encoded) as Record<string, unknown>)
     }
-    constructor (data) {
+    constructor (data: Record<string, unknown>) {
       for (const [key, _] of fields) {
-        this[key] = data[key]
+        Object.assign(this, { [key]: data[key] })
       }
     }
   }

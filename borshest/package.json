@@ -4,7 +4,7 @@
   "type": "module",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "files": [ "README.md", "*.ts" ],
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0",
   "license": "MIT",
   "keywords": [ "borsh", "zcash", "encoding", "decoding", "binary", "format", "fadroma", "namada" ],
   "homepage": "https://github.com/hackbg/toolbox",

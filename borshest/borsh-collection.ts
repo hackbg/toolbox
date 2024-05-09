@@ -37,7 +37,7 @@ export const vec = <T>(element: Field<T>): Field<T[]> => ({
 })
 
 export const zVec = <T>(element: Field<T>) => ({
-  encode (buffer, value) {
+  encode (buffer: never, value: T[]) {
     throw new Error('encode zVec: not implemented')
   },
   decode (buffer: Reader): T[] {
@@ -76,7 +76,7 @@ export const map = <K extends string|number|symbol, V>(k: Field<K>, v: Field<V>)
     buffer.writeNumber(keys.length, 'u32') // 4 bytes for length
     for (const key of keys) { // store key/values
       k.encode(buffer, key as K)
-      v.encode(buffer, isMap ? value.get(key as K) : value[key as K])
+      v.encode(buffer, (isMap ? value.get(key as K) : value[key as K]) as V)
     }
   },
   decode (buffer: Reader): Map<K, V> {
