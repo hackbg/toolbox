@@ -47,16 +47,18 @@ export interface Signature {
 }
 
 export interface Parameter {
-  name: string
-  flags?: { isRest?: boolean }
+  name:            string
+  flags?: {
+    isRest?:       boolean
+  }
   type: {
-    name: string
-    type: string
-    elementType
-    typeArguments
-    types
-    elements
-    declaration
+    name:          string
+    type:          string
+    elementType:   any
+    typeArguments: any
+    types:         any
+    elements:      any
+    declaration:   any
   }
 }
 
@@ -65,7 +67,7 @@ export interface Parameter {
   * `start` and `end` markers. */
 export function documentModule ({
   log, data, index, sources, target
-}: Partial<DocumentationPage> & { target: string }) {
+}: Pick<DocumentationPage, 'log'|'data'|'index'|'sources'> & { target: string }) {
   let generated = ''
   const items = collect({log, data, sources})
   log.debug('Collected', Object.keys(items).length, 'items')
@@ -242,11 +244,11 @@ export function documentMethod ({ log, index, item, name }: {
 
 /** Generate Markdown documentation for a signature of a function or method. */
 export function documentSignature ({ log, index, signature, item, name }: {
-  log:   Console,
-  index: Index,
-  signature
-  item
-  name
+  log:       Console
+  index:     Index
+  signature: any
+  item:      any
+  name:      any
 }) {
   let output = ''
   //log.log('signature:', signature)
@@ -294,7 +296,7 @@ export function documentSignature ({ log, index, signature, item, name }: {
     let typeName = returnType.name
     if ((returnType.typeArguments || []).length > 0) {
       typeName += '&lt;'
-      typeName += returnType.typeArguments.map(t=>t.name).join(', ')
+      typeName += returnType.typeArguments.map((t: {name:string})=>t.name).join(', ')
       typeName += '&gt;'
     }
     output += `<strong>const</strong> result: <em>`
@@ -392,17 +394,17 @@ export function documentParameters ({ log, index, signature }: {
 
 /** Generate Markdown documentation for a single parameter of a function or method. */
 export function documentParameterType ({ log, index, argType, indent = '    ' }: {
-  log: Console
-  index: Index,
-  indent?: string
+  log:              Console
+  index:            Index,
+  indent?:          string
   argType: {
-    name?: string
-    type: string
-    elementType?
-    typeArguments?
-    types?
-    elements?
-    declaration
+    name?:          string
+    type:           string
+    elementType?:   any
+    typeArguments?: any
+    types?:         any
+    elements?:      any
+    declaration:    any
   }
 }) {
   let output = ''
@@ -438,7 +440,7 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
     let typeName = argType.name
     if ((argType.typeArguments || []).length > 0) {
       typeName += '&lt;'
-      typeName += argType.typeArguments.map(t=>t.name).join(', ')
+      typeName += argType.typeArguments.map((t:any)=>t.name).join(', ')
       typeName += '&gt;'
     }
     output += typeName
@@ -452,7 +454,7 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
   }
 
   function documentUnion () {
-    output += '(' + argType.types.map(t=>documentParameterType({
+    output += '(' + argType.types.map((t:any)=>documentParameterType({
       log,
       index,
       argType: t,
@@ -461,10 +463,10 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
   }
 
   function documentIntersection () {
-    if (argType.types.every(t=>(isInPlace(t) || isPartial(t)))) {
+    if (argType.types.every((t:any)=>(isInPlace(t) || isPartial(t)))) {
       documentIntersectionFlat()
     } else {
-      output += '(' + argType.types.map(t=>documentParameterType({
+      output += '(' + argType.types.map((t:any)=>documentParameterType({
         log,
         index,
         argType: t,
@@ -506,7 +508,7 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
 
   function documentTuple () {
     output += '['
-    output += argType.elements.map(t=>documentParameterType({
+    output += argType.elements.map((t:any)=>documentParameterType({
       log,
       index,
       argType: t.element,
@@ -521,7 +523,9 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
       !!argType.declaration.children
     ) {
       output += '{'
-      output += argType.declaration.children.map(field=>`\n${indent}${field.name},`).join('')
+      output += argType.declaration.children.map(
+        (field:any)=>`\n${indent}${field.name},`
+      ).join('')
       if (argType.declaration.children.length > 0) {
         output += '\n'
       }
@@ -533,7 +537,7 @@ export function documentParameterType ({ log, index, argType, indent = '    ' }:
   }
 }
 
-function isInPlace (t) {
+function isInPlace (t: any) {
   return (
     t.type==='reflection'&&
     t.declaration.variant==='declaration'&&
@@ -541,7 +545,7 @@ function isInPlace (t) {
   )
 }
 
-function isPartial (t) {
+function isPartial (t: any) {
   return (
     t.type==='reference'&&
     t.name==='Partial'&&

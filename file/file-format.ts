@@ -3,19 +3,19 @@ import _YAML from 'js-yaml'
 
 export class Text {
   static defaultExtension = '.json'
-  static load = (data) => data
+  static load = (data: string) => data
   static save = (data: unknown) => String(data)
 }
 
 export class JSON {
   static defaultExtension = '.json'
-  static load = (data) => globalThis.JSON.parse(data)
+  static load = (data: string) => globalThis.JSON.parse(data)
   static save = (data: unknown) => globalThis.JSON.stringify(data, null, 2)
 }
 
 export class TOML {
   static defaultExtension = '.toml'
-  static load = data => _TOML.parse(data)
+  static load = (data: string) => _TOML.parse(data)
   static save = <T>(data: T) => {
     throw new Error('TOML serialization not supported')
     return this
@@ -24,13 +24,13 @@ export class TOML {
 
 export class YAML {
   static defaultExtension = '.yaml'
-  static load = (data) => _YAML.load(data)
+  static load = (data: string) => _YAML.load(data)
   static save = <T>(data: T) => _YAML.dump(data, { skipInvalid: true })
 }
 
 export class MultiYAML {
   static defaultExtension = '.yaml'
-  static load = data => _YAML.loadAll(data)
+  static load = (data: string) => _YAML.loadAll(data)
   static save = <T>(data: T) => _YAML.dump(data, { skipInvalid: true })
 
   /** Based on:

@@ -38,7 +38,7 @@ export class Documentation {
   }) {
     this.log   = log || new Console('@hackbg/logs')
     this.data  = data
-    this.index = Util.collect({ log, data })
+    this.index = Util.collect({ log: this.log, data })
   }
 
   generatePage ({ target, sources }: {

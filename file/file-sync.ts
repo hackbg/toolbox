@@ -55,7 +55,7 @@ class LocalPathSync extends Path {
   exists () {
     try {
       return statSync(this.absolute)
-    } catch (e) {
+    } catch (e: any) {
       if (e.code === 'ELOOP') {
         this.log.warn('circular symlink')
         return lstatSync(this.absolute)
@@ -199,7 +199,7 @@ class LocalFileSync extends LocalPathSync {
 
   format: {
     load <T> (data: unknown): T
-    save (data: unknown)
+    save (data: unknown): unknown
   } = Text
 
   setFormat (format: typeof this['format']) {
