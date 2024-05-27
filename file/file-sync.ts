@@ -197,6 +197,8 @@ class LocalDirectorySync extends LocalPathSync {
 
 class LocalFileSync extends LocalPathSync {
 
+  // FIXME
+  //@ts-ignore
   format: {
     load <T> (data: unknown): T
     save (data: unknown): unknown
@@ -253,6 +255,8 @@ class LocalFileSync extends LocalPathSync {
       })
     }
     this.makeParent()
+    // FIXME
+    // @ts-ignore
     writeFileSync(this.absolute, this.format.save(data))
     return this
   }

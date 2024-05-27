@@ -6,7 +6,7 @@ class Foo {
 
 const foo = new Foo()
 
-class CallableFoo extends defineCallable(function () {
+class CallableFoo extends defineCallable(function (this: CallableFoo) {
   return this.x
 }, Foo) {
   y = 2
@@ -20,7 +20,7 @@ class Bar extends CallableFoo {
 
 const bar = new Bar()
 
-class CallableBar extends defineCallable(function () {
+class CallableBar extends defineCallable(function (this: CallableBar) {
   return this.x
 }, Bar) {
   b = 2

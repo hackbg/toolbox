@@ -9,7 +9,8 @@
     "dist/**/*",
     "ubik/test/**/*",
     "ganesha/tests",
-    "node_modules"
+    "node_modules",
+    "fork/**/*"
   ],
   "compilerOptions": {
     "outDir":                       "dist",

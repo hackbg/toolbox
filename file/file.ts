@@ -5,4 +5,6 @@ export * as FileFormat from './file-format'
 export * from './file-util'
 export { default as copy } from 'recursive-copy'
 export { default as symlinkDir } from 'symlink-dir'
+
+//@ts-ignore
 export { default as XDG } from '@folder/xdg'
