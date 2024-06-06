@@ -52,7 +52,9 @@ export class Console extends defineCallable(function log(...args){
   }
 
   _tag = (color, string) => {
-    return (string ? (chalk.inverse(color(bold(string))) + ' ') : '') + color(this.label)
+    const tag1 = (string ? (chalk.inverse(color(bold(string))) + (this.label ? ' ' : '')) : '')
+    const tag2 = (this.label ? color(this.label) : '')
+    return tag1 + tag2
   }
 
   get [Symbol.toStringTag]() {
