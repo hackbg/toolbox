@@ -107,7 +107,7 @@ export default class CommandContext extends Logged {
   }
 
   async printUsageNoCommand (arg0: this) {
-    this.log.error('No command invoked.')
+    this.log.br().error('No command invoked.')
     return this.printUsage(arg0)
   }
 
@@ -136,27 +136,27 @@ export default class CommandContext extends Logged {
     columns.name += 1
     columns.sub  += 2
     // Display
-    const commands = Object.entries(commandTree)
-    if (commands.length < 1) {
-      this.log.info(`${name} defines no commands.`)
-      return
-    }
-    for (let [name, entry] of Object.entries(commandTree)) {
-      name = bold(name.padEnd(columns.name))
-      let args = ''
-      if (typeof (entry as any).args === 'string') {
-        args = (entry as any).args
+    const entries = Object.entries(commandTree)
+    if (entries.length > 0) {
+      this.log.br()
+      for (let [name, entry] of entries) {
+        name = bold(name.padEnd(columns.name))
+        let args = ''
+        if (typeof (entry as any).args === 'string') {
+          args = (entry as any).args
+        }
+        args = args.padEnd(columns.args)
+        let sub = ''
+        if ((entry as any).commandTree) {
+          const keys = Object.keys((entry as any).commandTree)?.length ?? 0
+          sub = `...`
+        }
+        sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
+        this.log.info(`  ${name} ${args} ${sub} ${entry.info}`)
       }
-      args = args.padEnd(columns.args)
-      let sub = ''
-      if ((entry as any).commandTree) {
-        const keys = Object.keys((entry as any).commandTree)?.length ?? 0
-        sub = `...`
-      }
-      sub = sub.padStart(columns.sub).padEnd(columns.sub + 1)
-      this.log.info(`  ${name} ${args} ${sub} ${entry.info}`)
+    } else {
+      this.log.warn(`${name} defines no commands.`)
     }
-    this.log.info()
   }
 }
 
