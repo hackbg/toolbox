@@ -66,7 +66,9 @@ export function startRepl (context: object, log = new Console('REPL')) {
   ]).then(([repl, { createContext }])=>{
     let prompt = `\n${colors.black.bgGreen.bold(' JS ')}${colors.green('▒')} `
     context = createContext(context)
-    setTimeout(()=>Object.assign(repl.start({ prompt }), { context }))
+    return new Promise(resolve=>setTimeout(()=>{
+      Object.assign(repl.start({ prompt }), { context }).on('close', resolve)
+    }))
   }).catch((e: Error)=>{
     log.warn(e)
     log.info('REPL is only available in Node.')
