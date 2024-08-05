@@ -8,8 +8,8 @@
   "homepage": "https://github.com/hackbg/toolbox",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "docs"},
   "description": "Renders nice Markdown documents from Typedoc JSON output.",
-  "files": [ "README.md", "*.ts", "*.cli.cjs", "!.todo" ],
-  "bin": { "docs": "./docs.cli.cjs" },
+  "files": [ "README.md", "*.ts", "*.cli.mjs", "!.todo" ],
+  "bin": { "docs": "./docs.cli.mjs" },
   "dependencies": {
     "@hackbg/logs": "workspace:^",
     "case":         "^1.6.3",
