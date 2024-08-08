@@ -20,7 +20,7 @@ export class Console extends defineCallable(function log(...args){
 
   constructor (label, options = {}) {
     super()
-    this.label  = options.label  ?? label ?? ''
+    this.label = options.label ?? label ?? this.label ?? ''
     this.parent = options.parent ?? console
     hideProperties(this,
       'label', 'tags', 'tag', '_tag', 'parent', 'sub',

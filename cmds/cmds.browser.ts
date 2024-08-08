@@ -37,7 +37,7 @@ export default class CommandContext extends Logged {
     info: string
   }> = {}) {
     super()
-    this.name = options.name ?? new.target.constructor.name
+    this.name = options.name ?? ''
     this.info = options.info ?? 'CLI by @hackbg/cmds'
     this.log.label = this.name
     hideProperties(this, 'cwd', 'env')
