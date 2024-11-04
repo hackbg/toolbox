@@ -1,17 +1,18 @@
-export * from './cmds-command'
-export { default as Command } from './cmds-command'
-export * from './cmds-step'
-export { default as Step } from './cmds-step'
+export * from './cmds-command.ts'
+export { default as Command } from './cmds-command.ts'
+export * from './cmds-step.ts'
+export { default as Step } from './cmds-step.ts'
 
-import Command from './cmds-command'
-import Step from './cmds-step'
-import type { StepFn, Steps } from './cmds-step'
+import Command from './cmds-command.ts'
+import type { StepFn } from './cmds-step.ts'
 import { hideProperties } from '@hackbg/hide'
 import { timestamp } from '@hackbg/time'
-import { Console, Logged, colors, bold } from '@hackbg/logs'
+import { Logged, bold } from '@hackbg/logs'
 
 export type CommandTree<T extends CommandContext> =
   Record<string, Command<T>|CommandContext>
+
+declare const globalThis: { process?: { env: object, cwd: () => string } }
 
 export default class CommandContext extends Logged {
   /** Name of this command tree. */
@@ -22,9 +23,9 @@ export default class CommandContext extends Logged {
   /** Start of command execution. */
   timestamp: string = timestamp()
   /** Process environment at lauch of process. */
-  env: Record<string, string|undefined> = { ...process.env }
+  env: Record<string, string|undefined> = { ...globalThis.process?.env||{} }
   /** Current working directory at launch of process. */
-  cwd: string = process.cwd()
+  cwd: string = globalThis!.process?.cwd() || '.'
   /** All registered commands. */
   commandTree: CommandTree<this> = {}
   /** Currently executing command. */
@@ -45,9 +46,9 @@ export default class CommandContext extends Logged {
 
   /** Define a command and return it. */
   command <X extends StepFn<this, unknown>> (parameters: {
-    name: string,
-    args: string,
-    info: string,
+    name:  string,
+    args?: string,
+    info?: string,
   }, step: X): X {
     this.addCommand(parameters, step)
     return step
@@ -55,9 +56,9 @@ export default class CommandContext extends Logged {
 
   /** Define a command and return `this`. */
   addCommand <X extends StepFn<this, unknown>> (parameters: {
-    name: string,
-    args: string,
-    info: string,
+    name:  string,
+    args?: string,
+    info?: string,
   }, step: X): this {
     // store command
     this.commandTree[parameters.name] = new Command({
@@ -92,30 +93,28 @@ export default class CommandContext extends Logged {
   async run <T> (argv: string[], context: any = this): Promise<T> {
     // If no arguments were passed, exit.
     if (argv.length === 0) {
-      await this.printUsageNoCommand(this)
+      this.printUsageNoCommand(this)
       return null as unknown as T
     }
     // Parse the command and arguments
     const [command, ...args] = this.parse(argv)
     // Run the command
-    if (command) {
-      return await command.run(args, context) as T
-    }
+    if (command) return await command.run(args, context) as T
     // If no command was run, print usage and throw
-    await this.printUsageMissingCommand(this)
+    this.printUsageMissingCommand(this)
     throw new Error(`Invalid invocation: "${argv.join(' ')}"`)
   }
 
-  async printUsageNoCommand (arg0: this) {
+  printUsageNoCommand (arg0: this) {
     this.log.br().error('No command invoked.')
     return this.printUsage(arg0)
   }
 
-  async printUsageMissingCommand (arg0: Parameters<typeof this["printUsage"]>[0]) {
+  printUsageMissingCommand (arg0: Parameters<typeof this["printUsage"]>[0]) {
     return this.printUsage(arg0)
   }
 
-  async printUsage ({ constructor: { name }, commandTree }: CommandContext) {
+  printUsage ({ constructor: { name }, commandTree }: CommandContext) {
     // Align
     const columns = { name: 0, args: 0, sub: 0 }
     for (const name of Object.keys(commandTree)) {

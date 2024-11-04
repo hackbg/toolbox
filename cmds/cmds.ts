@@ -1,8 +1,9 @@
-export * from './cmds.browser'
+export * from './cmds.browser.ts'
 
-import CommandContext from './cmds.browser'
+import CommandContext from './cmds.browser.ts'
 import { fileURLToPath } from 'node:url'
-import { Console, colors, bold } from '@hackbg/logs'
+import { Console, colors } from '@hackbg/logs'
+import process from 'node:process'
 
 export default class LocalCommandContext extends CommandContext {
 
@@ -49,7 +50,7 @@ export default class LocalCommandContext extends CommandContext {
 
 }
 
-export function entrypoint (url: string, callback: Function) {
+export function entrypoint (url: string, callback: (...args: unknown[])=>unknown) {
   if (isEntrypoint(url)) callback()
 }
 
@@ -57,14 +58,14 @@ export function isEntrypoint (url: string) {
   return process.argv[1] === fileURLToPath(url)
 }
 
-export function startRepl (context: object, log = new Console('REPL')) {
-  return Promise.all([
-    //@ts-ignore
+export async function startRepl (context: object, log = new Console('REPL')) {
+  return await Promise.all([
+    //@ts-ignore for build
     import('node:repl'),
-    //@ts-ignore
+    //@ts-ignore for build
     import('node:vm')
   ]).then(([repl, { createContext }])=>{
-    let prompt = `\n${colors.black.bgGreen.bold(' JS ')}${colors.green('▒')} `
+    const prompt = `\n${colors.black.bgGreen.bold(' JS ')}${colors.green('▒')} `
     context = createContext(context)
     return new Promise(resolve=>setTimeout(()=>{
       Object.assign(repl.start({ prompt }), { context }).on('close', resolve)
