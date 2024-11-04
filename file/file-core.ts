@@ -1,7 +1,7 @@
 import { Console, colors, randomColor } from '@hackbg/logs'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL, URL } from 'node:url'
 import { sep, resolve, dirname, relative, basename } from 'node:path'
-import { cwd } from 'node:process'
+import { cwd, argv } from 'node:process'
 
 export interface PathCtor <T> {
   new (...fragments: string[]): T
@@ -94,8 +94,8 @@ export class Path {
   }
 
   entrypoint <T> (command: (argv:string[])=>T): T|undefined {
-    if (this.absolute === process.argv[1]) {
-      return command(process.argv.slice(2))
+    if (this.absolute === argv[1]) {
+      return command(argv.slice(2))
     }
   }
 
