@@ -1,4 +1,4 @@
-export * from './4mat.browser'
+export * from './4mat.browser.ts'
 
 import { webcrypto } from 'node:crypto'
 import { base16, base64, bech32, bech32m } from '@scure/base'
