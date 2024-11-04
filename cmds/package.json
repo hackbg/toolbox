@@ -2,6 +2,7 @@
   "name": "@hackbg/cmds",
   "version": "4.0.0",
   "main": "cmds.ts",
+  "types": "cmds.ts",
   "browser": "cmds.browser.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
