@@ -28,10 +28,10 @@ importers:
         version: 13.3.0
       typedoc:
         specifier: ^0.25.4
-        version: 0.25.4(typescript@5.6.3)
+        version: 0.25.4(typescript@5.7.2)
       typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
+        specifier: ~5.7.2
+        version: 5.7.2
 
   4mat:
     dependencies:
@@ -94,7 +94,7 @@ importers:
         version: 1.6.3
       typedoc:
         specifier: 0.25.13
-        version: 0.25.13(typescript@5.6.3)
+        version: 0.25.13(typescript@5.7.2)
 
   dome: {}
 
@@ -347,8 +347,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
       typescript:
-        specifier: ~5.6.3
-        version: 5.6.3
+        specifier: ~5.7.2
+        version: 5.7.2
 
 packages:
 
@@ -1616,8 +1616,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+  typescript@5.7.2:
+    resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2993,25 +2993,25 @@ snapshots:
 
   type-fest@1.4.0: {}
 
-  typedoc@0.25.13(typescript@5.6.3):
+  typedoc@0.25.13(typescript@5.7.2):
     dependencies:
       lunr: 2.3.9
       marked: 4.3.0
       minimatch: 9.0.3
       shiki: 0.14.7
-      typescript: 5.6.3
+      typescript: 5.7.2
 
-  typedoc@0.25.4(typescript@5.6.3):
+  typedoc@0.25.4(typescript@5.7.2):
     dependencies:
       lunr: 2.3.9
       marked: 4.3.0
       minimatch: 9.0.3
       shiki: 0.14.5
-      typescript: 5.6.3
+      typescript: 5.7.2
 
   typescript@5.3.3: {}
 
-  typescript@5.6.3: {}
+  typescript@5.7.2: {}
 
   uc.micro@1.0.6: {}
 
