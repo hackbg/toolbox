@@ -16,7 +16,6 @@
     "@ganesha/esbuild": "workspace:./ganesha/esbuild",
     "@hackbg/ubik":     "workspace:./ubik",
     "@types/node":      "latest",
-    "concurrently":     "7.2.2",
     "husky":            "^8.0.3",
     "lint-staged":      "^13.3.0",
     "typedoc":          "^0.25.4",
@@ -28,7 +27,7 @@
     "ubik": "npm run check && ubik",
     "ubik:all": "npm run check && pnpm -r ubik",
     "ts:clean": "rm -rf dist packages/*/dist packages/*/types",
-    "ts:build": "npm run ts:clean && concurrently 'npm:ts:build:*'",
+    "ts:build": "npm run ts:clean && exit 1 && concurrently 'npm:ts:build:*'",
     "ts:build:cjs": "ttsc -p tsconfig.cjs.json",
     "ts:build:esm": "tsc -p tsconfig.esm.json",
     "docs:typedoc": "NODE_OPTIONS=--max_old_space_size=8192 time ./node_modules/.bin/typedoc --tsconfig ./tsconfig.json --entryPointStrategy packages --entryPoints . --name Toolbox"
