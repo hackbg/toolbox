@@ -1,6 +1,6 @@
 {
   "name": "@hackbg/logs",
-  "version": "2.3.3",
+  "version": "3.0.0",
   "main": "./logs.mjs",
   "types": "./logs.d.ts",
   "type": "module",
@@ -29,7 +29,7 @@
   },
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
-    "test": "true || ganesha-node README.md",
+    "test": "node test.cjs",
     "check": "tsc --noEmit",
     "clean": "ubik clean && rm -rf dist types *.dist.*",
     "release": "pnpm check && pnpm test && ubik release --access public --otp 123123"

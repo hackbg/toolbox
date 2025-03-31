@@ -4,6 +4,28 @@
 
 Exports a `Console` class in ESM and CJS formats.
 
+Usage:
+
+```js
+import { Console } from '@hackbg/logs'
+// or
+const { Console } = require('@hackbg/logs')
+
+const console = new Console("label", {
+  color: true, // or false
+  json:  true, // or false
+})
+console("asdf")
+console.log("asdf")
+console.warn("asdf")
+console.error("asdf")
+console.debug("asdf")
+console.trace("asdf")
+console.table([["asdf","qwer"],["zxcv","uiop"]])
+console.table([{asdf:"qwer"},{zxcv:"uiop"}])
+console.table({foo:{asdf:"qwer"},bar:{zxcv:"uiop"}})
+```
+
 ## TODO:
 
 * [ ] Honor `NO_COLOR`

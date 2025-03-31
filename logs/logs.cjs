@@ -10,6 +10,8 @@ const timestamp = module.exports.timestamp = function timestamp (d = new Date())
     .replace(/[T]/g, '_')
     .slice(0, -3)
 }
+const serializer = (k, v) => (typeof v === 'bigint') ? String(v) : v
+const toJSON = data => JSON.stringify(data, serializer)
 const Console = module.exports.Console = class Console extends defineCallable(function log(...args){
   this.log(...args)
 }) {
@@ -17,6 +19,26 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     super()
     this.label  = options.label  ?? label ?? ''
     this.parent = options.parent ?? console
+    this._print = options.json
+      ? (method, tag, message) => {
+          this.parent[method](toJSON({ logTag: tag, logMethod: method, logMessage: message }))
+          return this
+        }
+      : (method, tag, ...args) => {
+          this.parent[method](tag, ...args)
+          return this
+        }
+    this._tag = (!options.noColor || options.color)
+      ? (color, string) => {
+         const tag1 = (string ? (chalk.inverse(color(bold(string))) + (this.label ? ' ' : '')) : '')
+         const tag2 = (this.label ? color(this.label) : '')
+         return tag1 + tag2
+       }
+     : (color, string) => {
+         const tag1 = string
+         const tag2 = this.label
+         return tag1 + tag2
+       }
     hideProperties(this,
       'label', 'tags', 'tag', '_tag', 'parent', 'sub',
       'br', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table', 
@@ -36,13 +58,6 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
   table = (...args) => {
     this._print('log', this._tag(chalk.white,   'TABLE '));
     this._print('table', ...args)
-  }
-  _print = (method, tag, ...args) => {
-    this.parent[method](tag, ...args);
-    return this
-  }
-  _tag = (color, string) => {
-    return (string ? (chalk.inverse(color(bold(string))) + ' ') : '') + color(this.label)
   }
   get [Symbol.toStringTag]() {
     return this.label

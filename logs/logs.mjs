@@ -14,24 +14,48 @@ export function timestamp (d = new Date()) {
     .slice(0, -3)
 }
 
+const serializer = (k, v) => (typeof v === 'bigint') ? String(v) : v
+const toJSON = data => JSON.stringify(data, serializer)
+
 export class Console extends defineCallable(function log(...args){
   this.log(...args)
 }) {
 
   constructor (label, options = {}) {
     super()
-    this.label = options.label ?? label ?? this.label ?? ''
+    this.label  = options.label ?? label ?? this.label ?? ''
     this.parent = options.parent ?? console
+    this._print = options.json
+      ? (method, tag, message) => {
+          this.parent[method](toJSON({ logTag: tag, logMethod: method, logMessage: message }))
+          return this
+        }
+      : (method, tag, ...args) => {
+          this.parent[method](tag, ...args)
+          return this
+        }
+    this._tag = (options.color && !options.json)
+      ? (color, string) => {
+         const tag1 = (string ? (chalk.inverse(color(bold(string))) + (this.label ? ' ' : '')) : '')
+         const tag2 = (this.label ? color(this.label) : '')
+         return tag1 + tag2
+       }
+     : (color, string) => {
+         const tag1 = string
+         const tag2 = this.label
+         return tag1 + tag2
+       }
     hideProperties(this,
-      'label', 'tags', 'tag', '_tag', 'parent', 'sub',
+      'label', 'tags', 'tag', '_tag', '_print', 'parent', 'sub',
       'br', 'log', 'info', 'warn', 'error', 'debug', 'trace', 'table', 
       '_print',
     )
   }
 
   label
-
   parent
+  _print
+  _tag
 
   sub = (label, options = {}) => new SubConsole(label, { ...options, parent: this })
   br = () => { this.parent.log(); return this }
@@ -46,16 +70,6 @@ export class Console extends defineCallable(function log(...args){
     this._print('table', ...args)
   }
 
-  _print = (method, tag, ...args) => {
-    this.parent[method](tag, ...args);
-    return this
-  }
-
-  _tag = (color, string) => {
-    const tag1 = (string ? (chalk.inverse(color(bold(string))) + (this.label ? ' ' : '')) : '')
-    const tag2 = (this.label ? color(this.label) : '')
-    return tag1 + tag2
-  }
 
   get [Symbol.toStringTag]() {
     return this.label
