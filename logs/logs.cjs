@@ -20,15 +20,19 @@ const Console = module.exports.Console = class Console extends defineCallable(fu
     this.label  = options.label  ?? label ?? ''
     this.parent = options.parent ?? console
     this._print = options.json
-      ? (method, tag, message) => {
-          this.parent[method](toJSON({ logTag: tag, logMethod: method, logMessage: message }))
+      ? (level, meta, data) => {
+          this.parent[level](toJSON({
+            [options.jsonLevelField || 'logMethod']:  level,
+            [options.jsonMetaField  || 'logTag']:     meta,
+            [options.jsonDataField  || 'logMessage']: data,
+          }))
           return this
         }
       : (method, tag, ...args) => {
           this.parent[method](tag, ...args)
           return this
         }
-    this._tag = (!options.noColor || options.color)
+    this._tag = (options.color && !options.json)
       ? (color, string) => {
          const tag1 = (string ? (chalk.inverse(color(bold(string))) + (this.label ? ' ' : '')) : '')
          const tag2 = (this.label ? color(this.label) : '')

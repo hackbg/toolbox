@@ -14,6 +14,9 @@ const { Console } = require('@hackbg/logs')
 const console = new Console("label", {
   color: true, // or false
   json:  true, // or false
+  jsonLevelField: 'level', // default: "logMethod"
+  jsonMetaField:  'meta',  // default: "logTag"
+  jsonDataField:  'data',  // default: "logMessage"
 })
 console("asdf")
 console.log("asdf")

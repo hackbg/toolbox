@@ -26,8 +26,12 @@ export class Console extends defineCallable(function log(...args){
     this.label  = options.label ?? label ?? this.label ?? ''
     this.parent = options.parent ?? console
     this._print = options.json
-      ? (method, tag, message) => {
-          this.parent[method](toJSON({ logTag: tag, logMethod: method, logMessage: message }))
+      ? (level, meta, data) => {
+          this.parent[level](toJSON({
+            [options.jsonLevelField || 'logMethod']:  level,
+            [options.jsonMetaField  || 'logTag']:     meta,
+            [options.jsonDataField  || 'logMessage']: data,
+          }))
           return this
         }
       : (method, tag, ...args) => {
