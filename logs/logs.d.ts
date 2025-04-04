@@ -6,9 +6,14 @@ export { chalk as colors, bold }
 
 export function timestamp (d?: Date): string
 
-type ConsoleOptions = {
+export type ConsoleOptions = {
   label:  string
-  parent: Console | typeof console
+  parent: Console | typeof console,
+  color:  bool,
+  json:   bool,
+  jsonLevelField: string,
+  jsonMetaField:  string,
+  jsonDataField:  string,
 }
 
 export class Console extends defineCallable((...args: any) => Console) {
