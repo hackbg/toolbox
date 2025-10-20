@@ -1,13 +1,13 @@
 {
   "name": "@hackbg/oops",
-  "version": "1.1.0",
+  "version": "2.0.0-rip",
   "main": "oops.ts",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
   "repository": {"type": "git", "url": "https://github.com/hackbg/toolbox", "directory": "oops"},
   "license": "MIT",
-  "description": "Make objects callable.",
+  "description": "Deprecated in favor of @hackbg/fadroma.",
   "files": [ "README.md", "oops.ts" ],
   "scripts": {
     "ubik": "npm test && npm run check && ubik",
