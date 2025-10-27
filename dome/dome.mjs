@@ -1,4 +1,4 @@
-/** ender some S-expressions into DOM nodes. */
+/** Render some S-expressions into DOM nodes. */
 export function render (selector = 'div', ...args) {
   const [type, ...classes] = selector.split('.')
   const node = globalThis.document.createElement(type||'div')

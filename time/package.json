@@ -1,8 +1,7 @@
 {
   "name": "@hackbg/time",
-  "version": "1.0.0",
-  "main": "time.ts",
-  "types": "time.ts",
+  "version": "2.0.0",
+  "main": "time.js",
   "type": "module",
   "homepage": "https://github.com/hackbg/toolbox",
   "bugs": "https://github.com/hackbg/toolbox/issues",
